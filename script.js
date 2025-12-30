@@ -1,11 +1,9 @@
 import productsData from './products.js';
 
-const botToken = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o';
-const chatId = '1017718880';
-
 let currentCategory = 'all';
 let cartCount = 0;
-let visibleCount = 12; // Показываем 12 товаров изначально
+// Лимит 12 товаров = 3-4 строки в зависимости от ширины экрана
+let visibleCount = 12; 
 let selectedProd = { name: '', art: '' };
 
 function render() {
@@ -26,10 +24,12 @@ function render() {
                 <div class="card-top">
                     <img src="images/parts/${p.image}" onerror="this.src='https://via.placeholder.com/200x150?text=Нет+фото'">
                     <h3>${p.name}</h3>
-                    <p style="font-size: 0.8rem; color: #666;">Арт: ${p.article}</p>
+                    <p style="font-size: 0.8rem; color: #666; margin-top:5px;">Арт: ${p.article}</p>
                 </div>
                 <div class="card-bottom">
-                    <div class="card-price">${p.price.toLocaleString()} ₽</div>
+                    <div class="card-price" style="font-size: 1.4rem; font-weight: bold; color: var(--accent); margin: 15px 0;">
+                        ${p.price.toLocaleString()} ₽
+                    </div>
                     <button class="btn-add" onclick="window.addToCart()">В корзину</button>
                     <button class="btn-info" onclick="window.openM('${p.name}', '${p.article}')">Запросить цену</button>
                 </div>
@@ -37,20 +37,22 @@ function render() {
         `;
     }).join('');
 
-    // Показываем кнопку только если есть что скрывать
     btnBox.style.display = filtered.length > visibleCount ? 'block' : 'none';
 }
 
-// Кнопка "Показать еще"
+// Кнопка "Показать еще" добавляет по 8 товаров (2 строки)
 document.getElementById('load-more-btn').addEventListener('click', () => {
-    visibleCount += 8; // Добавляем еще 8 товаров
+    visibleCount += 8; 
     render();
 });
 
-// Глобальные функции для кнопок в карточках
 window.addToCart = () => {
     cartCount++;
     document.getElementById('cart-count').innerText = cartCount;
+    // Анимация корзины
+    const cart = document.querySelector('.floating-cart');
+    cart.style.transform = 'scale(1.3)';
+    setTimeout(() => cart.style.transform = 'scale(1)', 200);
 };
 
 window.openM = (name, art) => {
@@ -63,9 +65,8 @@ window.closeModal = () => {
     document.getElementById('modal').style.display = 'none';
 };
 
-// Поиск и фильтрация
 document.getElementById('search-input').addEventListener('input', () => {
-    visibleCount = 12; // Сбрасываем лимит при поиске
+    visibleCount = 12; 
     render();
 });
 
@@ -74,15 +75,13 @@ document.getElementById('category-tags').addEventListener('click', (e) => {
         document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
         currentCategory = e.target.dataset.cat;
-        visibleCount = 12; // Сбрасываем лимит при смене категории
+        visibleCount = 12; 
         render();
     }
 });
 
-// Бургер-меню
 document.getElementById('mobile-menu').addEventListener('click', () => {
     document.getElementById('nav-menu').classList.toggle('active');
 });
 
-// Старт
 render();

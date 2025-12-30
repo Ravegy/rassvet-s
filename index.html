@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>РАССВЕТ-С — Запчасти для спецтехники</title>
+    <title>РАССВЕТ-С — Каталог запчастей</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <a href="https://t.me/forest_parts_bot" target="_blank" class="floating-cart" id="cart-btn">
-        <span class="cart-icon">💬</span>
+    <a href="#" class="floating-cart" id="cart-btn">
+        <span class="cart-icon">🛒</span>
         <span id="cart-count" class="cart-badge">0</span>
     </a>
 
@@ -24,7 +24,6 @@
                     <li><a href="#" class="nav-link active">Каталог</a></li>
                     <li><a href="#about" class="nav-link">О компании</a></li>
                     <li><a href="#delivery" class="nav-link">Доставка</a></li>
-                    <li><a href="#contacts" class="nav-link">Контакты</a></li>
                 </ul>
             </nav>
 
@@ -37,9 +36,18 @@
     <main class="main-content">
         <div class="glass-container">
             <section class="top-controls">
-                <h1>Запчасти для спецтехники</h1>
-                <p class="company-sub">Прямые поставки от компании «РАССВЕТ-С»</p>
-                <input type="text" id="search-input" placeholder="Введите артикул или название детали...">
+                <h1>Каталог запчастей</h1>
+                <p class="company-sub">Оригинальные детали и качественные аналоги с доставкой</p>
+                
+                <input type="text" id="search-input" placeholder="Поиск по артикулу или названию...">
+                
+                <div class="category-filter" id="category-tags">
+                    <button class="tag active" data-cat="all">Все товары</button>
+                    <button class="tag" data-cat="Гидравлика">Гидравлика</button>
+                    <button class="tag" data-cat="Расходники">Расходники</button>
+                    <button class="tag" data-cat="Двигатель">Двигатель</button>
+                    <button class="tag" data-cat="Трансмиссия">Трансмиссия</button>
+                </div>
             </section>
             
             <div class="catalog-grid" id="catalog">
@@ -51,26 +59,13 @@
         <div class="footer-container">
             <div class="footer-section">
                 <div class="logo">РАССВЕТ-<span>С</span></div>
-                <p class="footer-desc">Поставщик комплектующих для лесозаготовительной техники. Гарантия качества и оперативная доставка по всей России.</p>
-                <div class="location-text">Санкт-Петербург, Южное шоссе, 37</div>
+                <p class="footer-desc">Надежный поставщик запчастей для лесозаготовительной техники в СЗФО.</p>
             </div>
-
-            <div class="footer-section">
-                <h3>Навигация</h3>
-                <ul class="footer-links">
-                    <li><a href="#">Каталог товаров</a></li>
-                    <li><a href="#">О компании</a></li>
-                    <li><a href="#">Условия доставки</a></li>
-                    <li><a href="#">Политика конфиденциальности</a></li>
-                </ul>
-            </div>
-
             <div class="footer-section">
                 <h3>Контакты</h3>
                 <div class="footer-contact">
-                    <a href="tel:+78120000000" class="contact-item">📞 +7 (812) 000-00-00</a>
+                    <span class="contact-item">📍 Южное шоссе, 37</span>
                     <a href="mailto:info@rassvet-s.ru" class="contact-item">✉️ info@rassvet-s.ru</a>
-                    <p class="work-time">⏰ Пн-Пт: 09:00 — 18:00</p>
                 </div>
             </div>
         </div>
@@ -81,17 +76,11 @@
 
     <div id="modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>Оформление заявки</h2>
-                <div class="product-badge"><span id="modal-product-name"></span></div>
-            </div>
+            <h2>Оставить заявку</h2>
+            <div class="product-badge"><span id="modal-product-name"></span></div>
             <div class="input-group">
                 <label>Ваше имя</label>
-                <input type="text" id="user-name" placeholder="Иван Иванов">
-            </div>
-            <div class="input-group">
-                <label>E-mail</label>
-                <input type="email" id="user-email" placeholder="example@mail.ru">
+                <input type="text" id="user-name" placeholder="Иван">
             </div>
             <div class="input-group">
                 <label>Телефон</label>
@@ -99,10 +88,10 @@
             </div>
             <div class="checkbox-group">
                 <input type="checkbox" id="user-agreed">
-                <label for="user-agreed">Я согласен на обработку персональных данных</label>
+                <label for="user-agreed">Согласен на обработку данных</label>
             </div>
-            <button id="send-request-btn" class="btn-primary">Запросить цену</button>
-            <button onclick="closeModal()" class="btn-cancel">Отмена</button>
+            <button id="send-request-btn" class="btn-primary">Отправить запрос</button>
+            <button onclick="closeModal()" class="btn-cancel">Закрыть</button>
         </div>
     </div>
 

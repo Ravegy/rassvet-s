@@ -11,7 +11,7 @@ async function init() {
     const root = document.getElementById('catalog');
     try {
         // Используем относительный путь для корректной работы на хостинге
-        const res = await fetch('products.json'); 
+        const res = await fetch('products.js'); 
         
         if (!res.ok) {
             throw new Error(`Ошибка загрузки: ${res.status}`);
@@ -127,3 +127,4 @@ document.getElementById('search-input').addEventListener('input', (e) => {
 // Запуск при загрузке страницы
 
 document.addEventListener('DOMContentLoaded', init);
+

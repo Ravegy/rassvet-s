@@ -1,10 +1,8 @@
-async function fetchProducts() {
-    // Вместо запроса к файлу, создаем массив сразу
-    allProducts = [
-        {
+[
+    {
         "id": 1,
         "article": "JD-772-XP",
-        "name": "Гидромотор поворота John Deere",
+        "name": "Гидромотор John Deere",
         "category": "Гидравлика",
         "price": 185000,
         "image": "motor.jpg"
@@ -12,19 +10,17 @@ async function fetchProducts() {
     {
         "id": 2,
         "article": "PN-BC-404",
-        "name": "Пильная шина Ponsse 75см",
+        "name": "Пильная цепь Oregon",
         "category": "Расходные материалы",
-        "price": 12400,
-        "image": "motor.jpg"
+        "price": 4500,
+        "image": "chain.jpg"
     },
     {
         "id": 3,
-        "article": "KM-FL-99",
-        "name": "Фильтр гидравлический Komatsu",
+        "article": "VL-990-TR",
+        "name": "Фильтр масляный Volvo",
         "category": "Фильтры",
-        "price": 5600,
+        "price": 3200,
         "image": "filter.jpg"
     }
-];
-    render(allProducts);
-}
+]

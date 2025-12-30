@@ -5,7 +5,7 @@ const productsData = [
         "name": "Гидромотор John Deere",
         "category": "Гидравлика",
         "price": 185000,
-        "image": "motor.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 2,
@@ -13,7 +13,7 @@ const productsData = [
         "name": "Пильная цепь Oregon",
         "category": "Расходники",
         "price": 4500,
-        "image": "chain.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 3,
@@ -21,7 +21,7 @@ const productsData = [
         "name": "Фильтр масляный Volvo",
         "category": "Расходники",
         "price": 3200,
-        "image": "filter.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 4,
@@ -29,7 +29,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 5,
@@ -37,7 +37,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 6,
@@ -45,7 +45,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 7,
@@ -53,7 +53,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 8,
@@ -61,7 +61,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 9,
@@ -69,7 +69,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 10,
@@ -77,7 +77,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 11,
@@ -85,7 +85,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 12,
@@ -93,7 +93,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 13,
@@ -101,7 +101,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 14,
@@ -109,7 +109,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 15,
@@ -117,7 +117,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 16,
@@ -125,7 +125,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 17,
@@ -133,7 +133,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 18,
@@ -141,7 +141,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 19,
@@ -149,7 +149,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 20,
@@ -157,7 +157,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 21,
@@ -165,7 +165,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 22,
@@ -173,7 +173,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 23,
@@ -181,7 +181,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 24,
@@ -189,7 +189,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 25,
@@ -197,7 +197,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 26,
@@ -205,7 +205,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 27,
@@ -213,7 +213,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 28,
@@ -221,7 +221,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 29,
@@ -229,7 +229,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 30,
@@ -237,7 +237,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 31,
@@ -245,7 +245,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 32,
@@ -253,7 +253,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     },
     {
         "id": 33,
@@ -261,7 +261,7 @@ const productsData = [
         "name": "Топливный насос CAT",
         "category": "Двигатель",
         "price": 42100,
-        "image": "pump.jpg"
+        "image": "6306024.png"
     }
 ];
 

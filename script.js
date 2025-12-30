@@ -9,7 +9,7 @@ let cartCount = 0;
 // Загрузка данных
 async function init() {
     try {
-        const res = await fetch('./products.json');
+        const res = await fetch('products.js');
         if (!res.ok) throw new Error("Файл не найден");
         allProducts = await res.json();
         render();

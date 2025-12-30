@@ -33,7 +33,7 @@
         <div class="glass-container">
             <section class="top-controls">
                 <h1>Каталог запчастей</h1>
-                <p class="subtext">Оригиналы и аналоги для спецтехники</p>
+                <p class="subtext">Оригиналы и аналоги для вашей техники</p>
                 <input type="text" id="search-input" placeholder="Поиск по артикулу или названию...">
                 <div class="category-filter" id="category-tags">
                     <button class="tag active" data-cat="all">Все товары</button>
@@ -42,7 +42,9 @@
                     <button class="tag" data-cat="Двигатель">Двигатель</button>
                 </div>
             </section>
+            
             <div class="catalog-grid" id="catalog"></div>
+
             <div class="show-more-container" id="show-more-box" style="display: none;">
                 <button class="btn-show-more" id="load-more-btn">Показать еще</button>
             </div>
@@ -54,7 +56,7 @@
             <div class="footer-grid">
                 <div class="footer-col about">
                     <div class="logo">РАССВЕТ-<span>С</span></div>
-                    <p class="footer-mini-text">Профессиональная поставка запчастей для спецтехники по СЗФО.</p>
+                    <p class="footer-mini-text">Надежный поставщик запчастей для спецтехники по всему СЗФО.</p>
                 </div>
                 <div class="footer-col links">
                     <h4>Навигация</h4>
@@ -87,7 +89,7 @@
             <button class="modal-close-x" onclick="window.closeModal()">&times;</button>
             <div class="modal-header">
                 <h2>Запрос стоимости</h2>
-                <p>Заполните форму, чтобы получить актуальную цену</p>
+                <p>Оставьте данные для получения КП</p>
             </div>
             <div id="modal-product-name" class="modal-product-badge"></div>
             <div class="modal-body">
@@ -96,17 +98,14 @@
                     <input type="text" id="user-name" placeholder="Иван Иванов" class="modal-input">
                 </div>
                 <div class="input-group">
-                    <label>Электронная почта</label>
-                    <input type="email" id="user-email" placeholder="example@mail.ru" class="modal-input">
+                    <label>Почта</label>
+                    <input type="email" id="user-email" placeholder="mail@example.com" class="modal-input">
                 </div>
                 <div class="input-group">
                     <label>Телефон</label>
                     <input type="tel" id="user-phone" placeholder="+7 (___) ___-__-__" class="modal-input">
                 </div>
-                <button id="send-request-btn" class="btn-send">
-                    <span>Отправить запрос</span>
-                    <i class="arrow-icon">→</i>
-                </button>
+                <button id="send-request-btn" class="btn-send">Отправить запрос</button>
             </div>
         </div>
     </div>

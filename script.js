@@ -1,69 +1,64 @@
+import productsData from './products.js';
+
 const botToken = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o';
 const chatId = '1017718880';
 
-let allProducts = [];
 let currentCategory = 'all';
-let selectedProd = { name: '', art: '' };
 let cartCount = 0;
+let selectedProd = { name: '', art: '' };
 
-// Загрузка данных
-async function init() {
-    try {
-        const res = await fetch('products.js');
-        if (!res.ok) throw new Error("Файл не найден");
-        allProducts = await res.json();
-        render();
-    } catch (e) {
-        console.error(e);
-        document.getElementById('catalog').innerHTML = "<p>Ошибка загрузки каталога</p>";
-    }
-}
-
-// Отрисовка каталога
-function render(data = allProducts) {
+// Отрисовка
+function render() {
     const root = document.getElementById('catalog');
-    
-    // Сначала фильтруем по категории
-    let filtered = currentCategory === 'all' 
-        ? data 
-        : data.filter(p => p.category === currentCategory);
+    const search = document.getElementById('search-input').value.toLowerCase();
 
-    // Затем по поиску
-    const searchVal = document.getElementById('search-input').value.toLowerCase();
-    if (searchVal) {
-        filtered = filtered.filter(p => 
-            p.name.toLowerCase().includes(searchVal) || 
-            p.article.toLowerCase().includes(searchVal)
-        );
-    }
-
-    if (filtered.length === 0) {
-        root.innerHTML = "<p style='grid-column: 1/-1; text-align: center; opacity: 0.5;'>Ничего не найдено</p>";
-        return;
-    }
+    const filtered = productsData.filter(p => {
+        const mCat = currentCategory === 'all' || p.category === currentCategory;
+        const mSearch = p.name.toLowerCase().includes(search) || p.article.toLowerCase().includes(search);
+        return mCat && mSearch;
+    });
 
     root.innerHTML = filtered.map(p => `
-        <div class="product-card">
-            <div class="cat-label">${p.category}</div>
-            <img src="images/parts/${p.image}" onerror="this.src='https://via.placeholder.com/200x150?text=Нет+фото'">
+        <div class="card">
+            <img src="images/parts/${p.image}" onerror="this.src='https://via.placeholder.com/240x180?text=Нет+фото'">
             <h3>${p.name}</h3>
-            
-            <div class="meta-info">
-                <div><span>Артикул:</span> <span class="art-val">${p.article}</span></div>
-                <div><span>Наличие:</span> <span style="color:#4caf50">На складе</span></div>
-            </div>
-
-            <div class="price">${p.price.toLocaleString()} ₽</div>
-
-            <div class="card-actions">
-                <button class="btn-cart" onclick="addToCart('${p.name}')">В корзину</button>
-                <button class="btn-req" onclick="openM('${p.name}', '${p.article}')">Запрос</button>
+            <p style="color: #666; font-size: 0.8rem; margin-bottom: 10px;">Артикул: ${p.article}</p>
+            <div class="card-price">${p.price.toLocaleString()} ₽</div>
+            <div class="card-btns">
+                <button class="btn-add" onclick="window.addToCart()">В корзину</button>
+                <button class="btn-info" onclick="window.openM('${p.name}', '${p.article}')">Запрос</button>
             </div>
         </div>
     `).join('');
 }
 
-// Фильтрация по категориям
+// Мобильное меню
+const mobileMenu = document.getElementById('mobile-menu');
+const navMenu = document.getElementById('nav-menu');
+
+mobileMenu.addEventListener('click', () => {
+    mobileMenu.classList.toggle('active');
+    navMenu.classList.toggle('active');
+    document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : 'auto';
+});
+
+// Глобальные функции
+window.addToCart = () => {
+    cartCount++;
+    document.getElementById('cart-count').innerText = cartCount;
+};
+
+window.openM = (name, art) => {
+    selectedProd = { name, art };
+    document.getElementById('modal-product-name').innerText = name + " (Арт: " + art + ")";
+    document.getElementById('modal').style.display = 'flex';
+};
+
+window.closeModal = () => {
+    document.getElementById('modal').style.display = 'none';
+};
+
+// Фильтры
 document.getElementById('category-tags').addEventListener('click', (e) => {
     if (e.target.classList.contains('tag')) {
         document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
@@ -73,51 +68,27 @@ document.getElementById('category-tags').addEventListener('click', (e) => {
     }
 });
 
-// Поиск
-document.getElementById('search-input').addEventListener('input', () => render());
+document.getElementById('search-input').addEventListener('input', render);
 
-// Корзина
-function addToCart(name) {
-    cartCount++;
-    document.getElementById('cart-count').innerText = cartCount;
-    // Эффект всплывающего уведомления можно добавить тут
-}
-
-// Модальное окно
-function openM(name, art) {
-    selectedProd = { name, art };
-    document.getElementById('modal-product-name').innerText = name;
-    document.getElementById('modal').style.display = 'flex';
-}
-
-function closeModal() {
-    document.getElementById('modal').style.display = 'none';
-}
-
-// Телефонная маска
-document.getElementById('user-phone').addEventListener('input', function(e) {
-    let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
-    if (!x[1]) { e.target.value = '+7 ('; return; }
-    e.target.value = !x[3] ? '+7 (' + x[2] : '+7 (' + x[2] + ') ' + x[3] + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
-});
-
-// Отправка в TG
+// Телеграм
 document.getElementById('send-request-btn').addEventListener('click', async () => {
     const name = document.getElementById('user-name').value;
     const phone = document.getElementById('user-phone').value;
-    const agreed = document.getElementById('user-agreed').checked;
-
-    if (name.length < 2 || phone.length < 18 || !agreed) {
-        alert("Заполните форму"); return;
+    
+    if (name.length < 2 || phone.length < 10) {
+        alert("Заполните корректно имя и телефон");
+        return;
     }
 
-    const text = `📦 ЗАКАЗ: ${selectedProd.name}\n🆔 АРТ: ${selectedProd.art}\n👤 ИМЯ: ${name}\n📞 ТЕЛ: ${phone}`;
+    const text = `📦 НОВЫЙ ЗАКАЗ\nТовар: ${selectedProd.name}\nАрт: ${selectedProd.art}\nИмя: ${name}\nТел: ${phone}`;
     
     try {
         await fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`);
-        alert("Заявка отправлена!");
-        closeModal();
-    } catch (e) { alert("Ошибка"); }
+        alert("Запрос успешно отправлен!");
+        window.closeModal();
+    } catch (e) {
+        alert("Ошибка при отправке");
+    }
 });
 
-init();
+render();

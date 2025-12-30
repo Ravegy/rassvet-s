@@ -3,31 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>РАССВЕТ-С — Каталог запчастей</title>
+    <meta name="format-detection" content="telephone=no">
+    <title>РАССВЕТ-С — Запчасти для спецтехники</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <a href="#" class="floating-cart" id="cart-btn">
-        <span class="cart-icon">🛒</span>
-        <span id="cart-count" class="cart-badge">0</span>
-    </a>
-
     <header class="glass-header">
         <div class="header-container">
-            <div class="header-left">
-                <div class="logo">РАССВЕТ-<span>С</span></div>
-            </div>
+            <div class="logo">РАССВЕТ-<span>С</span></div>
             
-            <nav class="main-nav">
-                <ul>
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+
+            <nav class="main-nav" id="nav-menu">
+                <ul class="nav-list">
                     <li><a href="#" class="nav-link active">Каталог</a></li>
                     <li><a href="#about" class="nav-link">О компании</a></li>
                     <li><a href="#delivery" class="nav-link">Доставка</a></li>
+                    <li><a href="#contacts" class="nav-link">Контакты</a></li>
                 </ul>
             </nav>
 
-            <div class="header-right">
+            <div class="header-actions desktop-only">
                 <a href="tel:+78120000000" class="phone-link">+7 (812) 000-00-00</a>
             </div>
         </div>
@@ -37,16 +38,17 @@
         <div class="glass-container">
             <section class="top-controls">
                 <h1>Каталог запчастей</h1>
-                <p class="company-sub">Оригинальные детали и качественные аналоги с доставкой</p>
+                <p class="subtext">Оригиналы и аналоги для лесной техники</p>
                 
-                <input type="text" id="search-input" placeholder="Поиск по артикулу или названию...">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Поиск по артикулу или названию...">
+                </div>
                 
                 <div class="category-filter" id="category-tags">
                     <button class="tag active" data-cat="all">Все товары</button>
                     <button class="tag" data-cat="Гидравлика">Гидравлика</button>
                     <button class="tag" data-cat="Расходники">Расходники</button>
                     <button class="tag" data-cat="Двигатель">Двигатель</button>
-                    <button class="tag" data-cat="Трансмиссия">Трансмиссия</button>
                 </div>
             </section>
             
@@ -55,46 +57,52 @@
         </div>
     </main>
 
-    <footer class="glass-footer">
-        <div class="footer-container">
-            <div class="footer-section">
-                <div class="logo">РАССВЕТ-<span>С</span></div>
-                <p class="footer-desc">Надежный поставщик запчастей для лесозаготовительной техники в СЗФО.</p>
-            </div>
-            <div class="footer-section">
-                <h3>Контакты</h3>
-                <div class="footer-contact">
-                    <span class="contact-item">📍 Южное шоссе, 37</span>
-                    <a href="mailto:info@rassvet-s.ru" class="contact-item">✉️ info@rassvet-s.ru</a>
+    <footer class="main-footer" id="contacts">
+        <div class="footer-top">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo">РАССВЕТ-<span>С</span></div>
+                    <p class="footer-about">Профессиональные решения в поставке запчастей для спецтехники на территории СЗФО.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Навигация</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Каталог товаров</a></li>
+                        <li><a href="#about">О компании</a></li>
+                        <li><a href="#delivery">Доставка и оплата</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Контакты</h4>
+                    <div class="contact-line">📍 СПб, Южное шоссе, 37</div>
+                    <div class="contact-line">✉️ <a href="mailto:info@rassvet-s.ru">info@rassvet-s.ru</a></div>
+                    <div class="contact-line">📞 <a href="tel:+78120000000">+7 (812) 000-00-00</a></div>
                 </div>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2025 РАССВЕТ-С. Все права защищены.</p>
+            <div class="footer-container">
+                <p>&copy; 2025 ООО «РАССВЕТ-С». Все права защищены.</p>
+            </div>
         </div>
     </footer>
 
+    <a href="#" class="floating-cart">
+        <span class="cart-icon">🛒</span>
+        <span id="cart-count" class="cart-badge">0</span>
+    </a>
+
     <div id="modal" class="modal">
         <div class="modal-content">
-            <h2>Оставить заявку</h2>
-            <div class="product-badge"><span id="modal-product-name"></span></div>
-            <div class="input-group">
-                <label>Ваше имя</label>
-                <input type="text" id="user-name" placeholder="Иван">
-            </div>
-            <div class="input-group">
-                <label>Телефон</label>
-                <input type="text" id="user-phone" placeholder="+7 (___) ___-__-__">
-            </div>
-            <div class="checkbox-group">
-                <input type="checkbox" id="user-agreed">
-                <label for="user-agreed">Согласен на обработку данных</label>
-            </div>
-            <button id="send-request-btn" class="btn-primary">Отправить запрос</button>
-            <button onclick="closeModal()" class="btn-cancel">Закрыть</button>
+            <h2>Запрос цены</h2>
+            <div id="modal-product-name" class="modal-product-badge"></div>
+            <input type="text" id="user-name" placeholder="Ваше имя" class="modal-input">
+            <input type="text" id="user-phone" placeholder="+7 (___) ___-__-__" class="modal-input">
+            <button id="send-request-btn" class="btn-send">Отправить запрос</button>
+            <button onclick="window.closeModal()" class="btn-close">Закрыть</button>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>

@@ -1,130 +1,123 @@
-// Конфигурация Telegram
 const botToken = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o';
 const chatId = '1017718880';
 
 let allProducts = [];
+let currentCategory = 'all';
 let selectedProd = { name: '', art: '' };
 let cartCount = 0;
 
-// Инициализация и загрузка данных
+// Загрузка данных
 async function init() {
-    const root = document.getElementById('catalog');
     try {
-        // Используем относительный путь для корректной работы на хостинге
-        const res = await fetch('products.js'); 
-        
-        if (!res.ok) {
-            throw new Error(`Ошибка загрузки: ${res.status}`);
-        }
-        
+        const res = await fetch('./products.json');
+        if (!res.ok) throw new Error("Файл не найден");
         allProducts = await res.json();
-        render(allProducts);
-        
+        render();
     } catch (e) {
-        console.error("Ошибка каталога:", e);
-        root.innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 40px; background: rgba(255,0,0,0.1); border-radius: 20px;">
-                <p style="color: #ff5722; font-weight: bold;">Каталог временно недоступен</p>
-                <p style="font-size: 0.85rem; margin-top: 10px; opacity: 0.8;">
-                    Проверьте наличие файла products.json в корне сайта.
-                </p>
-            </div>
-        `;
+        console.error(e);
+        document.getElementById('catalog').innerHTML = "<p>Ошибка загрузки каталога</p>";
     }
 }
 
-// Отрисовка товаров
-function render(data) {
+// Отрисовка каталога
+function render(data = allProducts) {
     const root = document.getElementById('catalog');
     
-    if (!data || data.length === 0) {
-        root.innerHTML = "<p style='grid-column: 1/-1; text-align: center;'>Товары не найдены.</p>";
+    // Сначала фильтруем по категории
+    let filtered = currentCategory === 'all' 
+        ? data 
+        : data.filter(p => p.category === currentCategory);
+
+    // Затем по поиску
+    const searchVal = document.getElementById('search-input').value.toLowerCase();
+    if (searchVal) {
+        filtered = filtered.filter(p => 
+            p.name.toLowerCase().includes(searchVal) || 
+            p.article.toLowerCase().includes(searchVal)
+        );
+    }
+
+    if (filtered.length === 0) {
+        root.innerHTML = "<p style='grid-column: 1/-1; text-align: center; opacity: 0.5;'>Ничего не найдено</p>";
         return;
     }
 
-    root.innerHTML = data.map(p => `
+    root.innerHTML = filtered.map(p => `
         <div class="product-card">
-            <img src="images/parts/${p.image}" onerror="this.src='https://via.placeholder.com/250x160?text=Запчасть'">
-            <div class="article">APT: ${p.article}</div>
+            <div class="cat-label">${p.category}</div>
+            <img src="images/parts/${p.image}" onerror="this.src='https://via.placeholder.com/200x150?text=Нет+фото'">
             <h3>${p.name}</h3>
+            
+            <div class="meta-info">
+                <div><span>Артикул:</span> <span class="art-val">${p.article}</span></div>
+                <div><span>Наличие:</span> <span style="color:#4caf50">На складе</span></div>
+            </div>
+
             <div class="price">${p.price.toLocaleString()} ₽</div>
-            <button class="btn-buy" onclick="openM('${p.name}', '${p.article}')">Запросить</button>
+
+            <div class="card-actions">
+                <button class="btn-cart" onclick="addToCart('${p.name}')">В корзину</button>
+                <button class="btn-req" onclick="openM('${p.name}', '${p.article}')">Запрос</button>
+            </div>
         </div>
     `).join('');
 }
 
-// Работа с модальным окном
+// Фильтрация по категориям
+document.getElementById('category-tags').addEventListener('click', (e) => {
+    if (e.target.classList.contains('tag')) {
+        document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
+        currentCategory = e.target.dataset.cat;
+        render();
+    }
+});
+
+// Поиск
+document.getElementById('search-input').addEventListener('input', () => render());
+
+// Корзина
+function addToCart(name) {
+    cartCount++;
+    document.getElementById('cart-count').innerText = cartCount;
+    // Эффект всплывающего уведомления можно добавить тут
+}
+
+// Модальное окно
 function openM(name, art) {
     selectedProd = { name, art };
-    document.getElementById('modal-product-name').innerText = name + ` (${art})`;
+    document.getElementById('modal-product-name').innerText = name;
     document.getElementById('modal').style.display = 'flex';
-    document.getElementById('user-phone').value = '+7 (';
-    document.getElementById('user-name').focus();
 }
 
 function closeModal() {
     document.getElementById('modal').style.display = 'none';
 }
 
-// Маска для ввода телефона: +7 (XXX) XXX-XX-XX
+// Телефонная маска
 document.getElementById('user-phone').addEventListener('input', function(e) {
     let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
     if (!x[1]) { e.target.value = '+7 ('; return; }
     e.target.value = !x[3] ? '+7 (' + x[2] : '+7 (' + x[2] + ') ' + x[3] + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
 });
 
-// Отправка заявки в Telegram
+// Отправка в TG
 document.getElementById('send-request-btn').addEventListener('click', async () => {
-    const name = document.getElementById('user-name').value.trim();
-    const email = document.getElementById('user-email').value.trim();
+    const name = document.getElementById('user-name').value;
     const phone = document.getElementById('user-phone').value;
     const agreed = document.getElementById('user-agreed').checked;
 
-    if (name.length < 2 || !email.includes('@') || phone.length < 18 || !agreed) {
-        alert("Пожалуйста, заполните форму корректно и подтвердите согласие.");
-        return;
+    if (name.length < 2 || phone.length < 18 || !agreed) {
+        alert("Заполните форму"); return;
     }
 
-    const msg = `<b>ЗАЯВКА В РАССВЕТ-С</b>\n\n` +
-                `<b>📦 ТОВАР:</b> ${selectedProd.name}\n` +
-                `<b>🆔 АРТ:</b> <code>${selectedProd.art}</code>\n` +
-                `--------------------------\n` +
-                `<b>👤 КЛИЕНТ:</b> ${name}\n` +
-                `<b>📧 EMAIL:</b> ${email}\n` +
-                `<b>📱 ТЕЛЕФОН:</b> ${phone}`;
-
+    const text = `📦 ЗАКАЗ: ${selectedProd.name}\n🆔 АРТ: ${selectedProd.art}\n👤 ИМЯ: ${name}\n📞 ТЕЛ: ${phone}`;
+    
     try {
-        const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}&parse_mode=HTML`);
-        
-        if (response.ok) {
-            alert("Запрос отправлен! Мы свяжемся с вами в ближайшее время.");
-            cartCount++;
-            document.getElementById('cart-count').innerText = cartCount;
-            closeModal();
-            // Сброс полей формы
-            document.getElementById('user-name').value = '';
-            document.getElementById('user-email').value = '';
-            document.getElementById('user-phone').value = '';
-            document.getElementById('user-agreed').checked = false;
-        } else {
-            throw new Error();
-        }
-    } catch {
-        alert("Произошла ошибка при отправке. Попробуйте позвонить нам напрямую.");
-    }
+        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`);
+        alert("Заявка отправлена!");
+        closeModal();
+    } catch (e) { alert("Ошибка"); }
 });
 
-// Живой поиск по каталогу
-document.getElementById('search-input').addEventListener('input', (e) => {
-    const val = e.target.value.toLowerCase();
-    const filtered = allProducts.filter(p => 
-        p.name.toLowerCase().includes(val) || 
-        p.article.toLowerCase().includes(val)
-    );
-    render(filtered);
-});
-
-// Запуск при загрузке страницы
-
-document.addEventListener('DOMContentLoaded', init);
-
+init();

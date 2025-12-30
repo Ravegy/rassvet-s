@@ -5,11 +5,13 @@ const chatId = '1017718880';
 
 let currentCategory = 'all';
 let cartCount = 0;
+let visibleCount = 12; // Показываем 12 товаров изначально
 let selectedProd = { name: '', art: '' };
 
 function render() {
     const root = document.getElementById('catalog');
     const search = document.getElementById('search-input').value.toLowerCase();
+    const btnBox = document.getElementById('show-more-box');
 
     const filtered = productsData.filter(p => {
         const mCat = currentCategory === 'all' || p.category === currentCategory;
@@ -17,27 +19,35 @@ function render() {
         return mCat && mSearch;
     });
 
-    root.innerHTML = filtered.map(p => `
-        <div class="card">
-            <img src="images/parts/${p.image}" onerror="this.src='https://via.placeholder.com/200x150?text=Нет+фото'">
-            <h3>${p.name}</h3>
-            <p style="font-size: 0.8rem; color: #666;">Арт: ${p.article}</p>
-            <div class="card-price">${p.price.toLocaleString()} ₽</div>
-            <button class="btn-add" onclick="window.addToCart()">В корзину</button>
-            <button class="btn-info" onclick="window.openM('${p.name}', '${p.article}')">Запросить цену</button>
-        </div>
-    `).join('');
+    root.innerHTML = filtered.map((p, index) => {
+        const isHidden = index >= visibleCount ? 'hidden' : '';
+        return `
+            <div class="card ${isHidden}">
+                <div class="card-top">
+                    <img src="images/parts/${p.image}" onerror="this.src='https://via.placeholder.com/200x150?text=Нет+фото'">
+                    <h3>${p.name}</h3>
+                    <p style="font-size: 0.8rem; color: #666;">Арт: ${p.article}</p>
+                </div>
+                <div class="card-bottom">
+                    <div class="card-price">${p.price.toLocaleString()} ₽</div>
+                    <button class="btn-add" onclick="window.addToCart()">В корзину</button>
+                    <button class="btn-info" onclick="window.openM('${p.name}', '${p.article}')">Запросить цену</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // Показываем кнопку только если есть что скрывать
+    btnBox.style.display = filtered.length > visibleCount ? 'block' : 'none';
 }
 
-// Мобильное меню
-const mobileMenu = document.getElementById('mobile-menu');
-const navMenu = document.getElementById('nav-menu');
-mobileMenu.addEventListener('click', () => {
-    mobileMenu.classList.toggle('active');
-    navMenu.classList.toggle('active');
+// Кнопка "Показать еще"
+document.getElementById('load-more-btn').addEventListener('click', () => {
+    visibleCount += 8; // Добавляем еще 8 товаров
+    render();
 });
 
-// Глобальные функции
+// Глобальные функции для кнопок в карточках
 window.addToCart = () => {
     cartCount++;
     document.getElementById('cart-count').innerText = cartCount;
@@ -45,7 +55,7 @@ window.addToCart = () => {
 
 window.openM = (name, art) => {
     selectedProd = { name, art };
-    document.getElementById('modal-product-name').innerText = name + " (" + art + ")";
+    document.getElementById('modal-product-name').innerText = `${name} (${art})`;
     document.getElementById('modal').style.display = 'flex';
 };
 
@@ -53,31 +63,26 @@ window.closeModal = () => {
     document.getElementById('modal').style.display = 'none';
 };
 
-// Фильтры и поиск
+// Поиск и фильтрация
+document.getElementById('search-input').addEventListener('input', () => {
+    visibleCount = 12; // Сбрасываем лимит при поиске
+    render();
+});
+
 document.getElementById('category-tags').addEventListener('click', (e) => {
     if (e.target.classList.contains('tag')) {
         document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
         currentCategory = e.target.dataset.cat;
+        visibleCount = 12; // Сбрасываем лимит при смене категории
         render();
     }
 });
 
-document.getElementById('search-input').addEventListener('input', render);
-
-// Телеграм
-document.getElementById('send-request-btn').addEventListener('click', async () => {
-    const name = document.getElementById('user-name').value;
-    const phone = document.getElementById('user-phone').value;
-    const text = `Заявка: ${selectedProd.name}\nАрт: ${selectedProd.art}\nИмя: ${name}\nТел: ${phone}`;
-    
-    try {
-        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`);
-        alert("Запрос отправлен!");
-        window.closeModal();
-    } catch (e) {
-        alert("Ошибка отправки");
-    }
+// Бургер-меню
+document.getElementById('mobile-menu').addEventListener('click', () => {
+    document.getElementById('nav-menu').classList.toggle('active');
 });
 
+// Старт
 render();

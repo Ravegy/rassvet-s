@@ -26,14 +26,20 @@
         <div class="glass-container">
             <h1>Каталог запчастей</h1>
             <p class="subtext">Оригиналы и аналоги для вашей техники</p>
-            <input type="text" id="search-input" placeholder="Поиск по артикулу или названию...">
-            <div class="category-filter" id="category-tags">
-                <button class="tag active" data-cat="all">Все товары</button>
-                <button class="tag" data-cat="Гидравлика">Гидравлика</button>
-                <button class="tag" data-cat="Расходники">Расходники</button>
-                <button class="tag" data-cat="Двигатель">Двигатель</button>
+            
+            <div class="controls-wrapper">
+                <input type="text" id="search-input" placeholder="Поиск по артикулу или названию...">
+                
+                <div class="category-filter" id="category-tags">
+                    <button class="tag active" data-cat="all">Все товары</button>
+                    <button class="tag" data-cat="Гидравлика">Гидравлика</button>
+                    <button class="tag" data-cat="Расходники">Расходники</button>
+                    <button class="tag" data-cat="Двигатель">Двигатель</button>
+                </div>
             </div>
+
             <div class="catalog-grid" id="catalog"></div>
+
             <div id="show-more-box" style="text-align: center; margin-top: 40px; display: none;">
                 <button id="load-more-btn" class="btn-info" style="max-width: 200px;">Показать еще</button>
             </div>
@@ -62,7 +68,9 @@
                     <p>+7 (812) 000-00-00</p>
                 </div>
             </div>
-            <div class="footer-bottom-line">© 2025 ООО «РАССВЕТ-С».</div>
+            <div class="footer-bottom-line">
+                © 2025 ООО «РАССВЕТ-С». Все права защищены.
+            </div>
         </div>
     </footer>
 
@@ -74,7 +82,7 @@
     <div class="cart-overlay" id="cart-overlay"></div>
     <div class="side-cart" id="side-cart">
         <div class="cart-header">
-            <h2>Корзина</h2>
+            <h2>Ваш заказ</h2>
             <button class="close-cart" id="cart-close">×</button>
         </div>
         <div class="cart-items" id="cart-items-list"></div>
@@ -82,12 +90,12 @@
             <div id="cart-total-price">Итого: 0 ₽</div>
             <input type="text" id="cart-name" class="modal-input" placeholder="Ваше имя">
             <input type="text" id="cart-phone" class="modal-input" placeholder="Телефон">
-            <button class="btn-send" id="cart-send-btn">Отправить запрос</button>
+            <button class="btn-send" id="cart-send-btn">Отправить заявку</button>
         </div>
     </div>
 
     <div id="image-modal" class="image-zoom-modal" onclick="this.style.display='none'">
-        <div class="zoom-content-wrapper">
+        <div class="zoom-content">
             <img id="zoomed-img" src="">
             <div id="zoom-caption"></div>
         </div>
@@ -96,7 +104,7 @@
     <div class="modal" id="modal">
         <div class="modal-content">
             <button class="modal-close-x" onclick="window.closeModal()">×</button>
-            <h2 style="margin-bottom: 10px;">Запрос стоимости</h2>
+            <h2 style="margin-bottom: 15px; text-align: center;">Запрос стоимости</h2>
             <div id="modal-product-name" class="modal-product-badge"></div>
             <input type="text" id="user-name" class="modal-input" placeholder="Ваше имя">
             <input type="text" id="user-phone" class="modal-input" placeholder="Телефон">

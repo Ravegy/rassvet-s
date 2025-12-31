@@ -35,11 +35,9 @@ function render() {
         return `
             <div class="card ${isHidden}" style="animation-delay: ${delay}s">
                 <div class="card-top">
-                    <img src="images/parts/${p.image}" 
-                         onclick="window.zoomImage(this.src, '${p.name.replace(/'/g, "\\'")}')" 
-                         onerror="this.src='https://via.placeholder.com/200x140?text=Запчасть'">
+                    <img src="images/parts/${p.image}" onerror="this.src='https://via.placeholder.com/200x140?text=Запчасть'">
                     <h3>${p.name}</h3>
-                    <p class="art-text">Арт: ${p.article}</p>
+                    <span class="art-text">Арт: ${p.article}</span>
                 </div>
                 <div class="card-bottom">
                     <div class="card-price">${p.price.toLocaleString()} ₽</div>
@@ -67,24 +65,12 @@ window.addToCart = () => {
     }
 };
 
-window.zoomImage = (src, name) => {
-    const modal = document.getElementById('image-modal');
-    const zoomedImg = document.getElementById('zoomed-img');
-    const caption = document.getElementById('zoom-caption');
-    if (modal && zoomedImg && caption) {
-        zoomedImg.src = src;
-        caption.innerText = name;
-        modal.style.display = 'flex';
-    }
-};
-
 window.openM = (name, art) => {
     selectedProd = { name, art };
     const modalTitle = document.getElementById('modal-product-name');
     if (modalTitle) {
-        modalTitle.innerHTML = `${name} <span>Артикул: ${art}</span>`;
+        modalTitle.innerHTML = `${name} <br><small>Артикул: ${art}</small>`;
     }
-    clearErrors();
     document.getElementById('modal').style.display = 'flex';
 };
 
@@ -92,39 +78,12 @@ window.closeModal = () => {
     document.getElementById('modal').style.display = 'none';
 };
 
-function clearErrors() {
-    document.querySelectorAll('.error-message').forEach(m => m.remove());
-    document.querySelectorAll('.modal-input').forEach(i => i.classList.remove('error'));
-}
-
-function showError(inputId, message) {
-    const input = document.getElementById(inputId);
-    input.classList.add('error');
-    const err = document.createElement('span');
-    err.className = 'error-message';
-    err.innerText = message;
-    input.after(err);
-}
-
 async function sendRequest() {
-    clearErrors();
-    const nameEl = document.getElementById('user-name');
-    const emailEl = document.getElementById('user-email');
-    const phoneEl = document.getElementById('user-phone');
+    const name = document.getElementById('user-name').value.trim();
+    const phone = document.getElementById('user-phone').value.trim();
+    if (!name || !phone) return alert('Заполните поля');
 
-    const name = nameEl.value.trim();
-    const email = emailEl.value.trim();
-    const phone = phoneEl.value.trim();
-
-    let hasError = false;
-    if (!name) { showError('user-name', 'Введите ваше имя'); hasError = true; }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) { showError('user-email', 'Введите корректный email'); hasError = true; }
-    if (phone.length < 18) { showError('user-phone', 'Введите номер телефона полностью'); hasError = true; }
-
-    if (hasError) return;
-
-    const msg = `🚀 ЗАЯВКА\n📦 Товар: ${selectedProd.name}\n🔢 Арт: ${selectedProd.art}\n👤 Имя: ${name}\n📞 Тел: ${phone}\n✉️ Email: ${email}`;
+    const msg = `🚀 ЗАЯВКА\n📦 Товар: ${selectedProd.name}\n🔢 Арт: ${selectedProd.art}\n👤 Имя: ${name}\n📞 Тел: ${phone}`;
 
     try {
         const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -133,24 +92,11 @@ async function sendRequest() {
             body: JSON.stringify({ chat_id: chatId, text: msg })
         });
         if (res.ok) {
-            alert('Заявка успешно отправлена!');
+            alert('Заявка отправлена!');
             window.closeModal();
-            [nameEl, emailEl, phoneEl].forEach(el => el.value = '');
         }
-    } catch (e) { alert('Ошибка соединения'); }
+    } catch (e) { alert('Ошибка'); }
 }
-
-document.getElementById('user-phone')?.addEventListener('input', (e) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (!value || value[0] !== '7') value = '7' + value;
-    value = value.substring(0, 11);
-    let result = '+7';
-    if (value.length > 1) result += ' (' + value.substring(1, 4);
-    if (value.length >= 5) result += ') ' + value.substring(4, 7);
-    if (value.length >= 8) result += '-' + value.substring(7, 9);
-    if (value.length >= 10) result += '-' + value.substring(9, 11);
-    e.target.value = result;
-});
 
 document.getElementById('send-request-btn')?.addEventListener('click', sendRequest);
 document.getElementById('load-more-btn')?.addEventListener('click', () => { visibleCount += 8; render(); });

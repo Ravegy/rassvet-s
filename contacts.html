@@ -14,7 +14,6 @@
         .contact-info-item p { font-size: 1.2rem; line-height: 1.6; }
         .map-container { border-radius: 25px; overflow: hidden; border: 1px solid var(--glass-border); min-height: 450px; }
         
-        /* Стили формы обратной связи */
         .feedback-form { margin-top: 30px; padding-top: 30px; border-top: 1px solid var(--glass-border); }
         .feedback-form h2 { font-size: 1.5rem; margin-bottom: 25px; color: #fff; }
         
@@ -91,17 +90,33 @@
             <div class="footer-grid">
                 <div class="footer-col">
                     <h4 class="footer-h4">РАССВЕТ-С</h4>
-                    <p class="footer-mini-text">Ваш надежный партнер в мире спецтехники.</p>
+                    <p class="footer-mini-text">Ваш надежный партнер в мире запчастей. Высокое качество, быстрая доставка и профессиональный подбор.</p>
                 </div>
                 <div class="footer-col">
-                    <h4 class="footer-h4">Навигация</h4>
+                    <h4 class="footer-h4">Разделы</h4>
                     <ul class="footer-nav">
                         <li><a href="index.html">Каталог</a></li>
+                        <li><a href="#">О компании</a></li>
+                        <li><a href="#">Доставка</a></li>
                         <li><a href="contacts.html">Контакты</a></li>
                     </ul>
                 </div>
+                <div class="footer-col contacts-info">
+                    <h4 class="footer-h4">Контакты</h4>
+                    <div class="contact-row">
+                        <p>Санкт-Петербург, Южное шоссе, 37</p>
+                    </div>
+                    <div class="contact-row">
+                        <p>info@rassvet-s.ru</p>
+                    </div>
+                    <div class="contact-row">
+                        <p class="accent-text">+7 (812) 000-00-00</p>
+                    </div>
+                </div>
             </div>
-            <div class="footer-bottom-line">© 2025 ООО «РАССВЕТ-С». Все права защищены.</div>
+            <div class="footer-bottom-line">
+                © 2025 ООО «РАССВЕТ-С». Все права защищены.
+            </div>
         </div>
     </footer>
 
@@ -112,19 +127,34 @@
     </div>
 
     <script type="module">
-        import productsData from './products.js'; // Чтобы корзина работала
+        import productsData from './products.js';
 
         const botToken = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o';
         const chatId = '1017718880';
 
-        // --- Маска и валидация телефона ---
+        const fbName = document.getElementById('fb-name');
         const fbPhone = document.getElementById('fb-phone');
+        const fbSendBtn = document.getElementById('fb-send-btn');
+
+        // Валидация Имени
+        fbName.addEventListener('input', () => {
+            const val = fbName.value.trim();
+            const nameRegex = /^[A-Za-zА-Яа-яЁё\s]{2,}$/; 
+            if (nameRegex.test(val)) {
+                fbName.classList.add('valid');
+                fbName.classList.remove('invalid');
+            } else {
+                fbName.classList.remove('valid');
+                if(val.length > 0) fbName.classList.add('invalid');
+            }
+        });
+
+        // Маска и валидация Телефона
         fbPhone.addEventListener('input', (e) => {
             let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
             if (!x[2]) { e.target.value = x[1] === '7' || x[1] === '8' ? '+7 (' : e.target.value; return; }
             e.target.value = `+7 (${x[2]}` + (x[3] ? `) ${x[3]}` : '') + (x[4] ? `-${x[4]}` : '') + (x[5] ? `-${x[5]}` : '');
             
-            // Проверка на длину (полный номер)
             if (e.target.value.length === 18) {
                 fbPhone.classList.add('valid');
                 fbPhone.classList.remove('invalid');
@@ -133,16 +163,15 @@
             }
         });
 
-        // --- Отправка в Telegram ---
-        const fbSendBtn = document.getElementById('fb-send-btn');
         fbSendBtn.onclick = async () => {
-            const name = document.getElementById('fb-name').value;
+            const name = fbName.value;
             const phone = fbPhone.value;
             const msg = document.getElementById('fb-message').value;
 
-            if (!name || phone.length < 18) {
-                fbPhone.classList.add('invalid');
-                alert('Пожалуйста, введите имя и полный номер телефона');
+            if (!fbName.classList.contains('valid') || !fbPhone.classList.contains('valid')) {
+                alert('Пожалуйста, корректно заполните имя и телефон');
+                if(!fbName.classList.contains('valid')) fbName.classList.add('invalid');
+                if(!fbPhone.classList.contains('valid')) fbPhone.classList.add('invalid');
                 return;
             }
 
@@ -161,10 +190,11 @@
                 if (res.ok) {
                     alert('Ваше сообщение успешно отправлено!');
                     document.getElementById('contact-page-form').reset();
+                    fbName.classList.remove('valid');
                     fbPhone.classList.remove('valid');
                 }
             } catch (e) {
-                alert('Ошибка сети. Попробуйте позже.');
+                alert('Ошибка сети.');
             } finally {
                 fbSendBtn.disabled = false;
                 fbSendBtn.innerText = 'Отправить запрос';

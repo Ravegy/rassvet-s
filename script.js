@@ -6,7 +6,7 @@ const chatId = '1017718880';
 
 let currentCategory = 'all';
 let cartCount = 0;
-let visibleCount = 12; // 3 ряда по 4 товара
+let visibleCount = 12; 
 let selectedProd = { name: '', art: '' };
 
 function render() {
@@ -17,7 +17,6 @@ function render() {
     const searchValue = searchInput ? searchInput.value.toLowerCase().trim() : "";
     const btnBox = document.getElementById('show-more-box');
 
-    // Фильтрация
     const filtered = productsData.filter(p => {
         const matchesCategory = currentCategory === 'all' || p.category === currentCategory;
         const matchesSearch = p.name.toLowerCase().includes(searchValue) || 
@@ -31,21 +30,18 @@ function render() {
         return;
     }
 
-    // Генерация HTML
     root.innerHTML = filtered.map((p, index) => {
         const isHidden = index >= visibleCount ? 'hidden' : '';
         const delay = isHidden ? 0 : (index % 12) * 0.04; 
         return `
             <div class="card ${isHidden}" style="animation-delay: ${delay}s">
-                <div class="card-top">
-                    <img src="images/parts/${p.image}" onerror="this.src='https://via.placeholder.com/200x140?text=Запчасть'">
-                    <h3>${p.name}</h3>
-                    <p class="art-text">Арт: ${p.article}</p>
-                </div>
+                <img src="images/parts/${p.image}" onerror="this.src='https://via.placeholder.com/200x140?text=Запчасть'">
+                <h3>${p.name}</h3>
+                <p class="art-text">Арт: ${p.article}</p>
                 <div class="card-bottom">
                     <div class="card-price">${p.price.toLocaleString()} ₽</div>
                     <div class="btn-row">
-                        <button class="btn-info" onclick="window.openM('${p.name}', '${p.article}')">Запросить</button>
+                        <button class="btn-info" onclick="window.openM('${p.name.replace(/'/g, "\\'")}', '${p.article}')">Запросить</button>
                         <button class="btn-add" onclick="window.addToCart()" title="В корзину"></button>
                     </div>
                 </div>
@@ -58,7 +54,6 @@ function render() {
     }
 }
 
-// Функционал корзины
 window.addToCart = () => {
     cartCount++;
     const badge = document.getElementById('cart-count');
@@ -69,7 +64,6 @@ window.addToCart = () => {
     }
 };
 
-// Функционал модального окна
 window.openM = (name, art) => {
     selectedProd = { name, art };
     const modalTitle = document.getElementById('modal-product-name');
@@ -81,7 +75,6 @@ window.closeModal = () => {
     document.getElementById('modal').style.display = 'none';
 };
 
-// Отправка заявки
 async function sendRequest() {
     const name = document.getElementById('user-name')?.value.trim();
     const phone = document.getElementById('user-phone')?.value.trim();
@@ -104,13 +97,11 @@ async function sendRequest() {
     } catch (e) { alert('Ошибка соединения'); }
 }
 
-// Маска телефона
 document.getElementById('user-phone')?.addEventListener('input', (e) => {
     let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
     e.target.value = !x[2] ? x[1] : '+' + x[1] + ' (' + x[2] + ') ' + x[3] + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
 });
 
-// Слушатели событий
 document.getElementById('send-request-btn')?.addEventListener('click', sendRequest);
 document.getElementById('load-more-btn')?.addEventListener('click', () => { visibleCount += 8; render(); });
 document.getElementById('search-input')?.addEventListener('input', () => { visibleCount = 12; render(); });
@@ -125,5 +116,4 @@ document.getElementById('category-tags')?.addEventListener('click', (e) => {
     }
 });
 
-// Инициализация
 render();

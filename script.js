@@ -16,6 +16,7 @@ function render() {
         return matchesCategory && matchesSearch;
     });
 
+    // Отрисовка сетки товаров
     root.innerHTML = filtered.slice(0, visibleCount).map((p) => {
         const itemInCart = cart.find(item => item.article === p.article);
 
@@ -25,35 +26,36 @@ function render() {
                 <div class="qty-val">${itemInCart.qty}</div>
                 <button class="qty-btn" onclick="window.updateQty('${p.article}', 1)">+</button>
                </div>`
-            : `<button class="btn-add" onclick="window.addToCart('${p.article}')"></button>`;
+            : `<button class="btn-add" onclick="window.addToCart('${p.article}')">+</button>`;
 
         return `
             <div class="card">
-                <img src="images/parts/${p.image}" onclick="window.zoomImage(this.src, '${p.name}')" onerror="this.src='https://via.placeholder.com/200x150?text=Нет+фото'">
+                <img src="images/parts/${p.image}" onclick="window.zoomImage(this.src)" onerror="this.src='https://via.placeholder.com/200x150?text=Нет+фото'">
                 <h3>${p.name}</h3>
-                <span class="art-text">Арт: ${p.article}</span>
+                <span class="art-text">АРТ: ${p.article}</span>
                 <div class="card-price">${p.price.toLocaleString()} ₽</div>
                 <div class="btn-row">
-                    <button class="btn-info" onclick="alert('Запрос отправлен')">Запросить</button>
+                    <button class="btn-info" onclick="window.requestProduct('${p.article}')">Запросить</button>
                     ${cartAction}
                 </div>
             </div>
         `;
     }).join('');
 
-    document.getElementById('show-more-box').style.display = filtered.length > visibleCount ? 'block' : 'none';
+    // Кнопка "Показать еще"
+    const showMoreBox = document.getElementById('show-more-box');
+    if (showMoreBox) {
+        showMoreBox.style.display = filtered.length > visibleCount ? 'block' : 'none';
+    }
     updateCartDisplay();
 }
 
-// КОРЗИНА (Исправлено: теперь добавляет только один товар)
+// Логика корзины
 window.addToCart = (article) => {
     const product = productsData.find(p => p.article === article);
     if (product) {
-        const existing = cart.find(i => i.article === article);
-        if (!existing) {
-            cart.push({ ...product, qty: 1 });
-        }
-        render(); // Обновляем только текущее состояние интерфейса
+        cart.push({ ...product, qty: 1 });
+        render();
     }
 };
 
@@ -66,53 +68,46 @@ window.updateQty = (article, delta) => {
     }
 };
 
-function updateCartDisplay() {
-    const totalCount = cart.reduce((sum, i) => sum + i.qty, 0);
-    const totalPrice = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
-    
-    document.getElementById('cart-count').innerText = totalCount;
-    document.getElementById('cart-total-price').innerText = `Итого: ${totalPrice.toLocaleString()} ₽`;
+window.requestProduct = (article) => {
+    if (!cart.find(i => i.article === article)) window.addToCart(article);
+    document.getElementById('side-cart').classList.add('open');
+    document.getElementById('cart-overlay').style.display = 'block';
+};
 
-    const list = document.getElementById('cart-items-list');
-    if (list) {
-        list.innerHTML = cart.length === 0 
-            ? '<p style="text-align:center; color:#444; margin-top:50px;">Корзина пуста</p>'
-            : cart.map(item => `
-                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; padding:10px; background:#1a1a1a; border-radius:10px;">
-                    <img src="images/parts/${item.image}" style="width:40px; height:40px; object-fit:contain;">
-                    <div style="flex:1; font-size:0.8rem;">${item.name}</div>
-                    <div style="color:var(--accent); font-weight:bold;">${item.qty} шт.</div>
+function updateCartDisplay() {
+    document.getElementById('cart-count').innerText = cart.reduce((sum, i) => sum + i.qty, 0);
+    document.getElementById('cart-total-price').innerText = `Итого: ${cart.reduce((sum, i) => sum + (i.price * i.qty), 0).toLocaleString()} ₽`;
+
+    const listEl = document.getElementById('cart-items-list');
+    if (listEl) {
+        listEl.innerHTML = cart.map(item => `
+            <div class="cart-item-row">
+                <img src="images/parts/${item.image}" onerror="this.src='https://via.placeholder.com/50x50'">
+                <div style="flex:1">
+                    <div style="font-size:0.9rem; font-weight:bold;">${item.name}</div>
+                    <div style="font-size:0.8rem; color:var(--accent);">${item.price.toLocaleString()} ₽</div>
                 </div>
-            `).join('');
+                <div class="qty-controls" style="transform:scale(0.8)">
+                    <button class="qty-btn" onclick="window.updateQty('${item.article}', -1)">-</button>
+                    <div class="qty-val">${item.qty}</div>
+                    <button class="qty-btn" onclick="window.updateQty('${item.article}', 1)">+</button>
+                </div>
+            </div>
+        `).join('');
     }
 }
 
-// УПРАВЛЕНИЕ ПАНЕЛЬЮ
-const sideCart = document.getElementById('side-cart');
-const overlay = document.getElementById('cart-overlay');
+// События
+document.getElementById('load-more-btn')?.addEventListener('click', () => {
+    visibleCount += 12;
+    render();
+});
 
-document.getElementById('cart-trigger').onclick = () => {
-    sideCart.classList.add('open');
-    overlay.style.display = 'block';
-};
+document.getElementById('search-input')?.addEventListener('input', () => {
+    visibleCount = 12;
+    render();
+});
 
-const closeCart = () => {
-    sideCart.classList.remove('open');
-    overlay.style.display = 'none';
-};
-document.getElementById('cart-close').onclick = closeCart;
-overlay.onclick = closeCart;
-
-// ЗУМ
-window.zoomImage = (src, name) => {
-    const modal = document.getElementById('image-modal');
-    document.getElementById('zoomed-img').src = src;
-    document.getElementById('zoom-caption').innerText = name;
-    modal.style.display = 'flex';
-};
-
-// СОБЫТИЯ
-document.getElementById('search-input')?.addEventListener('input', () => { visibleCount = 12; render(); });
 document.getElementById('category-tags')?.addEventListener('click', (e) => {
     if (e.target.classList.contains('tag')) {
         document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
@@ -122,5 +117,25 @@ document.getElementById('category-tags')?.addEventListener('click', (e) => {
         render();
     }
 });
+
+// Открытие корзины
+document.getElementById('cart-trigger').onclick = () => {
+    document.getElementById('side-cart').classList.add('open');
+    document.getElementById('cart-overlay').style.display = 'block';
+};
+
+const closeCart = () => {
+    document.getElementById('side-cart').classList.remove('open');
+    document.getElementById('cart-overlay').style.display = 'none';
+};
+
+document.getElementById('cart-close').onclick = closeCart;
+document.getElementById('cart-overlay').onclick = closeCart;
+
+window.zoomImage = (src) => {
+    const modal = document.getElementById('image-modal');
+    document.getElementById('zoomed-img').src = src;
+    modal.style.display = 'flex';
+};
 
 render();

@@ -31,7 +31,6 @@
             
             <div class="controls-wrapper">
                 <input type="text" id="search-input" placeholder="Поиск по артикулу или названию...">
-                
                 <div class="category-filter" id="category-tags">
                     <button class="tag active" data-cat="all">Все товары</button>
                     <button class="tag" data-cat="Гидравлика">Гидравлика</button>
@@ -52,11 +51,11 @@
         <div class="footer-container">
             <div class="footer-grid">
                 <div class="footer-col">
-                    <h4>РАССВЕТ-С</h4>
+                    <h4 class="footer-h4">РАССВЕТ-С</h4>
                     <p class="footer-mini-text">Надежный поставщик запчастей для спецтехники по всему СЗФО.</p>
                 </div>
                 <div class="footer-col">
-                    <h4>Навигация</h4>
+                    <h4 class="footer-h4">Навигация</h4>
                     <ul class="footer-nav">
                         <li><a href="#">О компании</a></li>
                         <li><a href="#">Доставка</a></li>
@@ -64,7 +63,7 @@
                     </ul>
                 </div>
                 <div class="footer-col contacts-info">
-                    <h4>Связь с нами</h4>
+                    <h4 class="footer-h4">Связь с нами</h4>
                     <p>СПб, Южное шоссе, 37</p>
                     <p>info@rassvet-s.ru</p>
                     <p>+7 (812) 000-00-00</p>
@@ -82,7 +81,7 @@
     <div class="cart-overlay" id="cart-overlay"></div>
     <div class="side-cart" id="side-cart">
         <div class="cart-header">
-            <h2>Ваш заказ</h2>
+            <h2>Корзина</h2>
             <button class="close-cart" id="cart-close">×</button>
         </div>
         <div class="cart-items" id="cart-items-list"></div>
@@ -90,13 +89,12 @@
             <div id="cart-total-price">Итого: 0 ₽</div>
             <input type="text" id="cart-name" class="modal-input" placeholder="Ваше имя">
             <input type="text" id="cart-phone" class="modal-input" placeholder="Телефон">
-            <button class="btn-send" id="cart-send-btn">Отправить заявку</button>
+            <button class="btn-send" id="cart-send-btn">Отправить запрос</button>
         </div>
     </div>
 
     <div id="image-modal" class="image-zoom-modal" onclick="this.style.display='none'">
         <img id="zoomed-img" src="">
-        <div id="zoom-caption"></div>
     </div>
 
     <script type="module" src="script.js"></script>

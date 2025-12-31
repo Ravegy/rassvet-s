@@ -35,7 +35,10 @@ function render() {
         return `
             <div class="card ${isHidden}" style="animation-delay: ${delay}s">
                 <div class="card-top">
-                    <img src="images/parts/${p.image}" onerror="this.src='https://via.placeholder.com/200x140?text=Запчасть'">
+                    <img src="images/parts/${p.image}" 
+                         onclick="window.zoomImage(this.src, '${p.name.replace(/'/g, "\\'")}')" 
+                         style="cursor: zoom-in;"
+                         onerror="this.src='https://via.placeholder.com/200x140?text=Запчасть'">
                     <h3>${p.name}</h3>
                     <span class="art-text">Арт: ${p.article}</span>
                 </div>
@@ -55,6 +58,7 @@ function render() {
     }
 }
 
+// Глобальные функции для работы из HTML
 window.addToCart = () => {
     cartCount++;
     const badge = document.getElementById('cart-count');
@@ -65,11 +69,22 @@ window.addToCart = () => {
     }
 };
 
+window.zoomImage = (src, name) => {
+    const modal = document.getElementById('image-modal');
+    const zoomedImg = document.getElementById('zoomed-img');
+    const caption = document.getElementById('zoom-caption');
+    if (modal && zoomedImg && caption) {
+        zoomedImg.src = src;
+        caption.innerText = name;
+        modal.style.display = 'flex';
+    }
+};
+
 window.openM = (name, art) => {
     selectedProd = { name, art };
     const modalTitle = document.getElementById('modal-product-name');
     if (modalTitle) {
-        modalTitle.innerHTML = `${name} <br><small>Артикул: ${art}</small>`;
+        modalTitle.innerHTML = `${name} <span>Артикул: ${art}</span>`;
     }
     document.getElementById('modal').style.display = 'flex';
 };
@@ -81,9 +96,11 @@ window.closeModal = () => {
 async function sendRequest() {
     const name = document.getElementById('user-name').value.trim();
     const phone = document.getElementById('user-phone').value.trim();
-    if (!name || !phone) return alert('Заполните поля');
+    const email = document.getElementById('user-email').value.trim();
 
-    const msg = `🚀 ЗАЯВКА\n📦 Товар: ${selectedProd.name}\n🔢 Арт: ${selectedProd.art}\n👤 Имя: ${name}\n📞 Тел: ${phone}`;
+    if (!name || !phone) return alert('Пожалуйста, заполните Имя и Телефон');
+
+    const msg = `🚀 ЗАЯВКА\n📦 Товар: ${selectedProd.name}\n🔢 Арт: ${selectedProd.art}\n👤 Имя: ${name}\n📞 Тел: ${phone}\n✉️ Почта: ${email}`;
 
     try {
         const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -92,11 +109,24 @@ async function sendRequest() {
             body: JSON.stringify({ chat_id: chatId, text: msg })
         });
         if (res.ok) {
-            alert('Заявка отправлена!');
+            alert('Заявка успешно отправлена!');
             window.closeModal();
         }
-    } catch (e) { alert('Ошибка'); }
+    } catch (e) { alert('Ошибка соединения'); }
 }
+
+// Маска телефона
+document.getElementById('user-phone')?.addEventListener('input', (e) => {
+    let value = e.target.value.replace(/\D/g, '');
+    if (!value || value[0] !== '7') value = '7' + value;
+    value = value.substring(0, 11);
+    let result = '+7';
+    if (value.length > 1) result += ' (' + value.substring(1, 4);
+    if (value.length >= 5) result += ') ' + value.substring(4, 7);
+    if (value.length >= 8) result += '-' + value.substring(7, 9);
+    if (value.length >= 10) result += '-' + value.substring(9, 11);
+    e.target.value = result;
+});
 
 document.getElementById('send-request-btn')?.addEventListener('click', sendRequest);
 document.getElementById('load-more-btn')?.addEventListener('click', () => { visibleCount += 8; render(); });

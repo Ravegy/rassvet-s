@@ -35,9 +35,11 @@ function render() {
         const delay = isHidden ? 0 : (index % 12) * 0.04; 
         return `
             <div class="card ${isHidden}" style="animation-delay: ${delay}s">
-                <img src="images/parts/${p.image}" onerror="this.src='https://via.placeholder.com/200x140?text=Запчасть'">
-                <h3>${p.name}</h3>
-                <p class="art-text">Арт: ${p.article}</p>
+                <div class="card-top">
+                    <img src="images/parts/${p.image}" onerror="this.src='https://via.placeholder.com/200x140?text=Запчасть'">
+                    <h3>${p.name}</h3>
+                    <p class="art-text">Арт: ${p.article}</p>
+                </div>
                 <div class="card-bottom">
                     <div class="card-price">${p.price.toLocaleString()} ₽</div>
                     <div class="btn-row">
@@ -64,10 +66,14 @@ window.addToCart = () => {
     }
 };
 
+// Открытие модалки с очисткой ошибок и подсветкой товара
 window.openM = (name, art) => {
     selectedProd = { name, art };
     const modalTitle = document.getElementById('modal-product-name');
-    if (modalTitle) modalTitle.innerText = name;
+    if (modalTitle) {
+        modalTitle.innerHTML = `${name} <span>Артикул: ${art}</span>`;
+    }
+    clearErrors();
     document.getElementById('modal').style.display = 'flex';
 };
 
@@ -75,14 +81,53 @@ window.closeModal = () => {
     document.getElementById('modal').style.display = 'none';
 };
 
+// Логика валидации
+function clearErrors() {
+    document.querySelectorAll('.error-message').forEach(m => m.remove());
+    document.querySelectorAll('.modal-input').forEach(i => i.classList.remove('error'));
+}
+
+function showError(inputId, message) {
+    const input = document.getElementById(inputId);
+    input.classList.add('error');
+    const err = document.createElement('span');
+    err.className = 'error-message';
+    err.innerText = message;
+    input.after(err);
+}
+
 async function sendRequest() {
-    const name = document.getElementById('user-name')?.value.trim();
-    const phone = document.getElementById('user-phone')?.value.trim();
-    const email = document.getElementById('user-email')?.value.trim();
+    clearErrors();
 
-    if (!name || phone.length < 16) return alert('Пожалуйста, заполните данные корректно');
+    const nameEl = document.getElementById('user-name');
+    const emailEl = document.getElementById('user-email');
+    const phoneEl = document.getElementById('user-phone');
 
-    const msg = `🚀 ЗАЯВКА\nТовар: ${selectedProd.name}\nАрт: ${selectedProd.art}\n👤 Имя: ${name}\n📞 Тел: ${phone}\n✉️ Email: ${email}`;
+    const name = nameEl.value.trim();
+    const email = emailEl.value.trim();
+    const phone = phoneEl.value.trim();
+
+    let hasError = false;
+
+    if (!name) {
+        showError('user-name', 'Введите ваше имя');
+        hasError = true;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showError('user-email', 'Введите корректный email');
+        hasError = true;
+    }
+
+    if (phone.length < 18) {
+        showError('user-phone', 'Введите номер телефона полностью');
+        hasError = true;
+    }
+
+    if (hasError) return;
+
+    const msg = `🚀 ЗАЯВКА\n📦 Товар: ${selectedProd.name}\n🔢 Арт: ${selectedProd.art}\n👤 Имя: ${name}\n📞 Тел: ${phone}\n✉️ Email: ${email}`;
 
     try {
         const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -93,15 +138,19 @@ async function sendRequest() {
         if (res.ok) {
             alert('Заявка отправлена!');
             window.closeModal();
+            [nameEl, emailEl, phoneEl].forEach(el => el.value = '');
         }
     } catch (e) { alert('Ошибка соединения'); }
 }
 
+// Маска телефона
 document.getElementById('user-phone')?.addEventListener('input', (e) => {
     let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+    if (!x) return;
     e.target.value = !x[2] ? x[1] : '+' + x[1] + ' (' + x[2] + ') ' + x[3] + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
 });
 
+// Слушатели событий
 document.getElementById('send-request-btn')?.addEventListener('click', sendRequest);
 document.getElementById('load-more-btn')?.addEventListener('click', () => { visibleCount += 8; render(); });
 document.getElementById('search-input')?.addEventListener('input', () => { visibleCount = 12; render(); });

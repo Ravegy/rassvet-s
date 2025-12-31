@@ -7,6 +7,7 @@
     --border: rgba(255, 255, 255, 0.1);
 }
 
+/* Сброс стилей */
 * { 
     margin: 0; padding: 0; box-sizing: border-box; 
     font-family: 'Segoe UI', Roboto, sans-serif;
@@ -27,17 +28,16 @@ body::before {
     background: rgba(0, 0, 0, 0.85); z-index: -1;
 }
 
+/* HEADER */
 .glass-header {
     position: fixed; top: 0; width: 100%; z-index: 1000;
     background: var(--glass); backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
 }
-
 .header-container {
     max-width: 1200px; margin: 0 auto; height: 70px;
     display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
 }
-
 .logo { font-size: 1.4rem; font-weight: 800; color: #fff; }
 .logo span { color: var(--accent); }
 
@@ -48,6 +48,7 @@ body::before {
 .phone-link { color: #fff; border: 1.5px solid var(--accent); padding: 8px 18px; border-radius: 10px; transition: 0.3s; font-size: 0.9rem; }
 .phone-link:hover { background: var(--accent); }
 
+/* CATALOG SECTION */
 .main-content { flex: 1 0 auto; padding: 100px 20px 60px; }
 .glass-container { 
     max-width: 1200px; margin: 0 auto; padding: 30px;
@@ -68,6 +69,7 @@ h1 { text-align: center; font-size: 2.2rem; margin-bottom: 8px; }
 .tag { padding: 8px 18px; border-radius: 20px; border: 1px solid var(--border); background: none; color: #888; cursor: pointer; transition: 0.3s; font-size: 0.85rem; }
 .tag.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
+/* КАРТОЧКИ ТОВАРА */
 .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
 
 @keyframes cardSlideIn {
@@ -114,6 +116,7 @@ h1 { text-align: center; font-size: 2.2rem; margin-bottom: 8px; }
 }
 .btn-add:hover { background: var(--accent-hover); transform: scale(1.05); }
 
+/* FOOTER */
 .main-footer { background: #0a0a0a; border-top: 1px solid var(--border); padding: 40px 0 25px; margin-top: auto; }
 .footer-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; }
@@ -123,11 +126,36 @@ h1 { text-align: center; font-size: 2.2rem; margin-bottom: 8px; }
 .footer-nav a:hover { color: #fff; }
 .footer-bottom-line { text-align: center; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.05); color: #333; font-size: 0.8rem; margin-top: 30px; }
 
+/* КОРЗИНА И МОДАЛКА */
 .floating-cart { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--accent); border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 100; box-shadow: 0 8px 25px rgba(0,0,0,0.5); }
 .cart-badge { position: absolute; top: 0; right: 0; background: #ff5722; width: 22px; height: 22px; border-radius: 50%; font-size: 11px; display: flex; justify-content: center; align-items: center; color: #fff; font-weight: bold; }
 
 .modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
 .modal-content { background: #111; border: 1px solid var(--border); padding: 35px; border-radius: 20px; width: 100%; max-width: 400px; position: relative; }
+
+/* НОВЫЕ СТИЛИ МОДАЛКИ (ЦЕНТРИРОВАНИЕ И ОШИБКИ) */
+.modal-content h2 { text-align: center; margin-bottom: 15px; font-size: 1.5rem; }
+
+.modal-product-badge {
+    text-align: center;
+    background: rgba(76, 175, 80, 0.1); 
+    border: 1px dashed var(--accent);
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+.modal-product-badge span {
+    display: block; color: var(--text-dim); font-size: 0.8rem; margin-top: 4px; font-weight: 400;
+}
+
 .modal-close-x { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #444; font-size: 28px; cursor: pointer; }
 .modal-input { width: 100%; padding: 14px; background: #181818; border: 1px solid var(--border); border-radius: 10px; color: #fff; margin-bottom: 15px; outline: none; }
+
+.modal-input.error { border-color: #ff5252 !important; margin-bottom: 5px; }
+.error-message { color: #ff5252; font-size: 0.75rem; margin-bottom: 10px; display: block; text-align: left; padding-left: 5px; }
+
 .btn-send { width: 100%; padding: 16px; background: var(--accent); color: #fff; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }

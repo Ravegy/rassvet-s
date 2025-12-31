@@ -246,5 +246,43 @@ window.zoomImage = (src) => {
     document.getElementById('image-modal').style.display = 'flex';
 };
 
+// Логика формы обратной связи на странице контактов
+const fbSendBtn = document.getElementById('fb-send-btn');
+if (fbSendBtn) {
+    fbSendBtn.onclick = async () => {
+        const name = document.getElementById('fb-name').value;
+        const phone = document.getElementById('fb-phone').value;
+        const msg = document.getElementById('fb-message').value;
+
+        if (!name || phone.length < 10) {
+            alert('Пожалуйста, заполните имя и корректный телефон');
+            return;
+        }
+
+        fbSendBtn.disabled = true;
+        fbSendBtn.innerText = 'Отправка...';
+
+        const text = `✉️ <b>НОВОЕ СООБЩЕНИЕ (КОНТАКТЫ)</b>\n👤 Имя: ${name}\n📞 Тел: ${phone}\n💬 Сообщение: ${msg || '—'}`;
+
+        try {
+            const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' })
+            });
+
+            if (res.ok) {
+                alert('Сообщение успешно отправлено!');
+                document.getElementById('contact-page-form').reset();
+            }
+        } catch (e) {
+            alert('Ошибка при отправке');
+        } finally {
+            fbSendBtn.disabled = false;
+            fbSendBtn.innerText = 'Отправить сообщение';
+        }
+    };
+}
+
 // Инициализация при загрузке
 render();

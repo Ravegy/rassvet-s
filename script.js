@@ -1,101 +1,135 @@
 import productsData from './products.js';
 
-// --- НАСТРОЙКИ TELEGRAM (Жестко заданы по вашему запросу) ---
+// --- НАСТРОЙКИ TELEGRAM (Данные обновлены) ---
 const botToken = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o'; 
 const chatId = '1017718880';
 
-// Загрузка корзины из localStorage
+// Загрузка корзины из памяти браузера при старте страницы
 let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || []; 
 
 let currentCategory = 'all';
 let visibleCount = 12;
 
-// Функция сохранения
-const saveCart = () => localStorage.setItem('rassvet_cart', JSON.stringify(cart));
+// Сохранение корзины в память (localStorage)
+function saveCart() {
+    localStorage.setItem('rassvet_cart', JSON.stringify(cart));
+}
 
-// === ВАЛИДАЦИЯ ===
+// === ЛОГИКА ВАЛИДАЦИИ ===
 const nameInput = document.getElementById('cart-name');
 const phoneInput = document.getElementById('cart-phone');
 const emailInput = document.getElementById('cart-email');
 
-const formatPhone = (v) => {
-    let x = v.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
-    if (!x[2]) return x[1] === '7' || x[1] === '8' ? '+7 (' : v;
-    return !x[3] ? `+7 (${x[2]}` : `+7 (${x[2]}) ${x[3]}` + (x[4] ? `-${x[4]}` : '') + (x[5] ? `-${x[5]}` : '');
+const formatPhone = (value) => {
+    if (!value) return value;
+    const phoneNumber = value.replace(/[^\d]/g, "");
+    const phoneNumberLength = phoneNumber.length;
+    if (phoneNumberLength < 2) return `+7 (${phoneNumber.slice(1)}`;
+    if (phoneNumberLength < 5) return `+7 (${phoneNumber.slice(1, 4)}) ${phoneNumber.slice(4)}`;
+    if (phoneNumberLength < 8) return `+7 (${phoneNumber.slice(1, 4)}) ${phoneNumber.slice(4, 7)}-${phoneNumber.slice(7)}`;
+    return `+7 (${phoneNumber.slice(1, 4)}) ${phoneNumber.slice(4, 7)}-${phoneNumber.slice(7, 9)}-${phoneNumber.slice(9, 11)}`;
 };
 
 phoneInput?.addEventListener('input', (e) => {
-    e.target.value = formatPhone(e.target.value);
+    const formatted = formatPhone(e.target.value);
+    e.target.value = formatted;
     validateField(e.target, /^(\+7|7|8)?[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$/);
 });
 
-const validateField = (el, reg) => {
-    const isOk = reg.test(el.value);
-    el.classList.toggle('valid', isOk);
-    el.classList.toggle('invalid', !isOk && el.value.length > 0);
-    return isOk;
-};
+emailInput?.addEventListener('input', (e) => {
+    validateField(e.target, /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/);
+});
 
-// === ЛОГИКА КАТАЛОГА ===
+nameInput?.addEventListener('input', (e) => {
+    validateField(e.target, /^[а-яА-Яa-zA-Z\s]{2,}$/);
+});
+
+function validateField(input, regex) {
+    if (regex.test(input.value)) {
+        input.classList.add('valid');
+        input.classList.remove('invalid');
+        return true;
+    } else {
+        if(input.value.length > 0) {
+            input.classList.add('invalid');
+            input.classList.remove('valid');
+        } else {
+            input.classList.remove('invalid', 'valid');
+        }
+        return false;
+    }
+}
+
+// === ОСНОВНАЯ ЛОГИКА КАТАЛОГА ===
+
 function render() {
     const root = document.getElementById('catalog');
     if (!root) return;
 
-    const search = document.getElementById('search-input')?.value.toLowerCase().trim() || "";
-    const filtered = productsData.filter(p => 
-        (currentCategory === 'all' || p.category === currentCategory) &&
-        (p.name.toLowerCase().includes(search) || p.article.toLowerCase().includes(search))
-    );
+    const searchValue = document.getElementById('search-input')?.value.toLowerCase().trim() || "";
+    
+    const filtered = productsData.filter(p => {
+        const matchesCategory = currentCategory === 'all' || p.category === currentCategory;
+        const matchesSearch = p.name.toLowerCase().includes(searchValue) || p.article.toLowerCase().includes(searchValue);
+        return matchesCategory && matchesSearch;
+    });
 
-    root.innerHTML = filtered.slice(0, visibleCount).map(p => {
-        const inCart = cart.find(i => i.article === p.article);
-        const action = inCart 
+    root.innerHTML = filtered.slice(0, visibleCount).map((p) => {
+        const itemInCart = cart.find(item => item.article === p.article);
+
+        const cartAction = itemInCart 
             ? `<div class="qty-controls">
                 <button class="qty-btn" onclick="window.updateQty('${p.article}', -1)">-</button>
-                <div class="qty-val">${inCart.qty}</div>
+                <div class="qty-val">${itemInCart.qty}</div>
                 <button class="qty-btn" onclick="window.updateQty('${p.article}', 1)">+</button>
                </div>`
             : `<button class="btn-add" onclick="window.addToCart('${p.article}')">+</button>`;
 
         return `
             <div class="card">
-                <img src="images/parts/${p.image}" onclick="window.zoomImage(this.src)" onerror="this.src='https://via.placeholder.com/200x150?text=Запчасть'">
+                <img src="images/parts/${p.image}" onclick="window.zoomImage(this.src)" onerror="this.src='https://via.placeholder.com/200x150?text=Нет+фото'">
                 <h3>${p.name}</h3>
-                <span class="art-text">АРТ: ${p.article}</span>
+                <span class="art-text">${p.article}</span>
                 <div class="card-price">${p.price.toLocaleString()} ₽</div>
                 <div class="btn-row">
                     <button class="btn-info" onclick="window.requestProduct('${p.article}')">Запросить</button>
-                    ${action}
+                    ${cartAction}
                 </div>
-            </div>`;
+            </div>
+        `;
     }).join('');
 
-    document.getElementById('show-more-box').style.display = filtered.length > visibleCount ? 'block' : 'none';
+    const showMoreBox = document.getElementById('show-more-box');
+    if (showMoreBox) {
+        showMoreBox.style.display = filtered.length > visibleCount ? 'block' : 'none';
+    }
     updateCartDisplay();
 }
 
-// === КОРЗИНА ===
-window.addToCart = (art) => {
-    const prod = productsData.find(p => p.article === art);
-    if (prod && !cart.find(i => i.article === art)) {
-        cart.push({ ...prod, qty: 1 });
-        saveCart();
+window.addToCart = (article) => {
+    const product = productsData.find(p => p.article === article);
+    if (product) {
+        const existing = cart.find(i => i.article === article);
+        if (!existing) {
+            cart.push({ ...product, qty: 1 });
+        }
+        saveCart(); 
         render();
     }
 };
 
-window.updateQty = (art, delta) => {
-    const idx = cart.findIndex(i => i.article === art);
-    if (idx !== -1) {
-        cart[idx].qty += delta;
-        if (cart[idx].qty <= 0) cart.splice(idx, 1);
-        saveCart();
+window.updateQty = (article, delta) => {
+    const index = cart.findIndex(i => i.article === article);
+    if (index !== -1) {
+        cart[index].qty += delta;
+        if (cart[index].qty <= 0) cart.splice(index, 1);
+        saveCart(); 
         render();
     }
 };
 
-window.requestProduct = (art) => {
-    window.addToCart(art);
+window.requestProduct = (article) => {
+    if (!cart.find(i => i.article === article)) window.addToCart(article);
     document.getElementById('side-cart').classList.add('open');
     document.getElementById('cart-overlay').style.display = 'block';
 };
@@ -105,42 +139,57 @@ function updateCartDisplay() {
     const totalEl = document.getElementById('cart-total-price');
     const listEl = document.getElementById('cart-items-list');
 
-    countEl.innerText = cart.reduce((s, i) => s + i.qty, 0);
-    totalEl.innerText = `${cart.reduce((s, i) => s + (i.price * i.qty), 0).toLocaleString()} ₽`;
+    if (countEl) countEl.innerText = cart.reduce((sum, i) => sum + i.qty, 0);
+    if (totalEl) totalEl.innerText = `${cart.reduce((sum, i) => sum + (i.price * i.qty), 0).toLocaleString()} ₽`;
 
-    listEl.innerHTML = cart.length === 0 ? '<p style="text-align:center;color:#888;margin-top:50px;">Пусто</p>' : 
-    cart.map(i => `
-        <div class="cart-item-row">
-            <img src="images/parts/${i.image}" onerror="this.src='https://via.placeholder.com/50x50'">
-            <div class="cart-item-info">
-                <div class="cart-item-name">${i.name}</div>
-                <div class="cart-item-bottom">
-                    <div class="cart-item-price">${i.price.toLocaleString()} ₽</div>
+    if (listEl) {
+        listEl.innerHTML = cart.length === 0 
+            ? '<p style="text-align:center; color:#555; margin-top:50px;">Корзина пуста</p>' 
+            : cart.map(item => `
+                <div class="cart-item-row">
+                    <img src="images/parts/${item.image}" onerror="this.src='https://via.placeholder.com/50x50'">
+                    <div style="flex:1">
+                        <div style="font-size:0.9rem; font-weight:700; color:#fff; margin-bottom:5px;">${item.name}</div>
+                        <div style="font-size:0.85rem; color:var(--accent);">${item.price.toLocaleString()} ₽</div>
+                    </div>
                     <div class="qty-controls">
-                        <button class="qty-btn" onclick="window.updateQty('${i.article}', -1)">-</button>
-                        <div class="qty-val">${i.qty}</div>
-                        <button class="qty-btn" onclick="window.updateQty('${i.article}', 1)">+</button>
+                        <button class="qty-btn" onclick="window.updateQty('${item.article}', -1)">-</button>
+                        <div class="qty-val">${item.qty}</div>
+                        <button class="qty-btn" onclick="window.updateQty('${item.article}', 1)">+</button>
                     </div>
                 </div>
-            </div>
-        </div>`).join('');
+            `).join('');
+    }
 }
 
-// ОТПРАВКА
+// ОТПРАВКА В TELEGRAM (С использованием ваших данных)
 document.getElementById('cart-send-btn').onclick = async () => {
-    if (cart.length === 0) return alert('Корзина пуста');
-    if (!nameInput.classList.contains('valid') || !phoneInput.classList.contains('valid')) {
-        document.getElementById('order-form').classList.add('shake-form');
-        setTimeout(() => document.getElementById('order-form').classList.remove('shake-form'), 500);
+    const isNameValid = nameInput.classList.contains('valid');
+    const isPhoneValid = phoneInput.classList.contains('valid');
+    const isEmailValid = emailInput.classList.contains('valid');
+
+    if (cart.length === 0) return alert('Корзина пуста!');
+
+    if (!isNameValid || !isPhoneValid || !isEmailValid) {
+        const form = document.getElementById('order-form');
+        form.classList.add('shake-form');
+        setTimeout(() => form.classList.remove('shake-form'), 500);
         return;
     }
 
     const btn = document.getElementById('cart-send-btn');
-    btn.disabled = true; btn.innerText = 'Отправка...';
+    btn.innerText = 'Отправка...';
+    btn.disabled = true;
 
-    let msg = `🔥 <b>ЗАКАЗ</b>\n👤 ${nameInput.value}\n📞 ${phoneInput.value}\n✉️ ${emailInput.value}\n\n`;
-    cart.forEach(i => msg += `• ${i.name} (${i.qty} шт) - ${i.price * i.qty} ₽\n`);
-    msg += `\n💰 <b>ИТОГО: ${cart.reduce((s,i)=>s+(i.price*i.qty),0).toLocaleString()} ₽</b>`;
+    let msg = `🔥 <b>НОВЫЙ ЗАКАЗ</b>\n\n👤 Имя: ${nameInput.value}\n📞 Тел: ${phoneInput.value}\n✉️ Email: ${emailInput.value}\n\n📦 <b>Товары:</b>\n`;
+    let total = 0;
+
+    cart.forEach(item => {
+        const sum = item.price * item.qty;
+        total += sum;
+        msg += `🔹 ${item.name}\n   ${item.qty} шт. x ${item.price} = ${sum} ₽\n\n`;
+    });
+    msg += `💰 <b>ИТОГО: ${total.toLocaleString()} ₽</b>`;
 
     try {
         const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -148,40 +197,54 @@ document.getElementById('cart-send-btn').onclick = async () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'HTML' })
         });
+
         if (res.ok) {
-            alert('Успешно отправлено!');
-            cart = []; saveCart(); render();
-            document.getElementById('side-cart').classList.remove('open');
-            document.getElementById('cart-overlay').style.display = 'none';
+            alert('Заказ отправлен! Менеджер свяжется с вами.');
+            cart = [];
+            saveCart(); 
+            closeCart();
+            render();
+        } else {
+            alert('Ошибка при отправке в Telegram. Проверьте статус бота.');
         }
-    } catch (e) { alert('Ошибка сети'); }
-    btn.disabled = false; btn.innerText = 'Оформить заявку';
+    } catch (e) { 
+        alert('Ошибка сети. Проверьте интернет-соединение.'); 
+    } finally {
+        btn.innerText = 'Оформить заявку';
+        btn.disabled = false;
+    }
 };
 
 // СОБЫТИЯ
-document.getElementById('load-more-btn').onclick = () => { visibleCount += 12; render(); };
-document.getElementById('search-input').oninput = () => { visibleCount = 12; render(); };
-document.getElementById('category-tags').onclick = (e) => {
+document.getElementById('load-more-btn')?.addEventListener('click', () => { visibleCount += 12; render(); });
+document.getElementById('search-input')?.addEventListener('input', () => { visibleCount = 12; render(); });
+
+document.getElementById('category-tags')?.addEventListener('click', (e) => {
     if (e.target.classList.contains('tag')) {
         document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
         currentCategory = e.target.dataset.cat;
-        visibleCount = 12; render();
+        visibleCount = 12;
+        render();
     }
+});
+
+const closeCart = () => {
+    document.getElementById('side-cart').classList.remove('open');
+    document.getElementById('cart-overlay').style.display = 'none';
 };
 
 document.getElementById('cart-trigger').onclick = () => {
     document.getElementById('side-cart').classList.add('open');
     document.getElementById('cart-overlay').style.display = 'block';
 };
-document.getElementById('cart-close').onclick = document.getElementById('cart-overlay').onclick = () => {
-    document.getElementById('side-cart').classList.remove('open');
-    document.getElementById('cart-overlay').style.display = 'none';
-};
+document.getElementById('cart-close').onclick = closeCart;
+document.getElementById('cart-overlay').onclick = closeCart;
 
 window.zoomImage = (src) => {
     document.getElementById('zoomed-img').src = src;
     document.getElementById('image-modal').style.display = 'flex';
 };
 
+// Инициализация при загрузке
 render();

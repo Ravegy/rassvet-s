@@ -66,7 +66,7 @@ window.addToCart = () => {
     }
 };
 
-// Открытие модалки с очисткой ошибок и подсветкой товара
+// Модальное окно с подсветкой товара
 window.openM = (name, art) => {
     selectedProd = { name, art };
     const modalTitle = document.getElementById('modal-product-name');
@@ -81,7 +81,7 @@ window.closeModal = () => {
     document.getElementById('modal').style.display = 'none';
 };
 
-// Логика валидации
+// Валидация и ошибки
 function clearErrors() {
     document.querySelectorAll('.error-message').forEach(m => m.remove());
     document.querySelectorAll('.modal-input').forEach(i => i.classList.remove('error'));
@@ -120,6 +120,7 @@ async function sendRequest() {
         hasError = true;
     }
 
+    // Проверка полной маски +7 (XXX) XXX-XX-XX (18 символов)
     if (phone.length < 18) {
         showError('user-phone', 'Введите номер телефона полностью');
         hasError = true;
@@ -136,21 +137,34 @@ async function sendRequest() {
             body: JSON.stringify({ chat_id: chatId, text: msg })
         });
         if (res.ok) {
-            alert('Заявка отправлена!');
+            alert('Заявка успешно отправлена!');
             window.closeModal();
             [nameEl, emailEl, phoneEl].forEach(el => el.value = '');
         }
-    } catch (e) { alert('Ошибка соединения'); }
+    } catch (e) { alert('Ошибка соединения с Telegram'); }
 }
 
-// Маска телефона
+// Умная маска телефона (всегда начинается с +7)
 document.getElementById('user-phone')?.addEventListener('input', (e) => {
-    let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
-    if (!x) return;
-    e.target.value = !x[2] ? x[1] : '+' + x[1] + ' (' + x[2] + ') ' + x[3] + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
+    let value = e.target.value.replace(/\D/g, ''); 
+    
+    // Всегда принудительно начинаем с 7
+    if (!value || value[0] !== '7') {
+        value = '7' + value;
+    }
+
+    value = value.substring(0, 11); // Ограничение на 11 цифр
+
+    let result = '+7';
+    if (value.length > 1) result += ' (' + value.substring(1, 4);
+    if (value.length >= 5) result += ') ' + value.substring(4, 7);
+    if (value.length >= 8) result += '-' + value.substring(7, 9);
+    if (value.length >= 10) result += '-' + value.substring(9, 11);
+
+    e.target.value = result;
 });
 
-// Слушатели событий
+// События
 document.getElementById('send-request-btn')?.addEventListener('click', sendRequest);
 document.getElementById('load-more-btn')?.addEventListener('click', () => { visibleCount += 8; render(); });
 document.getElementById('search-input')?.addEventListener('input', () => { visibleCount = 12; render(); });

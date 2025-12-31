@@ -1,6 +1,5 @@
 import productsData from './products.js';
 
-// Настройки Telegram
 const botToken = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o';
 const chatId = '1017718880';
 
@@ -36,7 +35,9 @@ function render() {
         return `
             <div class="card ${isHidden}" style="animation-delay: ${delay}s">
                 <div class="card-top">
-                    <img src="images/parts/${p.image}" onerror="this.src='https://via.placeholder.com/200x140?text=Запчасть'">
+                    <img src="images/parts/${p.image}" 
+                         onclick="window.zoomImage(this.src, '${p.name.replace(/'/g, "\\'")}')" 
+                         onerror="this.src='https://via.placeholder.com/200x140?text=Запчасть'">
                     <h3>${p.name}</h3>
                     <p class="art-text">Арт: ${p.article}</p>
                 </div>
@@ -63,6 +64,17 @@ window.addToCart = () => {
         badge.innerText = cartCount;
         badge.style.transform = 'scale(1.4)';
         setTimeout(() => badge.style.transform = 'scale(1)', 200);
+    }
+};
+
+window.zoomImage = (src, name) => {
+    const modal = document.getElementById('image-modal');
+    const zoomedImg = document.getElementById('zoomed-img');
+    const caption = document.getElementById('zoom-caption');
+    if (modal && zoomedImg && caption) {
+        zoomedImg.src = src;
+        caption.innerText = name;
+        modal.style.display = 'flex';
     }
 };
 
@@ -123,17 +135,15 @@ async function sendRequest() {
         if (res.ok) {
             alert('Заявка успешно отправлена!');
             window.closeModal();
-            [nameEl, emailEl, phoneEl].forEach(el => el.value = ''); //
+            [nameEl, emailEl, phoneEl].forEach(el => el.value = '');
         }
     } catch (e) { alert('Ошибка соединения'); }
 }
 
-// Маска телефона
 document.getElementById('user-phone')?.addEventListener('input', (e) => {
     let value = e.target.value.replace(/\D/g, '');
     if (!value || value[0] !== '7') value = '7' + value;
     value = value.substring(0, 11);
-
     let result = '+7';
     if (value.length > 1) result += ' (' + value.substring(1, 4);
     if (value.length >= 5) result += ') ' + value.substring(4, 7);

@@ -1,8 +1,5 @@
 import productsData from './products.js';
 
-const botToken = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o';
-const chatId = '1017718880';
-
 let cart = []; 
 let currentCategory = 'all';
 let visibleCount = 12;
@@ -12,6 +9,7 @@ function render() {
     if (!root) return;
 
     const searchValue = document.getElementById('search-input')?.value.toLowerCase().trim() || "";
+    
     const filtered = productsData.filter(p => {
         const matchesCategory = currentCategory === 'all' || p.category === currentCategory;
         const matchesSearch = p.name.toLowerCase().includes(searchValue) || p.article.toLowerCase().includes(searchValue);
@@ -31,17 +29,13 @@ function render() {
 
         return `
             <div class="card">
-                <div class="card-top">
-                    <img src="images/parts/${p.image}" onclick="window.zoomImage(this.src, '${p.name.replace(/'/g, "\\'")}')" onerror="this.src='https://via.placeholder.com/200x150?text=Нет+фото'">
-                    <h3>${p.name}</h3>
-                    <span class="art-text">Арт: ${p.article}</span>
-                </div>
-                <div class="card-bottom">
-                    <div class="card-price">${p.price.toLocaleString()} ₽</div>
-                    <div class="btn-row">
-                        <button class="btn-info" onclick="alert('Запрос по товару ${p.article} отправлен')">Запросить</button>
-                        ${cartAction}
-                    </div>
+                <img src="images/parts/${p.image}" onclick="window.zoomImage(this.src, '${p.name}')" onerror="this.src='https://via.placeholder.com/200x150?text=Нет+фото'">
+                <h3>${p.name}</h3>
+                <span class="art-text">Арт: ${p.article}</span>
+                <div class="card-price">${p.price.toLocaleString()} ₽</div>
+                <div class="btn-row">
+                    <button class="btn-info" onclick="alert('Запрос отправлен')">Запросить</button>
+                    ${cartAction}
                 </div>
             </div>
         `;
@@ -51,12 +45,15 @@ function render() {
     updateCartDisplay();
 }
 
-// КОРЗИНА
+// КОРЗИНА (Исправлено: теперь добавляет только один товар)
 window.addToCart = (article) => {
     const product = productsData.find(p => p.article === article);
     if (product) {
-        cart.push({ ...product, qty: 1 });
-        render();
+        const existing = cart.find(i => i.article === article);
+        if (!existing) {
+            cart.push({ ...product, qty: 1 });
+        }
+        render(); // Обновляем только текущее состояние интерфейса
     }
 };
 
@@ -77,19 +74,20 @@ function updateCartDisplay() {
     document.getElementById('cart-total-price').innerText = `Итого: ${totalPrice.toLocaleString()} ₽`;
 
     const list = document.getElementById('cart-items-list');
-    list.innerHTML = cart.map(item => `
-        <div class="cart-item">
-            <img src="images/parts/${item.image}">
-            <div style="flex:1">
-                <h4>${item.name}</h4>
-                <p>${item.qty} шт. x ${item.price.toLocaleString()} ₽</p>
-            </div>
-            <button class="qty-btn" onclick="window.updateQty('${item.article}', -1)" style="color:#ff5252">×</button>
-        </div>
-    `).join('');
+    if (list) {
+        list.innerHTML = cart.length === 0 
+            ? '<p style="text-align:center; color:#444; margin-top:50px;">Корзина пуста</p>'
+            : cart.map(item => `
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; padding:10px; background:#1a1a1a; border-radius:10px;">
+                    <img src="images/parts/${item.image}" style="width:40px; height:40px; object-fit:contain;">
+                    <div style="flex:1; font-size:0.8rem;">${item.name}</div>
+                    <div style="color:var(--accent); font-weight:bold;">${item.qty} шт.</div>
+                </div>
+            `).join('');
+    }
 }
 
-// ПАНЕЛЬ КОРЗИНЫ
+// УПРАВЛЕНИЕ ПАНЕЛЬЮ
 const sideCart = document.getElementById('side-cart');
 const overlay = document.getElementById('cart-overlay');
 

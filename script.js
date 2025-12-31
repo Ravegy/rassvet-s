@@ -1,3 +1,31 @@
+// Функция показа уведомления
+window.showToast = (message, isError = false) => {
+    const toast = document.getElementById('custom-toast');
+    const toastText = document.getElementById('toast-text');
+    const toastIcon = document.querySelector('.toast-icon');
+    
+    if (!toast) return;
+
+    toastText.innerText = message;
+    
+    if (isError) {
+        toast.style.borderColor = 'var(--error)';
+        toastIcon.style.background = 'var(--error)';
+        toastIcon.innerText = '!';
+    } else {
+        toast.style.borderColor = 'var(--accent)';
+        toastIcon.style.background = 'var(--accent)';
+        toastIcon.innerText = '✓';
+    }
+
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+};
+
+// Теперь найдите функцию отправки заказа (sendOrder) и замените alert:
+// В блоке if (res.ok) вместо alert(...) напишите:
+// showToast('Ваш заказ успешно отправлен!');
+
 import productsData from './products.js';
 
 // --- НАСТРОЙКИ TELEGRAM (Данные обновлены) ---

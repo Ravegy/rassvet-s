@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Рассвет-С — Запчасти для спецтехники</title>
+    <title>РАССВЕТ-С | Каталог запчастей</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <header class="glass-header">
         <div class="header-container">
             <div class="logo">РАССВЕТ-<span>С</span></div>
@@ -15,6 +14,7 @@
                 <ul class="nav-list">
                     <li><a href="#" class="nav-link active">Каталог</a></li>
                     <li><a href="#" class="nav-link">О компании</a></li>
+                    <li><a href="#" class="nav-link">Доставка</a></li>
                     <li><a href="#" class="nav-link">Контакты</a></li>
                 </ul>
             </nav>
@@ -24,22 +24,22 @@
 
     <main class="main-content">
         <div class="glass-container">
-            <h1>Запчасти для спецтехники</h1>
-            <p class="subtext">Оригинальные детали и качественные аналоги в наличии</p>
-
-            <input type="text" id="search-input" placeholder="Поиск по названию или артикулу...">
-
+            <h1>Каталог запчастей</h1>
+            <p class="subtext">Оригиналы и аналоги для вашей техники</p>
+            
+            <input type="text" id="search-input" placeholder="Поиск по артикулу или названию...">
+            
             <div class="category-filter" id="category-tags">
-                <button class="tag active" data-cat="all">Все</button>
-                <button class="tag" data-cat="chains">Цепи</button>
-                <button class="tag" data-cat="filters">Фильтры</button>
-                <button class="tag" data-cat="hydraulics">Гидравлика</button>
+                <button class="tag active" data-cat="all">Все товары</button>
+                <button class="tag" data-cat="Гидравлика">Гидравлика</button>
+                <button class="tag" data-cat="Расходники">Расходники</button>
+                <button class="tag" data-cat="Двигатель">Двигатель</button>
             </div>
 
             <div class="catalog-grid" id="catalog">
                 </div>
 
-            <div id="show-more-box" style="text-align: center; margin-top: 40px;">
+            <div id="show-more-box" style="text-align: center; margin-top: 40px; display: none;">
                 <button id="load-more-btn" class="btn-info" style="max-width: 200px;">Показать еще</button>
             </div>
         </div>
@@ -49,53 +49,45 @@
         <div class="footer-container">
             <div class="footer-grid">
                 <div class="footer-col">
-                    <h4>Рассвет-С</h4>
-                    <p class="footer-mini-text">Надежный поставщик запчастей для лесозаготовительной и строительной техники по СЗФО.</p>
+                    <h4>РАССВЕТ-С</h4>
+                    <p class="footer-mini-text">Надежный поставщик запчастей для спецтехники по всему СЗФО.</p>
                 </div>
                 <div class="footer-col">
-                    <h4>Разделы</h4>
+                    <h4>Навигация</h4>
                     <ul class="footer-nav">
-                        <li><a href="#">Каталог</a></li>
+                        <li><a href="#">О компании</a></li>
                         <li><a href="#">Доставка</a></li>
-                        <li><a href="#">Оплата</a></li>
+                        <li><a href="#">Контакты</a></li>
                     </ul>
                 </div>
-                <div class="footer-col">
-                    <h4>Контакты</h4>
-                    <div class="contacts-info">
-                        <div class="contact-item"><span>СПб, Южное шоссе, 37</span></div>
-                        <a href="mailto:info@rassvet-s.ru" class="contact-item">info@rassvet-s.ru</a>
-                        <a href="tel:+78120000000" class="contact-item">+7 (812) 000-00-00</a>
-                    </div>
+                <div class="footer-col contacts-info">
+                    <h4>Связь с нами</h4>
+                    <p>СПб, Южное шоссе, 37</p>
+                    <p>info@rassvet-s.ru</p>
+                    <p>+7 (812) 000-00-00</p>
                 </div>
             </div>
-            <div class="footer-bottom-line">© 2025 ООО «РАССВЕТ-С»</div>
+            <div class="footer-bottom-line">
+                © 2025 ООО «РАССВЕТ-С». Все права защищены.
+            </div>
         </div>
     </footer>
 
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <button class="modal-close-x" onclick="window.closeModal()">&times;</button>
-            <h2>Запрос цены</h2>
-            <div id="modal-product-name" class="modal-product-badge"></div>
-            <input type="text" id="user-name" class="modal-input" placeholder="Ваше имя">
-            <input type="email" id="user-email" class="modal-input" placeholder="Email">
-            <input type="text" id="user-phone" class="modal-input" placeholder="+7 (___) ___-__-__">
-            <button id="send-request-btn" class="btn-send">Отправить заявку</button>
-        </div>
-    </div>
-
-    <div id="image-modal" class="image-zoom-modal" onclick="this.style.display='none'">
-        <span class="close-zoom">&times;</span>
-        <div class="zoom-content-wrapper">
-            <img id="zoomed-img" src="" alt="">
-            <div id="zoom-caption"></div>
-        </div>
-    </div>
-
     <div class="floating-cart">
-        <span id="cart-count" class="cart-badge">0</span>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        <div class="cart-badge" id="cart-count">0</div>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zm-8.9-5h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01-1.74-.96h-.01L15.42 11H8.1L7.07 9l-.13-.27L4.16 3l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.59 14.46 5.42 16 7 16h12v-2H7.42l1.1-2z"/></svg>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="modal-close-x" onclick="closeModal()">×</button>
+            <h2 style="margin-bottom: 10px;">Запрос стоимости</h2>
+            <div id="modal-product-name" class="modal-product-badge">Товар</div>
+            <input type="text" id="user-name" class="modal-input" placeholder="Ваше имя">
+            <input type="email" id="user-email" class="modal-input" placeholder="Почта">
+            <input type="text" id="user-phone" class="modal-input" placeholder="Телефон">
+            <button class="btn-send" id="send-request-btn">Отправить запрос</button>
+        </div>
     </div>
 
     <script type="module" src="script.js"></script>

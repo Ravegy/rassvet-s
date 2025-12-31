@@ -35,60 +35,12 @@ body::before {
     background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px); 
     border-bottom: 1px solid var(--glass-border); 
 }
-
-/* Обновляем шапку */
-.glass-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background: var(--glass);
-    backdrop-filter: blur(15px);
-    border-bottom: 1px solid var(--glass-border);
-    z-index: 1000;
-}
-
-/* Линия в шапке точно как в подвале */
-.glass-header::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 100%;
-    height: 1px; /* Толщина 1px, как в футере */
-    background: var(--accent);
-    
-    /* Идеально мягкое затухание по краям */
-    -webkit-mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
-    mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
-    
-    /* Деликатное свечение, не перебивающее основной текст */
-    box-shadow: 0 0 10px var(--accent);
-    opacity: 0.6; /* Делаем чуть прозрачнее для благородного вида */
-    pointer-events: none;
-}
-
 .header-container { 
     max-width: 1300px; margin: 0 auto; height: 80px; 
     display: flex; justify-content: space-between; align-items: center; padding: 0 30px; 
 }
-.logo {
-    font-size: 1.8rem;
-    font-weight: 800;
-    letter-spacing: 2px;
-    color: var(--text); /* Устанавливаем белый цвет из переменных */
-    text-decoration: none !important; /* Убираем подчеркивание */
-    cursor: pointer;
-}
-
-.logo span {
-    color: var(--accent);
-}
-
-/* Эффект при наведении (опционально, для интерактивности) */
-.logo:hover {
-    opacity: 0.9;
-}
+.logo { font-size: 1.6rem; font-weight: 800; letter-spacing: 1px; }
+.logo span { color: var(--accent); text-shadow: 0 0 10px rgba(0, 230, 118, 0.4); }
 .nav-list { display: flex; gap: 30px; list-style: none; }
 .nav-link { color: #ccc; font-weight: 600; font-size: 0.95rem; transition: 0.3s; position: relative; }
 .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -5px; left: 0; background: var(--accent); transition: 0.3s; }

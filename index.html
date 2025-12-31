@@ -69,9 +69,9 @@
                 </div>
                 <div class="footer-col contacts-info">
                     <h4 class="footer-h4">Контакты</h4>
-                    <p>СПб, Южное шоссе, 37</p>
-                    <p>info@rassvet-s.ru</p>
-                    <p class="accent-text">+7 (812) 000-00-00</p>
+                    <div class="contact-row"><p>СПб, Южное шоссе, 37</p></div>
+                    <div class="contact-row"><p>info@rassvet-s.ru</p></div>
+                    <div class="contact-row"><p class="accent-text">+7 (812) 000-00-00</p></div>
                 </div>
             </div>
             <div class="footer-bottom-line">© 2025 ООО «РАССВЕТ-С». Все права защищены.</div>
@@ -98,15 +98,28 @@
                 <span>Итого:</span>
                 <span id="cart-total-price" class="total-price">0 ₽</span>
             </div>
-            <div class="input-group">
-                <input type="text" id="cart-name" class="modal-input" placeholder=" ">
-                <label>Ваше имя</label>
-            </div>
-            <div class="input-group">
-                <input type="text" id="cart-phone" class="modal-input" placeholder=" ">
-                <label>Телефон</label>
-            </div>
-            <button class="btn-send" id="cart-send-btn">Оформить заявку</button>
+            
+            <form id="order-form" onsubmit="return false;">
+                <div class="input-group">
+                    <input type="text" id="cart-name" class="modal-input" placeholder=" " required>
+                    <label>Ваше имя</label>
+                    <span class="status-icon"></span>
+                </div>
+                
+                <div class="input-group">
+                    <input type="tel" id="cart-phone" class="modal-input" placeholder=" " required maxlength="18">
+                    <label>Телефон</label>
+                    <span class="status-icon"></span>
+                </div>
+
+                <div class="input-group">
+                    <input type="email" id="cart-email" class="modal-input" placeholder=" " required>
+                    <label>E-mail</label>
+                    <span class="status-icon"></span>
+                </div>
+
+                <button class="btn-send" id="cart-send-btn">Оформить заявку</button>
+            </form>
         </div>
     </div>
 

@@ -1,12 +1,65 @@
 import productsData from './products.js';
 
-// --- НАСТРОЙКИ TELEGRAM ---
-const botToken = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o'; // Вставьте сюда токен, например: '754321...'
-const chatId = '1017718880';     // Вставьте сюда ID, например: '123456789'
+// --- НАСТРОЙКИ TELEGRAM (Заполните данные!) ---
+const botToken = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o'; 
+const chatId = '1017718880';
 
 let cart = []; 
 let currentCategory = 'all';
 let visibleCount = 12;
+
+// === ЛОГИКА ВАЛИДАЦИИ ===
+const nameInput = document.getElementById('cart-name');
+const phoneInput = document.getElementById('cart-phone');
+const emailInput = document.getElementById('cart-email');
+
+// 1. Маска для телефона (+7 (XXX) XXX-XX-XX)
+const formatPhone = (value) => {
+    if (!value) return value;
+    const phoneNumber = value.replace(/[^\d]/g, "");
+    const phoneNumberLength = phoneNumber.length;
+
+    if (phoneNumberLength < 2) return `+7 (${phoneNumber.slice(1)}`;
+    if (phoneNumberLength < 5) return `+7 (${phoneNumber.slice(1, 4)}) ${phoneNumber.slice(4)}`;
+    if (phoneNumberLength < 8) return `+7 (${phoneNumber.slice(1, 4)}) ${phoneNumber.slice(4, 7)}-${phoneNumber.slice(7)}`;
+    return `+7 (${phoneNumber.slice(1, 4)}) ${phoneNumber.slice(4, 7)}-${phoneNumber.slice(7, 9)}-${phoneNumber.slice(9, 11)}`;
+};
+
+phoneInput.addEventListener('input', (e) => {
+    const formatted = formatPhone(e.target.value);
+    e.target.value = formatted;
+    // Проверка на полный номер
+    validateField(e.target, /^(\+7|7|8)?[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$/);
+});
+
+// 2. Валидация Email
+emailInput.addEventListener('input', (e) => {
+    validateField(e.target, /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/);
+});
+
+// 3. Валидация Имени
+nameInput.addEventListener('input', (e) => {
+    validateField(e.target, /^[а-яА-Яa-zA-Z\s]{2,}$/);
+});
+
+// Общая функция проверки поля
+function validateField(input, regex) {
+    if (regex.test(input.value)) {
+        input.classList.add('valid');
+        input.classList.remove('invalid');
+        return true;
+    } else {
+        if(input.value.length > 0) {
+            input.classList.add('invalid');
+            input.classList.remove('valid');
+        } else {
+            input.classList.remove('invalid', 'valid');
+        }
+        return false;
+    }
+}
+
+// === ОСНОВНАЯ ЛОГИКА ===
 
 function render() {
     const root = document.getElementById('catalog');
@@ -52,11 +105,9 @@ function render() {
     updateCartDisplay();
 }
 
-// ЛОГИКА КОРЗИНЫ
 window.addToCart = (article) => {
     const product = productsData.find(p => p.article === article);
     if (product) {
-        // Проверяем, есть ли уже товар (защита от дублей)
         const existing = cart.find(i => i.article === article);
         if (!existing) {
             cart.push({ ...product, qty: 1 });
@@ -106,14 +157,32 @@ function updateCartDisplay() {
 }
 
 // ОТПРАВКА В TELEGRAM
-document.getElementById('cart-send-btn').onclick = async () => {
-    const name = document.getElementById('cart-name').value;
-    const phone = document.getElementById('cart-phone').value;
+document.getElementById('cart-send-btn').onclick = async (e) => {
+    const name = nameInput.value;
+    const phone = phoneInput.value;
+    const email = emailInput.value;
+    
+    // Проверка статусов полей
+    const isNameValid = nameInput.classList.contains('valid');
+    const isPhoneValid = phoneInput.classList.contains('valid');
+    const isEmailValid = emailInput.classList.contains('valid');
 
     if (cart.length === 0) return alert('Корзина пуста!');
-    if (!name || !phone) return alert('Пожалуйста, введите имя и телефон');
 
-    let msg = `🔥 <b>НОВЫЙ ЗАКАЗ</b>\n\n👤 Имя: ${name}\n📞 Телефон: ${phone}\n\n📦 <b>Товары:</b>\n`;
+    // Анимация тряски, если есть ошибки
+    if (!isNameValid || !isPhoneValid || !isEmailValid) {
+        const form = document.getElementById('order-form');
+        form.classList.add('shake-form');
+        setTimeout(() => form.classList.remove('shake-form'), 500);
+        
+        // Подсветка полей
+        if(!isNameValid) nameInput.classList.add('invalid');
+        if(!isPhoneValid) phoneInput.classList.add('invalid');
+        if(!isEmailValid) emailInput.classList.add('invalid');
+        return;
+    }
+
+    let msg = `🔥 <b>НОВЫЙ ЗАКАЗ</b>\n\n👤 Имя: ${name}\n📞 Тел: ${phone}\n✉️ Email: ${email}\n\n📦 <b>Товары:</b>\n`;
     let total = 0;
 
     cart.forEach(item => {
@@ -125,6 +194,10 @@ document.getElementById('cart-send-btn').onclick = async () => {
     msg += `💰 <b>ИТОГО: ${total.toLocaleString()} ₽</b>`;
 
     try {
+        const btn = document.getElementById('cart-send-btn');
+        btn.innerText = 'Отправка...';
+        btn.disabled = true;
+
         const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -136,10 +209,11 @@ document.getElementById('cart-send-btn').onclick = async () => {
         });
 
         if (res.ok) {
-            alert('Заказ успешно отправлен!');
+            alert('Заказ успешно отправлен! Менеджер скоро свяжется с вами.');
             cart = [];
-            document.getElementById('cart-name').value = '';
-            document.getElementById('cart-phone').value = '';
+            nameInput.value = ''; nameInput.classList.remove('valid');
+            phoneInput.value = ''; phoneInput.classList.remove('valid');
+            emailInput.value = ''; emailInput.classList.remove('valid');
             closeCart();
             render();
         } else {
@@ -147,6 +221,10 @@ document.getElementById('cart-send-btn').onclick = async () => {
         }
     } catch (e) {
         alert('Ошибка сети');
+    } finally {
+        const btn = document.getElementById('cart-send-btn');
+        btn.innerText = 'Оформить заявку';
+        btn.disabled = false;
     }
 };
 

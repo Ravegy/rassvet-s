@@ -3,10 +3,9 @@ import productsData from './products.js';
 const botToken = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o';
 const chatId = '1017718880';
 
+let cart = []; 
 let currentCategory = 'all';
-let cartCount = 0;
-let visibleCount = 12; 
-let selectedProd = { name: '', art: '' };
+let visibleCount = 12;
 
 function render() {
     const root = document.getElementById('catalog');
@@ -21,18 +20,28 @@ function render() {
 
     root.innerHTML = filtered.map((p, index) => {
         const isHidden = index >= visibleCount ? 'hidden' : '';
+        const itemInCart = cart.find(item => item.article === p.article);
+
+        const cartAction = itemInCart 
+            ? `<div class="qty-controls">
+                <button class="qty-btn" onclick="window.updateQty('${p.article}', -1)">-</button>
+                <div class="qty-val">${itemInCart.qty}</div>
+                <button class="qty-btn" onclick="window.updateQty('${p.article}', 1)">+</button>
+               </div>`
+            : `<button class="btn-add" onclick="window.addToCart('${p.article}')"></button>`;
+
         return `
             <div class="card ${isHidden}">
                 <div class="card-top">
-                    <img src="images/parts/${p.image}" onerror="this.src='https://via.placeholder.com/200x140?text=Запчасть'">
+                    <img src="images/parts/${p.image}" onclick="window.zoomImage(this.src, '${p.name.replace(/'/g, "\\'")}')">
                     <h3>${p.name}</h3>
                     <span class="art-text">Арт: ${p.article}</span>
                 </div>
                 <div class="card-bottom">
                     <div class="card-price">${p.price.toLocaleString()} ₽</div>
                     <div class="btn-row">
-                        <button class="btn-info" onclick="window.openM('${p.name.replace(/'/g, "\\'")}', '${p.article}')">Запросить</button>
-                        <button class="btn-add" onclick="window.addToCart()" title="В корзину"></button>
+                        <button class="btn-info" onclick="window.openSingleRequest('${p.name.replace(/'/g, "\\'")}', '${p.article}')">Запросить</button>
+                        ${cartAction}
                     </div>
                 </div>
             </div>
@@ -40,29 +49,80 @@ function render() {
     }).join('');
 
     document.getElementById('show-more-box').style.display = filtered.length > visibleCount ? 'block' : 'none';
+    updateCartDisplay();
 }
 
-window.addToCart = () => {
-    cartCount++;
-    const badge = document.getElementById('cart-count');
-    if (badge) badge.innerText = cartCount;
+// ЛОГИКА КОРЗИНЫ
+window.addToCart = (article) => {
+    const product = productsData.find(p => p.article === article);
+    if (product) {
+        cart.push({ ...product, qty: 1 });
+        render();
+    }
 };
 
-window.openM = (name, art) => {
-    selectedProd = { name, art };
-    document.getElementById('modal-product-name').innerHTML = `${name} <span>Артикул: ${art}</span>`;
-    document.getElementById('modal').style.display = 'flex';
+window.updateQty = (article, delta) => {
+    const index = cart.findIndex(i => i.article === article);
+    if (index !== -1) {
+        cart[index].qty += delta;
+        if (cart[index].qty <= 0) cart.splice(index, 1);
+        render();
+    }
 };
 
-window.closeModal = () => document.getElementById('modal').style.display = 'none';
+function updateCartDisplay() {
+    const totalCount = cart.reduce((sum, i) => sum + i.qty, 0);
+    const totalPrice = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+    
+    document.getElementById('cart-count').innerText = totalCount;
+    document.getElementById('cart-total-price').innerText = `Итого: ${totalPrice.toLocaleString()} ₽`;
 
-async function sendRequest() {
-    const name = document.getElementById('user-name').value.trim();
-    const phone = document.getElementById('user-phone').value.trim();
+    const list = document.getElementById('cart-items-list');
+    list.innerHTML = cart.map(item => `
+        <div class="cart-item">
+            <img src="images/parts/${item.image}">
+            <div style="flex:1">
+                <h4 style="font-size:0.85rem">${item.name}</h4>
+                <p style="font-size:0.8rem; color:#4caf50">${item.qty} шт. x ${item.price.toLocaleString()} ₽</p>
+            </div>
+            <button class="qty-btn" onclick="window.updateQty('${item.article}', -1)" style="color:#ff5252">×</button>
+        </div>
+    `).join('');
+}
 
-    if (!name || phone.length < 18) return alert('Заполните данные корректно');
+// ПАНЕЛЬ КОРЗИНЫ
+const sideCart = document.getElementById('side-cart');
+const overlay = document.getElementById('cart-overlay');
 
-    const msg = `🚀 ЗАЯВКА\n📦 Товар: ${selectedProd.name}\n🔢 Арт: ${selectedProd.art}\n👤 Имя: ${name}\n📞 Тел: ${phone}`;
+document.getElementById('cart-trigger').onclick = () => {
+    sideCart.classList.add('open');
+    overlay.style.display = 'block';
+};
+
+const closeCart = () => {
+    sideCart.classList.remove('open');
+    overlay.style.display = 'none';
+};
+document.getElementById('cart-close').onclick = closeCart;
+overlay.onclick = closeCart;
+
+// ЗУМ КАРТИНКИ
+window.zoomImage = (src, name) => {
+    const modal = document.getElementById('image-modal');
+    document.getElementById('zoomed-img').src = src;
+    document.getElementById('zoom-caption').innerText = name;
+    modal.style.display = 'flex';
+};
+
+// ОТПРАВКА КОРЗИНЫ
+document.getElementById('cart-send-btn').onclick = async () => {
+    const name = document.getElementById('cart-name').value.trim();
+    const phone = document.getElementById('cart-phone').value.trim();
+    if (cart.length === 0 || !name || !phone) return alert('Заполните данные');
+
+    const itemsStr = cart.map(i => `• ${i.name} (${i.article}) — ${i.qty} шт.`).join('\n');
+    const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+    const msg = `🛒 ЗАКАЗ ИЗ КОРЗИНЫ\n\nИмя: ${name}\nТел: ${phone}\n\nТовары:\n${itemsStr}\n\nСумма: ${total.toLocaleString()} ₽`;
 
     try {
         const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -70,36 +130,28 @@ async function sendRequest() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ chat_id: chatId, text: msg })
         });
-        if (res.ok) {
-            alert('Заявка отправлена!');
-            window.closeModal();
-        }
-    } catch (e) { alert('Ошибка сети'); }
-}
+        if (res.ok) { alert('Заказ отправлен!'); cart = []; closeCart(); render(); }
+    } catch (e) { alert('Ошибка отправки'); }
+};
 
-// Маска телефона
-document.getElementById('user-phone')?.addEventListener('input', (e) => {
-    let v = e.target.value.replace(/\D/g, '');
-    if (!v || v[0] !== '7') v = '7' + v;
-    v = v.substring(0, 11);
-    let res = '+7';
-    if (v.length > 1) res += ' (' + v.substring(1, 4);
-    if (v.length >= 5) res += ') ' + v.substring(4, 7);
-    if (v.length >= 8) res += '-' + v.substring(7, 9);
-    if (v.length >= 10) res += '-' + v.substring(9, 11);
-    e.target.value = res;
-});
+// МОДАЛКА ОДИНОЧНОГО ЗАПРОСА
+window.openSingleRequest = (name, art) => {
+    document.getElementById('modal-product-name').innerText = `${name} (Арт: ${art})`;
+    document.getElementById('modal').style.display = 'flex';
+};
+window.closeModal = () => document.getElementById('modal').style.display = 'none';
 
-document.getElementById('send-request-btn')?.addEventListener('click', sendRequest);
-document.getElementById('load-more-btn')?.addEventListener('click', () => { visibleCount += 8; render(); });
-document.getElementById('search-input')?.addEventListener('input', render);
+// ПОИСК И ФИЛЬТРЫ
+document.getElementById('search-input')?.addEventListener('input', () => { visibleCount = 12; render(); });
 document.getElementById('category-tags')?.addEventListener('click', (e) => {
     if (e.target.classList.contains('tag')) {
         document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
         currentCategory = e.target.dataset.cat;
+        visibleCount = 12;
         render();
     }
 });
+document.getElementById('load-more-btn')?.addEventListener('click', () => { visibleCount += 8; render(); });
 
 render();

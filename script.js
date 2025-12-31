@@ -96,7 +96,6 @@ function showError(inputId, message) {
 
 async function sendRequest() {
     clearErrors();
-
     const nameEl = document.getElementById('user-name');
     const emailEl = document.getElementById('user-email');
     const phoneEl = document.getElementById('user-phone');
@@ -106,12 +105,9 @@ async function sendRequest() {
     const phone = phoneEl.value.trim();
 
     let hasError = false;
-
     if (!name) { showError('user-name', 'Введите ваше имя'); hasError = true; }
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) { showError('user-email', 'Введите корректный email'); hasError = true; }
-
     if (phone.length < 18) { showError('user-phone', 'Введите номер телефона полностью'); hasError = true; }
 
     if (hasError) return;
@@ -127,12 +123,12 @@ async function sendRequest() {
         if (res.ok) {
             alert('Заявка успешно отправлена!');
             window.closeModal();
-            [nameEl, emailEl, phoneEl].forEach(el => el.value = '');
+            [nameEl, emailEl, phoneEl].forEach(el => el.value = ''); //
         }
     } catch (e) { alert('Ошибка соединения'); }
 }
 
-// Умная маска телефона (+7 всегда в начале)
+// Маска телефона
 document.getElementById('user-phone')?.addEventListener('input', (e) => {
     let value = e.target.value.replace(/\D/g, '');
     if (!value || value[0] !== '7') value = '7' + value;

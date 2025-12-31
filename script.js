@@ -91,47 +91,65 @@ function validateField(input, regex) {
 // === ОСНОВНАЯ ЛОГИКА КАТАЛОГА ===
 
 function render() {
-    const root = document.getElementById('catalog');
-    if (!root) return;
+    const grid = document.getElementById('products-grid');
+    const cartList = document.getElementById('cart-items-list');
+    const cartCountBadge = document.getElementById('cart-count');
+    const cartTotalPrice = document.getElementById('cart-total-price');
 
-    const searchValue = document.getElementById('search-input')?.value.toLowerCase().trim() || "";
-    
-    const filtered = productsData.filter(p => {
-        const matchesCategory = currentCategory === 'all' || p.category === currentCategory;
-        const matchesSearch = p.name.toLowerCase().includes(searchValue) || p.article.toLowerCase().includes(searchValue);
-        return matchesCategory && matchesSearch;
-    });
+    // 1. Обновляем счетчик товаров (работает на всех страницах)
+    if (cartCountBadge) {
+        cartCountBadge.innerText = cart.reduce((sum, item) => sum + item.count, 0);
+    }
 
-    root.innerHTML = filtered.slice(0, visibleCount).map((p) => {
-        const itemInCart = cart.find(item => item.article === p.article);
+    // 2. Обновляем сетку товаров (только если она есть — на главной)
+    if (grid) {
+        const filtered = productsData
+            .filter(p => currentCategory === 'all' || p.category === currentCategory)
+            .filter(p => p.name.toLowerCase().includes(document.getElementById('search-input').value.toLowerCase()));
 
-        const cartAction = itemInCart 
-            ? `<div class="qty-controls">
-                <button class="qty-btn" onclick="window.updateQty('${p.article}', -1)">-</button>
-                <div class="qty-val">${itemInCart.qty}</div>
-                <button class="qty-btn" onclick="window.updateQty('${p.article}', 1)">+</button>
-               </div>`
-            : `<button class="btn-add" onclick="window.addToCart('${p.article}')">+</button>`;
-
-        return `
-            <div class="card">
-                <img src="images/parts/${p.image}" onclick="window.zoomImage(this.src)" onerror="this.src='https://via.placeholder.com/200x150?text=Нет+фото'">
-                <h3>${p.name}</h3>
-                <span class="art-text">${p.article}</span>
-                <div class="card-price">${p.price.toLocaleString()} ₽</div>
-                <div class="btn-row">
-                    <button class="btn-info" onclick="window.requestProduct('${p.article}')">Запросить</button>
-                    ${cartAction}
+        grid.innerHTML = filtered.slice(0, visibleCount).map(p => `
+            <div class="product-card">
+                <img src="images/${p.image}" alt="${p.name}" onclick="window.zoomImage(this.src)">
+                <div class="product-info">
+                    <div class="category-label">${p.category}</div>
+                    <h3>${p.name}</h3>
+                    <p class="article">Арт: ${p.article}</p>
+                    <div class="card-bottom">
+                        <span class="price">${p.price.toLocaleString()} ₽</span>
+                        <button class="add-btn" onclick="addToCart('${p.name}')">+</button>
+                    </div>
                 </div>
             </div>
-        `;
-    }).join('');
+        `).join('');
 
-    const showMoreBox = document.getElementById('show-more-box');
-    if (showMoreBox) {
-        showMoreBox.style.display = filtered.length > visibleCount ? 'block' : 'none';
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        if (loadMoreBtn) loadMoreBtn.style.display = visibleCount >= filtered.length ? 'none' : 'block';
     }
-    updateCartDisplay();
+
+    // 3. Обновляем список товаров в корзине (работает на всех страницах)
+    if (cartList) {
+        cartList.innerHTML = cart.map(item => `
+            <div class="cart-item">
+                <div class="cart-item-info">
+                    <h4>${item.name}</h4>
+                    <div class="cart-item-bottom">
+                        <div class="count-ctrl">
+                            <button onclick="changeCount('${item.name}', -1)">-</button>
+                            <span>${item.count}</span>
+                            <button onclick="changeCount('${item.name}', 1)">+</button>
+                        </div>
+                        <span class="price">${(item.price * item.count).toLocaleString()} ₽</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // 4. Обновляем итоговую сумму (работает на всех страницах)
+    if (cartTotalPrice) {
+        const total = cart.reduce((sum, item) => sum + item.price * item.count, 0);
+        cartTotalPrice.innerText = `${total.toLocaleString()} ₽`;
+    }
 }
 
 window.addToCart = (article) => {

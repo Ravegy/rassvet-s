@@ -42,4 +42,4 @@ const productsData = [
     { name: "Контроллер двигателя (ЭБУ)", article: "EL-ECU-200", price: 168000, category: "Электрика", image: "chain.jpg" }
 ];
 
-export default productsData;
+default productsData;

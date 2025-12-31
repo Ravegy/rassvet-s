@@ -41,6 +41,5 @@ const productsData = [
     { name: "Монитор управления кабины", article: "EL-DISP-100", price: 78500, category: "Электрика", image: "chain.jpg" },
     { name: "Контроллер двигателя (ЭБУ)", article: "EL-ECU-200", price: 168000, category: "Электрика", image: "chain.jpg" }
 ];
-}
 
 export default productsData;

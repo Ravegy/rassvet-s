@@ -52,6 +52,37 @@ body::before {
 /* MAIN CONTENT */
 .main-content { flex: 1; padding: 130px 20px 80px; }
 .glass-container { max-width: 1300px; margin: 0 auto; }
+/* Обновляем шапку */
+.glass-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid var(--glass-border);
+    z-index: 1000;
+}
+
+/* Линия в шапке точно как в подвале */
+.glass-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 1px; /* Толщина 1px, как в футере */
+    background: var(--accent);
+    
+    /* Идеально мягкое затухание по краям */
+    -webkit-mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+    
+    /* Деликатное свечение, не перебивающее основной текст */
+    box-shadow: 0 0 10px var(--accent);
+    opacity: 0.6; /* Делаем чуть прозрачнее для благородного вида */
+    pointer-events: none;
+}
 .catalog-header { text-align: center; margin-bottom: 50px; }
 .catalog-header h1 { font-size: 3rem; margin-bottom: 10px; font-weight: 800; letter-spacing: -1px; }
 .subtext { color: var(--text-muted); font-size: 1.1rem; }

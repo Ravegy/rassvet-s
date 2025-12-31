@@ -1,16 +1,16 @@
 import productsData from './products.js';
 
-// --- НАСТРОЙКИ TELEGRAM ---
-const botToken = 'ВАШ_ТОКЕН_БОТА'; 
-const chatId = 'ВАШ_ID_ЧАТА';
+// --- НАСТРОЙКИ TELEGRAM (Данные обновлены) ---
+const botToken = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o'; 
+const chatId = '1017718880';
 
-// Загружаем корзину из памяти браузера при старте или создаем пустой массив
+// Загрузка корзины из памяти браузера при старте страницы
 let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || []; 
 
 let currentCategory = 'all';
 let visibleCount = 12;
 
-// Функция сохранения корзины в localStorage
+// Сохранение корзины в память (localStorage)
 function saveCart() {
     localStorage.setItem('rassvet_cart', JSON.stringify(cart));
 }
@@ -60,7 +60,7 @@ function validateField(input, regex) {
     }
 }
 
-// === ОСНОВНАЯ ЛОГИКА ===
+// === ОСНОВНАЯ ЛОГИКА КАТАЛОГА ===
 
 function render() {
     const root = document.getElementById('catalog');
@@ -113,7 +113,7 @@ window.addToCart = (article) => {
         if (!existing) {
             cart.push({ ...product, qty: 1 });
         }
-        saveCart(); // Сохраняем изменения
+        saveCart(); 
         render();
     }
 };
@@ -123,7 +123,7 @@ window.updateQty = (article, delta) => {
     if (index !== -1) {
         cart[index].qty += delta;
         if (cart[index].qty <= 0) cart.splice(index, 1);
-        saveCart(); // Сохраняем изменения
+        saveCart(); 
         render();
     }
 };
@@ -162,7 +162,7 @@ function updateCartDisplay() {
     }
 }
 
-// ОТПРАВКА В TELEGRAM
+// ОТПРАВКА В TELEGRAM (С использованием ваших данных)
 document.getElementById('cart-send-btn').onclick = async () => {
     const isNameValid = nameInput.classList.contains('valid');
     const isPhoneValid = phoneInput.classList.contains('valid');
@@ -176,6 +176,10 @@ document.getElementById('cart-send-btn').onclick = async () => {
         setTimeout(() => form.classList.remove('shake-form'), 500);
         return;
     }
+
+    const btn = document.getElementById('cart-send-btn');
+    btn.innerText = 'Отправка...';
+    btn.disabled = true;
 
     let msg = `🔥 <b>НОВЫЙ ЗАКАЗ</b>\n\n👤 Имя: ${nameInput.value}\n📞 Тел: ${phoneInput.value}\n✉️ Email: ${emailInput.value}\n\n📦 <b>Товары:</b>\n`;
     let total = 0;
@@ -195,13 +199,20 @@ document.getElementById('cart-send-btn').onclick = async () => {
         });
 
         if (res.ok) {
-            alert('Заказ отправлен!');
+            alert('Заказ отправлен! Менеджер свяжется с вами.');
             cart = [];
-            saveCart(); // Очищаем хранилище после заказа
+            saveCart(); 
             closeCart();
             render();
+        } else {
+            alert('Ошибка при отправке в Telegram. Проверьте статус бота.');
         }
-    } catch (e) { alert('Ошибка сети'); }
+    } catch (e) { 
+        alert('Ошибка сети. Проверьте интернет-соединение.'); 
+    } finally {
+        btn.innerText = 'Оформить заявку';
+        btn.disabled = false;
+    }
 };
 
 // СОБЫТИЯ
@@ -235,5 +246,5 @@ window.zoomImage = (src) => {
     document.getElementById('image-modal').style.display = 'flex';
 };
 
-// Первый запуск
+// Инициализация при загрузке
 render();

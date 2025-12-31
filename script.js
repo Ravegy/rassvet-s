@@ -27,19 +27,19 @@ function render() {
                 <div class="qty-val">${itemInCart.qty}</div>
                 <button class="qty-btn" onclick="window.updateQty('${p.article}', 1)">+</button>
                </div>`
-            : `<button class="btn-add" onclick="window.addToCart('${p.article}')" title="Добавить в заказ"></button>`;
+            : `<button class="btn-add" onclick="window.addToCart('${p.article}')"></button>`;
 
         return `
             <div class="card">
                 <div class="card-top">
-                    <img src="images/parts/${p.image}" onclick="window.zoomImage(this.src, '${p.name.replace(/'/g, "\\'")}')" onerror="this.src='https://via.placeholder.com/200x160?text=Нет+фото'">
+                    <img src="images/parts/${p.image}" onclick="window.zoomImage(this.src, '${p.name.replace(/'/g, "\\'")}')" onerror="this.src='https://via.placeholder.com/200x150?text=Нет+фото'">
                     <h3>${p.name}</h3>
                     <span class="art-text">Арт: ${p.article}</span>
                 </div>
                 <div class="card-bottom">
                     <div class="card-price">${p.price.toLocaleString()} ₽</div>
                     <div class="btn-row">
-                        <button class="btn-info" onclick="window.openSingleRequest('${p.name.replace(/'/g, "\\'")}', '${p.article}')">Запросить</button>
+                        <button class="btn-info" onclick="alert('Запрос по товару ${p.article} отправлен')">Запросить</button>
                         ${cartAction}
                     </div>
                 </div>
@@ -77,21 +77,19 @@ function updateCartDisplay() {
     document.getElementById('cart-total-price').innerText = `Итого: ${totalPrice.toLocaleString()} ₽`;
 
     const list = document.getElementById('cart-items-list');
-    list.innerHTML = cart.length === 0 
-        ? '<p style="text-align:center; color:#444; margin-top:50px;">Корзина пуста</p>'
-        : cart.map(item => `
-            <div class="cart-item">
-                <img src="images/parts/${item.image}">
-                <div style="flex:1">
-                    <h4 style="font-size:0.85rem; margin-bottom:4px;">${item.name}</h4>
-                    <p style="font-size:0.8rem; color:#4caf50">${item.qty} шт. x ${item.price.toLocaleString()} ₽</p>
-                </div>
-                <button class="qty-btn" onclick="window.updateQty('${item.article}', -1)" style="color:#ff5252">×</button>
+    list.innerHTML = cart.map(item => `
+        <div class="cart-item">
+            <img src="images/parts/${item.image}">
+            <div style="flex:1">
+                <h4>${item.name}</h4>
+                <p>${item.qty} шт. x ${item.price.toLocaleString()} ₽</p>
             </div>
-        `).join('');
+            <button class="qty-btn" onclick="window.updateQty('${item.article}', -1)" style="color:#ff5252">×</button>
+        </div>
+    `).join('');
 }
 
-// УПРАВЛЕНИЕ ПАНЕЛЬЮ
+// ПАНЕЛЬ КОРЗИНЫ
 const sideCart = document.getElementById('side-cart');
 const overlay = document.getElementById('cart-overlay');
 
@@ -115,38 +113,6 @@ window.zoomImage = (src, name) => {
     modal.style.display = 'flex';
 };
 
-// ТЕЛЕГРАМ ОТПРАВКА
-document.getElementById('cart-send-btn').onclick = async () => {
-    const name = document.getElementById('cart-name').value.trim();
-    const phone = document.getElementById('cart-phone').value.trim();
-    if (cart.length === 0) return alert('Добавьте товары в заказ');
-    if (!name || phone.length < 10) return alert('Укажите контактные данные');
-
-    const itemsStr = cart.map(i => `• ${i.name} (арт: ${i.article}) — ${i.qty} шт.`).join('\n');
-    const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
-    const msg = `🛒 НОВЫЙ ЗАКАЗ\n\nИмя: ${name}\nТел: ${phone}\n\nТовары:\n${itemsStr}\n\nСумма: ${total.toLocaleString()} ₽`;
-
-    try {
-        const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: chatId, text: msg })
-        });
-        if (res.ok) { 
-            alert('Ваш запрос успешно отправлен!'); 
-            cart = []; 
-            closeCart(); 
-            render(); 
-        }
-    } catch (e) { alert('Ошибка соединения с сервером'); }
-};
-
-window.openSingleRequest = (name, art) => {
-    document.getElementById('modal-product-name').innerText = `${name} (Арт: ${art})`;
-    document.getElementById('modal').style.display = 'flex';
-};
-window.closeModal = () => document.getElementById('modal').style.display = 'none';
-
 // СОБЫТИЯ
 document.getElementById('search-input')?.addEventListener('input', () => { visibleCount = 12; render(); });
 document.getElementById('category-tags')?.addEventListener('click', (e) => {
@@ -158,6 +124,5 @@ document.getElementById('category-tags')?.addEventListener('click', (e) => {
         render();
     }
 });
-document.getElementById('load-more-btn')?.addEventListener('click', () => { visibleCount += 8; render(); });
 
 render();

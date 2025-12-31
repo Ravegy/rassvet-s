@@ -3,104 +3,103 @@ import productsData from './products.js';
 const botToken = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o';
 const chatId = '1017718880';
 
+let cart = []; // Массив {article, name, price, qty, image}
 let currentCategory = 'all';
-let cartCount = 0;
-let visibleCount = 12; 
-let selectedProd = { name: '', art: '' };
+let visibleCount = 12;
 
 function render() {
     const root = document.getElementById('catalog');
     if (!root) return;
 
-    const searchInput = document.getElementById('search-input');
-    const searchValue = searchInput ? searchInput.value.toLowerCase().trim() : "";
-    const btnBox = document.getElementById('show-more-box');
-
+    const searchValue = document.getElementById('search-input')?.value.toLowerCase().trim() || "";
     const filtered = productsData.filter(p => {
         const matchesCategory = currentCategory === 'all' || p.category === currentCategory;
-        const matchesSearch = p.name.toLowerCase().includes(searchValue) || 
-                              p.article.toLowerCase().includes(searchValue);
+        const matchesSearch = p.name.toLowerCase().includes(searchValue) || p.article.toLowerCase().includes(searchValue);
         return matchesCategory && matchesSearch;
     });
 
-    if (filtered.length === 0) {
-        root.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #444; font-size: 1rem;">Ничего не найдено</div>`;
-        if (btnBox) btnBox.style.display = 'none';
-        return;
-    }
-
     root.innerHTML = filtered.map((p, index) => {
         const isHidden = index >= visibleCount ? 'hidden' : '';
-        const delay = isHidden ? 0 : (index % 12) * 0.04; 
+        const itemInCart = cart.find(item => item.article === p.article);
+
+        // Кнопка меняется на +/- если товар в корзине
+        const cartAction = itemInCart 
+            ? `<div class="qty-controls">
+                <button class="qty-btn" onclick="window.updateQty('${p.article}', -1)">-</button>
+                <div class="qty-val">${itemInCart.qty}</div>
+                <button class="qty-btn" onclick="window.updateQty('${p.article}', 1)">+</button>
+               </div>`
+            : `<button class="btn-add" onclick="window.addToCart('${p.article}')"></button>`;
+
         return `
-            <div class="card ${isHidden}" style="animation-delay: ${delay}s">
+            <div class="card ${isHidden}">
                 <div class="card-top">
-                    <img src="images/parts/${p.image}" 
-                         onclick="window.zoomImage(this.src, '${p.name.replace(/'/g, "\\'")}')" 
-                         style="cursor: zoom-in;"
-                         onerror="this.src='https://via.placeholder.com/200x140?text=Запчасть'">
+                    <img src="images/parts/${p.image}" onclick="window.zoomImage(this.src, '${p.name.replace(/'/g, "\\'")}')" style="cursor: zoom-in;">
                     <h3>${p.name}</h3>
                     <span class="art-text">Арт: ${p.article}</span>
                 </div>
                 <div class="card-bottom">
                     <div class="card-price">${p.price.toLocaleString()} ₽</div>
                     <div class="btn-row">
-                        <button class="btn-info" onclick="window.openM('${p.name.replace(/'/g, "\\'")}', '${p.article}')">Запросить</button>
-                        <button class="btn-add" onclick="window.addToCart()" title="В корзину"></button>
+                        <button class="btn-info" onclick="window.openSingleRequest('${p.name.replace(/'/g, "\\'")}', '${p.article}')">Запросить</button>
+                        ${cartAction}
                     </div>
                 </div>
             </div>
         `;
     }).join('');
 
-    if (btnBox) {
-        btnBox.style.display = filtered.length > visibleCount ? 'block' : 'none';
-    }
+    document.getElementById('show-more-box').style.display = filtered.length > visibleCount ? 'block' : 'none';
+    updateCartDisplay();
 }
 
-// Глобальные функции для работы из HTML
-window.addToCart = () => {
-    cartCount++;
-    const badge = document.getElementById('cart-count');
-    if (badge) {
-        badge.innerText = cartCount;
-        badge.style.transform = 'scale(1.4)';
-        setTimeout(() => badge.style.transform = 'scale(1)', 200);
+// ЛОГИКА КОРЗИНЫ
+window.addToCart = (article) => {
+    const product = productsData.find(p => p.article === article);
+    cart.push({ ...product, qty: 1 });
+    render();
+};
+
+window.updateQty = (article, delta) => {
+    const index = cart.findIndex(i => i.article === article);
+    if (index !== -1) {
+        cart[index].qty += delta;
+        if (cart[index].qty <= 0) cart.splice(index, 1);
     }
+    render();
 };
 
-window.zoomImage = (src, name) => {
-    const modal = document.getElementById('image-modal');
-    const zoomedImg = document.getElementById('zoomed-img');
-    const caption = document.getElementById('zoom-caption');
-    if (modal && zoomedImg && caption) {
-        zoomedImg.src = src;
-        caption.innerText = name;
-        modal.style.display = 'flex';
-    }
-};
+function updateCartDisplay() {
+    const totalCount = cart.reduce((sum, i) => sum + i.qty, 0);
+    const totalPrice = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+    
+    document.getElementById('cart-count').innerText = totalCount;
+    document.getElementById('cart-total-price').innerText = `Итого: ${totalPrice.toLocaleString()} ₽`;
 
-window.openM = (name, art) => {
-    selectedProd = { name, art };
-    const modalTitle = document.getElementById('modal-product-name');
-    if (modalTitle) {
-        modalTitle.innerHTML = `${name} <span>Артикул: ${art}</span>`;
-    }
-    document.getElementById('modal').style.display = 'flex';
-};
+    const list = document.getElementById('cart-items-list');
+    list.innerHTML = cart.map(item => `
+        <div class="cart-item">
+            <img src="images/parts/${item.image}">
+            <div class="cart-item-info">
+                <h4>${item.name}</h4>
+                <p>${item.qty} шт. × ${item.price.toLocaleString()} ₽</p>
+            </div>
+            <button class="qty-btn" onclick="window.updateQty('${item.article}', -1)" style="color: #ff5252">×</button>
+        </div>
+    `).join('');
+}
 
-window.closeModal = () => {
-    document.getElementById('modal').style.display = 'none';
-};
+// ОТПРАВКА КОРЗИНЫ
+async function sendCartRequest() {
+    const name = document.getElementById('cart-name').value.trim();
+    const phone = document.getElementById('cart-phone').value.trim();
 
-async function sendRequest() {
-    const name = document.getElementById('user-name').value.trim();
-    const phone = document.getElementById('user-phone').value.trim();
-    const email = document.getElementById('user-email').value.trim();
+    if (cart.length === 0) return alert('Корзина пуста');
+    if (!name || !phone) return alert('Заполните данные');
 
-    if (!name || !phone) return alert('Пожалуйста, заполните Имя и Телефон');
-
-    const msg = `🚀 ЗАЯВКА\n📦 Товар: ${selectedProd.name}\n🔢 Арт: ${selectedProd.art}\n👤 Имя: ${name}\n📞 Тел: ${phone}\n✉️ Почта: ${email}`;
+    const itemsStr = cart.map(i => `• ${i.name} (арт: ${i.article}) — ${i.qty} шт.`).join('\n');
+    const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+    const msg = `🛒 НОВЫЙ ЗАКАЗ\n\n👤 Клиент: ${name}\n📞 Тел: ${phone}\n\n📦 Товары:\n${itemsStr}\n\n💰 Итого: ${total.toLocaleString()} ₽`;
 
     try {
         const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -109,35 +108,62 @@ async function sendRequest() {
             body: JSON.stringify({ chat_id: chatId, text: msg })
         });
         if (res.ok) {
-            alert('Заявка успешно отправлена!');
-            window.closeModal();
+            alert('Заявка отправлена!');
+            cart = [];
+            toggleCart(false);
+            render();
         }
-    } catch (e) { alert('Ошибка соединения'); }
+    } catch (e) { alert('Ошибка сети'); }
 }
 
-// Маска телефона
-document.getElementById('user-phone')?.addEventListener('input', (e) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (!value || value[0] !== '7') value = '7' + value;
-    value = value.substring(0, 11);
-    let result = '+7';
-    if (value.length > 1) result += ' (' + value.substring(1, 4);
-    if (value.length >= 5) result += ') ' + value.substring(4, 7);
-    if (value.length >= 8) result += '-' + value.substring(7, 9);
-    if (value.length >= 10) result += '-' + value.substring(9, 11);
-    e.target.value = result;
-});
+// МОДАЛКИ И ИНТЕРФЕЙС
+const toggleCart = (show) => {
+    document.getElementById('side-cart').classList.toggle('open', show);
+    document.getElementById('cart-overlay').style.display = show ? 'block' : 'none';
+};
 
-document.getElementById('send-request-btn')?.addEventListener('click', sendRequest);
-document.getElementById('load-more-btn')?.addEventListener('click', () => { visibleCount += 8; render(); });
-document.getElementById('search-input')?.addEventListener('input', () => { visibleCount = 12; render(); });
+document.getElementById('cart-trigger').onclick = () => toggleCart(true);
+document.getElementById('cart-close').onclick = () => toggleCart(false);
+document.getElementById('cart-overlay').onclick = () => toggleCart(false);
+document.getElementById('cart-send-btn').onclick = sendCartRequest;
 
+window.openSingleRequest = (name, art) => {
+    document.getElementById('modal-product-name').innerText = `${name} (Арт: ${art})`;
+    document.getElementById('modal').style.display = 'flex';
+};
+
+window.closeModal = () => document.getElementById('modal').style.display = 'none';
+
+window.zoomImage = (src, name) => {
+    document.getElementById('zoomed-img').src = src;
+    document.getElementById('zoom-caption').innerText = name;
+    document.getElementById('image-modal').style.display = 'flex';
+};
+
+// МАСКА ТЕЛЕФОНА
+const phoneInput = (id) => {
+    document.getElementById(id)?.addEventListener('input', (e) => {
+        let v = e.target.value.replace(/\D/g, '');
+        if (!v || v[0] !== '7') v = '7' + v;
+        v = v.substring(0, 11);
+        let res = '+7';
+        if (v.length > 1) res += ' (' + v.substring(1, 4);
+        if (v.length >= 5) res += ') ' + v.substring(4, 7);
+        if (v.length >= 8) res += '-' + v.substring(7, 9);
+        if (v.length >= 10) res += '-' + v.substring(9, 11);
+        e.target.value = res;
+    });
+};
+phoneInput('user-phone');
+phoneInput('cart-phone');
+
+// ПОИСК И ФИЛЬТРЫ
+document.getElementById('search-input')?.addEventListener('input', render);
 document.getElementById('category-tags')?.addEventListener('click', (e) => {
     if (e.target.classList.contains('tag')) {
         document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
         currentCategory = e.target.dataset.cat;
-        visibleCount = 12;
         render();
     }
 });

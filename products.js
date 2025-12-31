@@ -41,20 +41,6 @@ const productsData = [
     { name: "Монитор управления кабины", article: "EL-DISP-100", price: 78500, category: "Электрика", image: "chain.jpg" },
     { name: "Контроллер двигателя (ЭБУ)", article: "EL-ECU-200", price: 168000, category: "Электрика", image: "chain.jpg" }
 ];
-
-// Автоматическое дополнение до ровно 200 позиций с картинкой chain.jpg
-const categories = ["Гидравлика", "Двигатель", "Расходники", "Ходовая часть", "Электрика"];
-const startCount = productsData.length;
-
-for (let i = startCount; i < 200; i++) {
-    const cat = categories[i % categories.length];
-    productsData.push({
-        name: `Запчасть ${cat} (модель №${i + 1})`,
-        article: `RSV-${2000 + i}`,
-        price: Math.floor(Math.random() * (50000 - 1000) + 1000),
-        category: cat,
-        image: "chain.jpg"
-    });
 }
 
 export default productsData;

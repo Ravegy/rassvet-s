@@ -227,7 +227,7 @@ document.getElementById('cart-send-btn').onclick = async () => {
         });
 
         if (res.ok) {
-            alert('Заказ отправлен! Менеджер свяжется с вами.');
+            window.showToast('Ваш заказ успешно отправлен!');
             cart = [];
             saveCart(); 
             closeCart();

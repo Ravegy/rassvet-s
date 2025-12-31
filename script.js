@@ -3,7 +3,7 @@ import productsData from './products.js';
 const botToken = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o';
 const chatId = '1017718880';
 
-let cart = []; // Массив {article, name, price, qty, image}
+let cart = []; 
 let currentCategory = 'all';
 let visibleCount = 12;
 
@@ -22,7 +22,6 @@ function render() {
         const isHidden = index >= visibleCount ? 'hidden' : '';
         const itemInCart = cart.find(item => item.article === p.article);
 
-        // Кнопка меняется на +/- если товар в корзине
         const cartAction = itemInCart 
             ? `<div class="qty-controls">
                 <button class="qty-btn" onclick="window.updateQty('${p.article}', -1)">-</button>
@@ -34,7 +33,7 @@ function render() {
         return `
             <div class="card ${isHidden}">
                 <div class="card-top">
-                    <img src="images/parts/${p.image}" onclick="window.zoomImage(this.src, '${p.name.replace(/'/g, "\\'")}')" style="cursor: zoom-in;">
+                    <img src="images/parts/${p.image}" onclick="window.zoomImage(this.src, '${p.name.replace(/'/g, "\\'")}')">
                     <h3>${p.name}</h3>
                     <span class="art-text">Арт: ${p.article}</span>
                 </div>
@@ -53,7 +52,6 @@ function render() {
     updateCartDisplay();
 }
 
-// ЛОГИКА КОРЗИНЫ
 window.addToCart = (article) => {
     const product = productsData.find(p => p.article === article);
     cart.push({ ...product, qty: 1 });
@@ -73,27 +71,30 @@ function updateCartDisplay() {
     const totalCount = cart.reduce((sum, i) => sum + i.qty, 0);
     const totalPrice = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
     
-    document.getElementById('cart-count').innerText = totalCount;
-    document.getElementById('cart-total-price').innerText = `Итого: ${totalPrice.toLocaleString()} ₽`;
+    const badge = document.getElementById('cart-count');
+    if(badge) badge.innerText = totalCount;
+    
+    const totalPriceEl = document.getElementById('cart-total-price');
+    if(totalPriceEl) totalPriceEl.innerText = `Итого: ${totalPrice.toLocaleString()} ₽`;
 
     const list = document.getElementById('cart-items-list');
-    list.innerHTML = cart.map(item => `
-        <div class="cart-item">
-            <img src="images/parts/${item.image}">
-            <div class="cart-item-info">
-                <h4>${item.name}</h4>
-                <p>${item.qty} шт. × ${item.price.toLocaleString()} ₽</p>
+    if(list) {
+        list.innerHTML = cart.map(item => `
+            <div class="cart-item">
+                <img src="images/parts/${item.image}">
+                <div class="cart-item-info">
+                    <h4>${item.name}</h4>
+                    <p>${item.qty} шт. × ${item.price.toLocaleString()} ₽</p>
+                </div>
+                <button class="qty-btn" onclick="window.updateQty('${item.article}', -1)" style="color: #ff5252">×</button>
             </div>
-            <button class="qty-btn" onclick="window.updateQty('${item.article}', -1)" style="color: #ff5252">×</button>
-        </div>
-    `).join('');
+        `).join('');
+    }
 }
 
-// ОТПРАВКА КОРЗИНЫ
 async function sendCartRequest() {
     const name = document.getElementById('cart-name').value.trim();
     const phone = document.getElementById('cart-phone').value.trim();
-
     if (cart.length === 0) return alert('Корзина пуста');
     if (!name || !phone) return alert('Заполните данные');
 
@@ -116,7 +117,6 @@ async function sendCartRequest() {
     } catch (e) { alert('Ошибка сети'); }
 }
 
-// МОДАЛКИ И ИНТЕРФЕЙС
 const toggleCart = (show) => {
     document.getElementById('side-cart').classList.toggle('open', show);
     document.getElementById('cart-overlay').style.display = show ? 'block' : 'none';
@@ -128,7 +128,7 @@ document.getElementById('cart-overlay').onclick = () => toggleCart(false);
 document.getElementById('cart-send-btn').onclick = sendCartRequest;
 
 window.openSingleRequest = (name, art) => {
-    document.getElementById('modal-product-name').innerText = `${name} (Арт: ${art})`;
+    document.getElementById('modal-product-name').innerHTML = `${name} <span>Артикул: ${art}</span>`;
     document.getElementById('modal').style.display = 'flex';
 };
 
@@ -140,8 +140,7 @@ window.zoomImage = (src, name) => {
     document.getElementById('image-modal').style.display = 'flex';
 };
 
-// МАСКА ТЕЛЕФОНА
-const phoneInput = (id) => {
+const setupPhoneMask = (id) => {
     document.getElementById(id)?.addEventListener('input', (e) => {
         let v = e.target.value.replace(/\D/g, '');
         if (!v || v[0] !== '7') v = '7' + v;
@@ -154,10 +153,9 @@ const phoneInput = (id) => {
         e.target.value = res;
     });
 };
-phoneInput('user-phone');
-phoneInput('cart-phone');
+setupPhoneMask('user-phone');
+setupPhoneMask('cart-phone');
 
-// ПОИСК И ФИЛЬТРЫ
 document.getElementById('search-input')?.addEventListener('input', render);
 document.getElementById('category-tags')?.addEventListener('click', (e) => {
     if (e.target.classList.contains('tag')) {

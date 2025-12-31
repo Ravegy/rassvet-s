@@ -8,17 +8,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         .contacts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px; }
-        .contact-card { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 35px; border-radius: 25px; }
-        .contact-info-item { margin-bottom: 25px; }
-        .contact-info-item h3 { color: var(--accent); margin-bottom: 5px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
-        .contact-info-item p { font-size: 1.1rem; line-height: 1.5; }
-        .map-container { border-radius: 25px; overflow: hidden; border: 1px solid var(--glass-border); height: 100%; min-height: 450px; }
+        .contact-card { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 40px; border-radius: 25px; }
+        .contact-info-item { margin-bottom: 30px; }
+        .contact-info-item h3 { color: var(--accent); margin-bottom: 10px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        .contact-info-item p { font-size: 1.2rem; line-height: 1.6; }
+        .map-container { border-radius: 25px; overflow: hidden; border: 1px solid var(--glass-border); min-height: 450px; }
         
         /* Стили формы обратной связи */
         .feedback-form { margin-top: 30px; padding-top: 30px; border-top: 1px solid var(--glass-border); }
-        .feedback-form h2 { font-size: 1.2rem; margin-bottom: 20px; color: #fff; }
+        .feedback-form h2 { font-size: 1.5rem; margin-bottom: 25px; color: #fff; }
         
         @media (max-width: 992px) { .contacts-grid { grid-template-columns: 1fr; } }
+
+        /* Стили валидации */
+        .modal-input.invalid { border-color: var(--error) !important; box-shadow: 0 0 10px rgba(255, 61, 0, 0.2); }
+        .modal-input.valid { border-color: var(--accent) !important; }
     </style>
 </head>
 <body>
@@ -41,17 +45,17 @@
         <div class="glass-container">
             <div class="catalog-header">
                 <h1>Наши контакты</h1>
-                <p class="subtext">Мы всегда на связи, чтобы помочь вам с выбором</p>
+                <p class="subtext">Свяжитесь с нами для консультации по подбору запчастей</p>
             </div>
 
             <div class="contacts-grid">
                 <div class="contact-card">
                     <div class="contact-info-item">
-                        <h3>Адрес и офис</h3>
+                        <h3>Офис и Склад</h3>
                         <p>Санкт-Петербург, Южное шоссе, д. 37</p>
                     </div>
                     <div class="contact-info-item">
-                        <h3>Телефон / Email</h3>
+                        <h3>Связь</h3>
                         <p>+7 (812) 000-00-00<br>info@rassvet-s.ru</p>
                     </div>
 
@@ -63,20 +67,20 @@
                                 <label>Ваше имя</label>
                             </div>
                             <div class="input-group">
-                                <input type="tel" id="fb-phone" class="modal-input" placeholder=" " required>
+                                <input type="tel" id="fb-phone" class="modal-input" placeholder=" " required maxlength="18">
                                 <label>Телефон</label>
                             </div>
                             <div class="input-group">
-                                <textarea id="fb-message" class="modal-input" placeholder=" " style="min-height: 100px; padding-top: 15px;"></textarea>
-                                <label>Сообщение (необязательно)</label>
+                                <textarea id="fb-message" class="modal-input" placeholder=" " style="min-height: 100px; padding-top: 15px; resize: none;"></textarea>
+                                <label>Ваш вопрос</label>
                             </div>
-                            <button class="btn-send" id="fb-send-btn" style="width: 100%;">Отправить сообщение</button>
+                            <button class="btn-send" id="fb-send-btn" style="width: 100%;">Отправить запрос</button>
                         </form>
                     </div>
                 </div>
 
                 <div class="map-container">
-                    <iframe src="https://yandex.ru/map-widget/v1/?ll=30.4190%2C59.8550&z=15" width="100%" height="100%" frameborder="0" style="filter: invert(90%) hue-rotate(180deg) brightness(95%); min-height: 450px;"></iframe>
+                    <iframe src="https://yandex.ru/map-widget/v1/?ll=30.4190%2C59.8550&z=15" width="100%" height="100%" frameborder="0" style="filter: invert(90%) hue-rotate(180deg) brightness(95%);"></iframe>
                 </div>
             </div>
         </div>
@@ -87,22 +91,17 @@
             <div class="footer-grid">
                 <div class="footer-col">
                     <h4 class="footer-h4">РАССВЕТ-С</h4>
-                    <p class="footer-mini-text">Ваш надежный партнер в мире запчастей.</p>
+                    <p class="footer-mini-text">Ваш надежный партнер в мире спецтехники.</p>
                 </div>
                 <div class="footer-col">
-                    <h4 class="footer-h4">Разделы</h4>
+                    <h4 class="footer-h4">Навигация</h4>
                     <ul class="footer-nav">
                         <li><a href="index.html">Каталог</a></li>
                         <li><a href="contacts.html">Контакты</a></li>
                     </ul>
                 </div>
-                <div class="footer-col contacts-info">
-                    <h4 class="footer-h4">Контакты</h4>
-                    <div class="contact-row"><p>СПб, Южное шоссе, 37</p></div>
-                    <div class="contact-row"><p class="accent-text">+7 (812) 000-00-00</p></div>
-                </div>
             </div>
-            <div class="footer-bottom-line">© 2025 ООО «РАССВЕТ-С».</div>
+            <div class="footer-bottom-line">© 2025 ООО «РАССВЕТ-С». Все права защищены.</div>
         </div>
     </footer>
 
@@ -112,6 +111,66 @@
         <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zm-8.9-5h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01-1.74-.96h-.01L15.42 11H8.1L7.07 9l-.13-.27L4.16 3l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.59 14.46 5.42 16 7 16h12v-2H7.42l1.1-2z"/></svg>
     </div>
 
+    <script type="module">
+        import productsData from './products.js'; // Чтобы корзина работала
+
+        const botToken = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o';
+        const chatId = '1017718880';
+
+        // --- Маска и валидация телефона ---
+        const fbPhone = document.getElementById('fb-phone');
+        fbPhone.addEventListener('input', (e) => {
+            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+            if (!x[2]) { e.target.value = x[1] === '7' || x[1] === '8' ? '+7 (' : e.target.value; return; }
+            e.target.value = `+7 (${x[2]}` + (x[3] ? `) ${x[3]}` : '') + (x[4] ? `-${x[4]}` : '') + (x[5] ? `-${x[5]}` : '');
+            
+            // Проверка на длину (полный номер)
+            if (e.target.value.length === 18) {
+                fbPhone.classList.add('valid');
+                fbPhone.classList.remove('invalid');
+            } else {
+                fbPhone.classList.remove('valid');
+            }
+        });
+
+        // --- Отправка в Telegram ---
+        const fbSendBtn = document.getElementById('fb-send-btn');
+        fbSendBtn.onclick = async () => {
+            const name = document.getElementById('fb-name').value;
+            const phone = fbPhone.value;
+            const msg = document.getElementById('fb-message').value;
+
+            if (!name || phone.length < 18) {
+                fbPhone.classList.add('invalid');
+                alert('Пожалуйста, введите имя и полный номер телефона');
+                return;
+            }
+
+            fbSendBtn.disabled = true;
+            fbSendBtn.innerText = 'Отправка...';
+
+            const text = `✉️ <b>ЗАПРОС С КОНТАКТОВ</b>\n\n👤 <b>Имя:</b> ${name}\n📞 <b>Тел:</b> ${phone}\n💬 <b>Сообщение:</b> ${msg || '—'}`;
+
+            try {
+                const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' })
+                });
+
+                if (res.ok) {
+                    alert('Ваше сообщение успешно отправлено!');
+                    document.getElementById('contact-page-form').reset();
+                    fbPhone.classList.remove('valid');
+                }
+            } catch (e) {
+                alert('Ошибка сети. Попробуйте позже.');
+            } finally {
+                fbSendBtn.disabled = false;
+                fbSendBtn.innerText = 'Отправить запрос';
+            }
+        };
+    </script>
     <script type="module" src="script.js"></script>
 </body>
 </html>

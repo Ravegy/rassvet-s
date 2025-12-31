@@ -19,8 +19,8 @@
         
         @media (max-width: 992px) { .contacts-grid { grid-template-columns: 1fr; } }
 
-        /* Стили валидации */
-        .modal-input.invalid { border-color: var(--error) !important; box-shadow: 0 0 10px rgba(255, 61, 0, 0.2); }
+        /* Стили валидации из вашего style.css */
+        .modal-input.invalid { border-color: var(--error) !important; }
         .modal-input.valid { border-color: var(--accent) !important; }
     </style>
 </head>
@@ -126,9 +126,25 @@
         <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zm-8.9-5h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01-1.74-.96h-.01L15.42 11H8.1L7.07 9l-.13-.27L4.16 3l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.59 14.46 5.42 16 7 16h12v-2H7.42l1.1-2z"/></svg>
     </div>
 
-    <script type="module">
-        import productsData from './products.js';
+    <div class="cart-overlay" id="cart-overlay"></div>
+    <div class="side-cart" id="side-cart">
+        <div class="cart-header">
+            <h2>Ваш заказ</h2>
+            <button class="close-cart" id="cart-close">×</button>
+        </div>
+        <div class="cart-items" id="cart-items-list"></div>
+        <div class="cart-footer">
+            <div class="total-row"><span>Итого:</span><span id="cart-total-price" class="total-price">0 ₽</span></div>
+            <form id="order-form" onsubmit="return false;">
+                <div class="input-group"><input type="text" id="cart-name" class="modal-input" placeholder=" " required><label>Ваше имя</label></div>
+                <div class="input-group"><input type="tel" id="cart-phone" class="modal-input" placeholder=" " required maxlength="18"><label>Телефон</label></div>
+                <div class="input-group"><input type="email" id="cart-email" class="modal-input" placeholder=" " required><label>E-mail</label></div>
+                <button class="btn-send" id="cart-send-btn">Оформить заявку</button>
+            </form>
+        </div>
+    </div>
 
+    <script type="module">
         const botToken = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o';
         const chatId = '1017718880';
 
@@ -136,20 +152,20 @@
         const fbPhone = document.getElementById('fb-phone');
         const fbSendBtn = document.getElementById('fb-send-btn');
 
-        // Валидация Имени
+        // СТРОГАЯ ВАЛИДАЦИЯ ИМЕНИ (только буквы, мин 2 символа)
         fbName.addEventListener('input', () => {
             const val = fbName.value.trim();
-            const nameRegex = /^[A-Za-zА-Яа-яЁё\s]{2,}$/; 
+            const nameRegex = /^[a-zA-Zа-яА-ЯёЁ\s]{2,30}$/; // Только буквы и пробелы
             if (nameRegex.test(val)) {
                 fbName.classList.add('valid');
                 fbName.classList.remove('invalid');
             } else {
                 fbName.classList.remove('valid');
-                if(val.length > 0) fbName.classList.add('invalid');
+                if (val.length > 0) fbName.classList.add('invalid');
             }
         });
 
-        // Маска и валидация Телефона
+        // МАСКА И ВАЛИДАЦИЯ ТЕЛЕФОНА
         fbPhone.addEventListener('input', (e) => {
             let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
             if (!x[2]) { e.target.value = x[1] === '7' || x[1] === '8' ? '+7 (' : e.target.value; return; }
@@ -163,22 +179,17 @@
             }
         });
 
+        // ОТПРАВКА
         fbSendBtn.onclick = async () => {
-            const name = fbName.value;
-            const phone = fbPhone.value;
-            const msg = document.getElementById('fb-message').value;
-
             if (!fbName.classList.contains('valid') || !fbPhone.classList.contains('valid')) {
-                alert('Пожалуйста, корректно заполните имя и телефон');
-                if(!fbName.classList.contains('valid')) fbName.classList.add('invalid');
-                if(!fbPhone.classList.contains('valid')) fbPhone.classList.add('invalid');
+                alert('Пожалуйста, заполните форму корректно (Имя без цифр, телефон полностью)');
                 return;
             }
 
             fbSendBtn.disabled = true;
             fbSendBtn.innerText = 'Отправка...';
 
-            const text = `✉️ <b>ЗАПРОС С КОНТАКТОВ</b>\n\n👤 <b>Имя:</b> ${name}\n📞 <b>Тел:</b> ${phone}\n💬 <b>Сообщение:</b> ${msg || '—'}`;
+            const text = `✉️ <b>ЗАПРОС С КОНТАКТОВ</b>\n👤 Имя: ${fbName.value}\n📞 Тел: ${fbPhone.value}\n💬 Сообщение: ${document.getElementById('fb-message').value || '—'}`;
 
             try {
                 const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -186,18 +197,13 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' })
                 });
-
                 if (res.ok) {
                     alert('Ваше сообщение успешно отправлено!');
                     document.getElementById('contact-page-form').reset();
-                    fbName.classList.remove('valid');
-                    fbPhone.classList.remove('valid');
+                    fbName.classList.remove('valid'); fbPhone.classList.remove('valid');
                 }
-            } catch (e) {
-                alert('Ошибка сети.');
-            } finally {
-                fbSendBtn.disabled = false;
-                fbSendBtn.innerText = 'Отправить запрос';
+            } catch (e) { alert('Ошибка сети'); } finally {
+                fbSendBtn.disabled = false; fbSendBtn.innerText = 'Отправить запрос';
             }
         };
     </script>

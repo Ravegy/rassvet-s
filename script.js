@@ -1,288 +1,207 @@
 import productsData from './products.js';
 
-// --- НАСТРОЙКИ TELEGRAM (Данные обновлены) ---
 const botToken = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o'; 
 const chatId = '1017718880';
 
-// Загрузка корзины из памяти браузера при старте страницы
 let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || []; 
-
 let currentCategory = 'all';
 let visibleCount = 12;
 
-// Сохранение корзины в память (localStorage)
-function saveCart() {
-    localStorage.setItem('rassvet_cart', JSON.stringify(cart));
-}
+// --- 1. КРАСИВЫЕ УВЕДОМЛЕНИЯ ---
+window.showToast = (message, isError = false) => {
+    const toast = document.getElementById('custom-toast');
+    const toastText = document.getElementById('toast-text');
+    const toastIcon = document.querySelector('.toast-icon');
+    if (!toast) return;
 
-// === ЛОГИКА ВАЛИДАЦИИ ===
-const nameInput = document.getElementById('cart-name');
-const phoneInput = document.getElementById('cart-phone');
-const emailInput = document.getElementById('cart-email');
-
-const formatPhone = (value) => {
-    if (!value) return value;
-    const phoneNumber = value.replace(/[^\d]/g, "");
-    const phoneNumberLength = phoneNumber.length;
-    if (phoneNumberLength < 2) return `+7 (${phoneNumber.slice(1)}`;
-    if (phoneNumberLength < 5) return `+7 (${phoneNumber.slice(1, 4)}) ${phoneNumber.slice(4)}`;
-    if (phoneNumberLength < 8) return `+7 (${phoneNumber.slice(1, 4)}) ${phoneNumber.slice(4, 7)}-${phoneNumber.slice(7)}`;
-    return `+7 (${phoneNumber.slice(1, 4)}) ${phoneNumber.slice(4, 7)}-${phoneNumber.slice(7, 9)}-${phoneNumber.slice(9, 11)}`;
+    toastText.innerText = message;
+    toast.style.borderColor = isError ? 'var(--error)' : 'var(--accent)';
+    toastIcon.style.background = isError ? 'var(--error)' : 'var(--accent)';
+    toastIcon.innerText = isError ? '!' : '✓';
+    
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
 };
 
-phoneInput?.addEventListener('input', (e) => {
-    const formatted = formatPhone(e.target.value);
-    e.target.value = formatted;
-    validateField(e.target, /^(\+7|7|8)?[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$/);
-});
-
-emailInput?.addEventListener('input', (e) => {
-    validateField(e.target, /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/);
-});
-
-nameInput?.addEventListener('input', (e) => {
-    validateField(e.target, /^[а-яА-Яa-zA-Z\s]{2,}$/);
-});
-
-function validateField(input, regex) {
-    if (regex.test(input.value)) {
-        input.classList.add('valid');
-        input.classList.remove('invalid');
-        return true;
-    } else {
-        if(input.value.length > 0) {
-            input.classList.add('invalid');
-            input.classList.remove('valid');
-        } else {
-            input.classList.remove('invalid', 'valid');
-        }
-        return false;
+// --- 2. СТРОГАЯ ВАЛИДАЦИЯ ---
+const validators = {
+    name: (el) => {
+        const isValid = /^[a-zA-Zа-яА-ЯёЁ\s]{2,30}$/.test(el.value.trim());
+        el.classList.toggle('valid', isValid);
+        el.classList.toggle('invalid', !isValid && el.value.length > 0);
+        return isValid;
+    },
+    email: (el) => {
+        const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim());
+        el.classList.toggle('valid', isValid);
+        el.classList.toggle('invalid', !isValid && el.value.length > 0);
+        return isValid;
+    },
+    phone: (el) => {
+        let x = el.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+        if (!x[2]) { el.value = x[1] === '7' || x[1] === '8' ? '+7 (' : el.value; }
+        else { el.value = `+7 (${x[2]}` + (x[3] ? `) ${x[3]}` : '') + (x[4] ? `-${x[4]}` : '') + (x[5] ? `-${x[5]}` : ''); }
+        const isValid = el.value.length === 18;
+        el.classList.toggle('valid', isValid);
+        el.classList.toggle('invalid', !isValid && el.value.length > 10);
+        return isValid;
     }
-}
+};
 
-// === ОСНОВНАЯ ЛОГИКА КАТАЛОГА ===
+// Слушатель ввода для всех страниц
+document.addEventListener('input', (e) => {
+    if (e.target.id.includes('name')) validators.name(e.target);
+    if (e.target.id.includes('email')) validators.email(e.target);
+    if (e.target.id.includes('phone')) validators.phone(e.target);
+});
 
+// --- 3. КОРЗИНА ---
+function saveCart() { localStorage.setItem('rassvet_cart', JSON.stringify(cart)); }
+
+window.addToCart = (name) => {
+    const product = productsData.find(p => p.name === name);
+    const inCart = cart.find(item => item.name === name);
+    if (inCart) inCart.count++; else cart.push({ ...product, count: 1 });
+    saveCart(); render();
+    showToast('Товар добавлен в корзину');
+};
+
+window.changeCount = (name, delta) => {
+    const item = cart.find(i => i.name === name);
+    if (item) { item.count += delta; if (item.count < 1) cart = cart.filter(i => i.name !== name); }
+    saveCart(); render();
+};
+
+// --- 4. РЕНДЕРИНГ (Универсальный) ---
 function render() {
-    const root = document.getElementById('catalog');
-    if (!root) return;
-
-    const searchValue = document.getElementById('search-input')?.value.toLowerCase().trim() || "";
+    const grid = document.getElementById('products-grid');
+    const cartList = document.getElementById('cart-items-list');
     
-    const filtered = productsData.filter(p => {
-        const matchesCategory = currentCategory === 'all' || p.category === currentCategory;
-        const matchesSearch = p.name.toLowerCase().includes(searchValue) || p.article.toLowerCase().includes(searchValue);
-        return matchesCategory && matchesSearch;
-    });
+    if (grid) {
+        const filtered = productsData.filter(p => currentCategory === 'all' || p.category === currentCategory)
+                                    .filter(p => p.name.toLowerCase().includes(document.getElementById('search-input').value.toLowerCase()));
 
-    root.innerHTML = filtered.slice(0, visibleCount).map((p) => {
-        const itemInCart = cart.find(item => item.article === p.article);
-
-        const cartAction = itemInCart 
-            ? `<div class="qty-controls">
-                <button class="qty-btn" onclick="window.updateQty('${p.article}', -1)">-</button>
-                <div class="qty-val">${itemInCart.qty}</div>
-                <button class="qty-btn" onclick="window.updateQty('${p.article}', 1)">+</button>
-               </div>`
-            : `<button class="btn-add" onclick="window.addToCart('${p.article}')">+</button>`;
-
-        return `
-            <div class="card">
-                <img src="images/parts/${p.image}" onclick="window.zoomImage(this.src)" onerror="this.src='https://via.placeholder.com/200x150?text=Нет+фото'">
-                <h3>${p.name}</h3>
-                <span class="art-text">${p.article}</span>
-                <div class="card-price">${p.price.toLocaleString()} ₽</div>
-                <div class="btn-row">
-                    <button class="btn-info" onclick="window.requestProduct('${p.article}')">Запросить</button>
-                    ${cartAction}
+        grid.innerHTML = filtered.slice(0, visibleCount).map(p => `
+            <div class="product-card">
+                <img src="images/${p.image}" alt="${p.name}" onclick="window.zoomImage(this.src)">
+                <div class="product-info">
+                    <div class="category-label">${p.category}</div>
+                    <h3>${p.name}</h3>
+                    <p class="article">Арт: ${p.article}</p>
+                    <div class="card-bottom">
+                        <span class="price">${p.price.toLocaleString()} ₽</span>
+                        <button class="add-btn" onclick="addToCart('${p.name}')">+</button>
+                    </div>
                 </div>
             </div>
-        `;
-    }).join('');
-
-    const showMoreBox = document.getElementById('show-more-box');
-    if (showMoreBox) {
-        showMoreBox.style.display = filtered.length > visibleCount ? 'block' : 'none';
+        `).join('');
+        document.getElementById('load-more-btn').style.display = visibleCount >= filtered.length ? 'none' : 'block';
     }
-    updateCartDisplay();
-}
 
-window.addToCart = (article) => {
-    const product = productsData.find(p => p.article === article);
-    if (product) {
-        const existing = cart.find(i => i.article === article);
-        if (!existing) {
-            cart.push({ ...product, qty: 1 });
-        }
-        saveCart(); 
-        render();
-    }
-};
-
-window.updateQty = (article, delta) => {
-    const index = cart.findIndex(i => i.article === article);
-    if (index !== -1) {
-        cart[index].qty += delta;
-        if (cart[index].qty <= 0) cart.splice(index, 1);
-        saveCart(); 
-        render();
-    }
-};
-
-window.requestProduct = (article) => {
-    if (!cart.find(i => i.article === article)) window.addToCart(article);
-    document.getElementById('side-cart').classList.add('open');
-    document.getElementById('cart-overlay').style.display = 'block';
-};
-
-function updateCartDisplay() {
-    const countEl = document.getElementById('cart-count');
-    const totalEl = document.getElementById('cart-total-price');
-    const listEl = document.getElementById('cart-items-list');
-
-    if (countEl) countEl.innerText = cart.reduce((sum, i) => sum + i.qty, 0);
-    if (totalEl) totalEl.innerText = `${cart.reduce((sum, i) => sum + (i.price * i.qty), 0).toLocaleString()} ₽`;
-
-    if (listEl) {
-        listEl.innerHTML = cart.length === 0 
-            ? '<p style="text-align:center; color:#555; margin-top:50px;">Корзина пуста</p>' 
-            : cart.map(item => `
-                <div class="cart-item-row">
-                    <img src="images/parts/${item.image}" onerror="this.src='https://via.placeholder.com/50x50'">
-                    <div style="flex:1">
-                        <div style="font-size:0.9rem; font-weight:700; color:#fff; margin-bottom:5px;">${item.name}</div>
-                        <div style="font-size:0.85rem; color:var(--accent);">${item.price.toLocaleString()} ₽</div>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="window.updateQty('${item.article}', -1)">-</button>
-                        <div class="qty-val">${item.qty}</div>
-                        <button class="qty-btn" onclick="window.updateQty('${item.article}', 1)">+</button>
+    if (cartList) {
+        cartList.innerHTML = cart.length === 0 ? '<p style="text-align:center; opacity:0.5; padding:20px;">Корзина пуста</p>' : 
+        cart.map(item => `
+            <div class="cart-item">
+                <div class="cart-item-info">
+                    <h4>${item.name}</h4>
+                    <div class="cart-item-bottom">
+                        <div class="count-ctrl">
+                            <button onclick="changeCount('${item.name}', -1)">-</button>
+                            <span>${item.count}</span>
+                            <button onclick="changeCount('${item.name}', 1)">+</button>
+                        </div>
+                        <span class="price">${(item.price * item.count).toLocaleString()} ₽</span>
                     </div>
                 </div>
-            `).join('');
+            </div>
+        `).join('');
     }
+
+    const total = cart.reduce((sum, item) => sum + item.price * item.count, 0);
+    const cartTotalEl = document.getElementById('cart-total-price');
+    if (cartTotalEl) cartTotalEl.innerText = `${total.toLocaleString()} ₽`;
+    
+    const badge = document.getElementById('cart-count');
+    if (badge) badge.innerText = cart.reduce((s, i) => s + i.count, 0);
 }
 
-// ОТПРАВКА В TELEGRAM (С использованием ваших данных)
-document.getElementById('cart-send-btn').onclick = async () => {
-    const isNameValid = nameInput.classList.contains('valid');
-    const isPhoneValid = phoneInput.classList.contains('valid');
-    const isEmailValid = emailInput.classList.contains('valid');
-
-    if (cart.length === 0) return alert('Корзина пуста!');
-
-    if (!isNameValid || !isPhoneValid || !isEmailValid) {
-        const form = document.getElementById('order-form');
-        form.classList.add('shake-form');
-        setTimeout(() => form.classList.remove('shake-form'), 500);
-        return;
+// --- 5. ОТПРАВКА В TELEGRAM ---
+window.sendOrder = async (isContactForm = false) => {
+    let nameEl, phoneEl, emailEl, text;
+    
+    if (isContactForm) {
+        nameEl = document.getElementById('fb-name');
+        phoneEl = document.getElementById('fb-phone');
+        const msg = document.getElementById('fb-message').value;
+        if (!validators.name(nameEl) || !validators.phone(phoneEl)) {
+            showToast('Заполните форму корректно', true); return;
+        }
+        text = `✉️ <b>ЗАПРОС С КОНТАКТОВ</b>\n👤 Имя: ${nameEl.value}\n📞 Тел: ${phoneEl.value}\n💬 Сообщение: ${msg || '—'}`;
+    } else {
+        nameEl = document.getElementById('cart-name');
+        phoneEl = document.getElementById('cart-phone');
+        emailEl = document.getElementById('cart-email');
+        if (!validators.name(nameEl) || !validators.phone(phoneEl) || !validators.email(emailEl)) {
+            showToast('Проверьте данные в корзине', true); return;
+        }
+        if (cart.length === 0) { showToast('Корзина пуста', true); return; }
+        const itemsText = cart.map(i => `• ${i.name} (${i.count}шт) - ${i.price * i.count}₽`).join('\n');
+        const total = cart.reduce((sum, i) => sum + i.price * i.count, 0);
+        text = `🛒 <b>НОВЫЙ ЗАКАЗ</b>\n👤 Имя: ${nameEl.value}\n📞 Тел: ${phoneEl.value}\n📧 Email: ${emailEl.value}\n📦 Товары:\n${itemsText}\n💰 <b>Итого: ${total} ₽</b>`;
     }
 
-    const btn = document.getElementById('cart-send-btn');
-    btn.innerText = 'Отправка...';
-    btn.disabled = true;
-
-    let msg = `🔥 <b>НОВЫЙ ЗАКАЗ</b>\n\n👤 Имя: ${nameInput.value}\n📞 Тел: ${phoneInput.value}\n✉️ Email: ${emailInput.value}\n\n📦 <b>Товары:</b>\n`;
-    let total = 0;
-
-    cart.forEach(item => {
-        const sum = item.price * item.qty;
-        total += sum;
-        msg += `🔹 ${item.name}\n   ${item.qty} шт. x ${item.price} = ${sum} ₽\n\n`;
-    });
-    msg += `💰 <b>ИТОГО: ${total.toLocaleString()} ₽</b>`;
+    const btn = isContactForm ? document.getElementById('fb-send-btn') : document.getElementById('cart-send-btn');
+    btn.disabled = true; btn.innerText = 'Отправка...';
 
     try {
         const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'HTML' })
+            body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' })
         });
-
         if (res.ok) {
-            alert('Заказ отправлен! Менеджер свяжется с вами.');
-            cart = [];
-            saveCart(); 
-            closeCart();
-            render();
-        } else {
-            alert('Ошибка при отправке в Telegram. Проверьте статус бота.');
+            showToast('Успешно отправлено!');
+            if (!isContactForm) { cart = []; saveCart(); render(); closeCart(); }
+            else { document.getElementById('contact-page-form').reset(); document.querySelectorAll('.modal-input').forEach(i => i.classList.remove('valid')); }
         }
-    } catch (e) { 
-        alert('Ошибка сети. Проверьте интернет-соединение.'); 
-    } finally {
-        btn.innerText = 'Оформить заявку';
-        btn.disabled = false;
+    } catch (e) { showToast('Ошибка сети', true); } finally {
+        btn.disabled = false; btn.innerText = isContactForm ? 'Отправить запрос' : 'Оформить заявку';
     }
 };
 
-// СОБЫТИЯ
-document.getElementById('load-more-btn')?.addEventListener('click', () => { visibleCount += 12; render(); });
-document.getElementById('search-input')?.addEventListener('input', () => { visibleCount = 12; render(); });
+// --- СОБЫТИЯ ---
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('cart-send-btn')?.addEventListener('click', () => window.sendOrder(false));
+    document.getElementById('fb-send-btn')?.addEventListener('click', () => window.sendOrder(true));
+    document.getElementById('load-more-btn')?.addEventListener('click', () => { visibleCount += 12; render(); });
+    document.getElementById('search-input')?.addEventListener('input', () => { visibleCount = 12; render(); });
+    
+    document.getElementById('category-tags')?.addEventListener('click', (e) => {
+        if (e.target.classList.contains('tag')) {
+            document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+            e.target.classList.add('active');
+            currentCategory = e.target.dataset.cat; render();
+        }
+    });
 
-document.getElementById('category-tags')?.addEventListener('click', (e) => {
-    if (e.target.classList.contains('tag')) {
-        document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
-        e.target.classList.add('active');
-        currentCategory = e.target.dataset.cat;
-        visibleCount = 12;
-        render();
-    }
+    const closeCart = () => {
+        document.getElementById('side-cart')?.classList.remove('open');
+        document.getElementById('cart-overlay').style.display = 'none';
+    };
+    document.getElementById('cart-trigger')?.addEventListener('click', () => {
+        document.getElementById('side-cart').classList.add('open');
+        document.getElementById('cart-overlay').style.display = 'block';
+    });
+    document.getElementById('cart-close')?.addEventListener('click', closeCart);
+    document.getElementById('cart-overlay')?.addEventListener('click', closeCart);
+
+    render();
 });
 
-const closeCart = () => {
-    document.getElementById('side-cart').classList.remove('open');
-    document.getElementById('cart-overlay').style.display = 'none';
-};
-
-document.getElementById('cart-trigger').onclick = () => {
-    document.getElementById('side-cart').classList.add('open');
-    document.getElementById('cart-overlay').style.display = 'block';
-};
-document.getElementById('cart-close').onclick = closeCart;
-document.getElementById('cart-overlay').onclick = closeCart;
-
 window.zoomImage = (src) => {
-    document.getElementById('zoomed-img').src = src;
-    document.getElementById('image-modal').style.display = 'flex';
+    const modal = document.getElementById('image-modal');
+    if(modal) {
+        document.getElementById('zoomed-img').src = src;
+        modal.style.display = 'flex';
+    }
 };
-
-// Логика формы обратной связи на странице контактов
-const fbSendBtn = document.getElementById('fb-send-btn');
-if (fbSendBtn) {
-    fbSendBtn.onclick = async () => {
-        const name = document.getElementById('fb-name').value;
-        const phone = document.getElementById('fb-phone').value;
-        const msg = document.getElementById('fb-message').value;
-
-        if (!name || phone.length < 10) {
-            alert('Пожалуйста, заполните имя и корректный телефон');
-            return;
-        }
-
-        fbSendBtn.disabled = true;
-        fbSendBtn.innerText = 'Отправка...';
-
-        const text = `✉️ <b>НОВОЕ СООБЩЕНИЕ (КОНТАКТЫ)</b>\n👤 Имя: ${name}\n📞 Тел: ${phone}\n💬 Сообщение: ${msg || '—'}`;
-
-        try {
-            const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' })
-            });
-
-            if (res.ok) {
-                alert('Сообщение успешно отправлено!');
-                document.getElementById('contact-page-form').reset();
-            }
-        } catch (e) {
-            alert('Ошибка при отправке');
-        } finally {
-            fbSendBtn.disabled = false;
-            fbSendBtn.innerText = 'Отправить сообщение';
-        }
-    };
-}
-
-// Инициализация при загрузке
-render();

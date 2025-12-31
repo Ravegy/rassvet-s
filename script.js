@@ -1,5 +1,9 @@
 import productsData from './products.js';
 
+// --- НАСТРОЙКИ TELEGRAM ---
+const botToken = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o'; // Вставьте сюда токен, например: '754321...'
+const chatId = '1017718880';     // Вставьте сюда ID, например: '123456789'
+
 let cart = []; 
 let currentCategory = 'all';
 let visibleCount = 12;
@@ -16,7 +20,6 @@ function render() {
         return matchesCategory && matchesSearch;
     });
 
-    // Отрисовка сетки товаров
     root.innerHTML = filtered.slice(0, visibleCount).map((p) => {
         const itemInCart = cart.find(item => item.article === p.article);
 
@@ -32,7 +35,7 @@ function render() {
             <div class="card">
                 <img src="images/parts/${p.image}" onclick="window.zoomImage(this.src)" onerror="this.src='https://via.placeholder.com/200x150?text=Нет+фото'">
                 <h3>${p.name}</h3>
-                <span class="art-text">АРТ: ${p.article}</span>
+                <span class="art-text">${p.article}</span>
                 <div class="card-price">${p.price.toLocaleString()} ₽</div>
                 <div class="btn-row">
                     <button class="btn-info" onclick="window.requestProduct('${p.article}')">Запросить</button>
@@ -42,7 +45,6 @@ function render() {
         `;
     }).join('');
 
-    // Кнопка "Показать еще"
     const showMoreBox = document.getElementById('show-more-box');
     if (showMoreBox) {
         showMoreBox.style.display = filtered.length > visibleCount ? 'block' : 'none';
@@ -50,11 +52,15 @@ function render() {
     updateCartDisplay();
 }
 
-// Логика корзины
+// ЛОГИКА КОРЗИНЫ
 window.addToCart = (article) => {
     const product = productsData.find(p => p.article === article);
     if (product) {
-        cart.push({ ...product, qty: 1 });
+        // Проверяем, есть ли уже товар (защита от дублей)
+        const existing = cart.find(i => i.article === article);
+        if (!existing) {
+            cart.push({ ...product, qty: 1 });
+        }
         render();
     }
 };
@@ -76,37 +82,77 @@ window.requestProduct = (article) => {
 
 function updateCartDisplay() {
     document.getElementById('cart-count').innerText = cart.reduce((sum, i) => sum + i.qty, 0);
-    document.getElementById('cart-total-price').innerText = `Итого: ${cart.reduce((sum, i) => sum + (i.price * i.qty), 0).toLocaleString()} ₽`;
+    document.getElementById('cart-total-price').innerText = `${cart.reduce((sum, i) => sum + (i.price * i.qty), 0).toLocaleString()} ₽`;
 
     const listEl = document.getElementById('cart-items-list');
     if (listEl) {
-        listEl.innerHTML = cart.map(item => `
-            <div class="cart-item-row">
-                <img src="images/parts/${item.image}" onerror="this.src='https://via.placeholder.com/50x50'">
-                <div style="flex:1">
-                    <div style="font-size:0.9rem; font-weight:bold;">${item.name}</div>
-                    <div style="font-size:0.8rem; color:var(--accent);">${item.price.toLocaleString()} ₽</div>
+        listEl.innerHTML = cart.length === 0 
+            ? '<p style="text-align:center; color:#555; margin-top:50px;">Корзина пуста</p>' 
+            : cart.map(item => `
+                <div class="cart-item-row">
+                    <img src="images/parts/${item.image}" onerror="this.src='https://via.placeholder.com/50x50'">
+                    <div style="flex:1">
+                        <div style="font-size:0.9rem; font-weight:700; color:#fff; margin-bottom:5px;">${item.name}</div>
+                        <div style="font-size:0.85rem; color:var(--accent);">${item.price.toLocaleString()} ₽</div>
+                    </div>
+                    <div class="qty-controls">
+                        <button class="qty-btn" onclick="window.updateQty('${item.article}', -1)">-</button>
+                        <div class="qty-val">${item.qty}</div>
+                        <button class="qty-btn" onclick="window.updateQty('${item.article}', 1)">+</button>
+                    </div>
                 </div>
-                <div class="qty-controls" style="transform:scale(0.8)">
-                    <button class="qty-btn" onclick="window.updateQty('${item.article}', -1)">-</button>
-                    <div class="qty-val">${item.qty}</div>
-                    <button class="qty-btn" onclick="window.updateQty('${item.article}', 1)">+</button>
-                </div>
-            </div>
-        `).join('');
+            `).join('');
     }
 }
 
-// События
-document.getElementById('load-more-btn')?.addEventListener('click', () => {
-    visibleCount += 12;
-    render();
-});
+// ОТПРАВКА В TELEGRAM
+document.getElementById('cart-send-btn').onclick = async () => {
+    const name = document.getElementById('cart-name').value;
+    const phone = document.getElementById('cart-phone').value;
 
-document.getElementById('search-input')?.addEventListener('input', () => {
-    visibleCount = 12;
-    render();
-});
+    if (cart.length === 0) return alert('Корзина пуста!');
+    if (!name || !phone) return alert('Пожалуйста, введите имя и телефон');
+
+    let msg = `🔥 <b>НОВЫЙ ЗАКАЗ</b>\n\n👤 Имя: ${name}\n📞 Телефон: ${phone}\n\n📦 <b>Товары:</b>\n`;
+    let total = 0;
+
+    cart.forEach(item => {
+        const sum = item.price * item.qty;
+        total += sum;
+        msg += `🔹 ${item.name} (Арт: ${item.article})\n   ${item.qty} шт. x ${item.price} = ${sum} ₽\n\n`;
+    });
+
+    msg += `💰 <b>ИТОГО: ${total.toLocaleString()} ₽</b>`;
+
+    try {
+        const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: chatId,
+                text: msg,
+                parse_mode: 'HTML'
+            })
+        });
+
+        if (res.ok) {
+            alert('Заказ успешно отправлен!');
+            cart = [];
+            document.getElementById('cart-name').value = '';
+            document.getElementById('cart-phone').value = '';
+            closeCart();
+            render();
+        } else {
+            alert('Ошибка отправки. Проверьте токен.');
+        }
+    } catch (e) {
+        alert('Ошибка сети');
+    }
+};
+
+// СОБЫТИЯ
+document.getElementById('load-more-btn')?.addEventListener('click', () => { visibleCount += 12; render(); });
+document.getElementById('search-input')?.addEventListener('input', () => { visibleCount = 12; render(); });
 
 document.getElementById('category-tags')?.addEventListener('click', (e) => {
     if (e.target.classList.contains('tag')) {
@@ -118,24 +164,21 @@ document.getElementById('category-tags')?.addEventListener('click', (e) => {
     }
 });
 
-// Открытие корзины
-document.getElementById('cart-trigger').onclick = () => {
-    document.getElementById('side-cart').classList.add('open');
-    document.getElementById('cart-overlay').style.display = 'block';
-};
-
 const closeCart = () => {
     document.getElementById('side-cart').classList.remove('open');
     document.getElementById('cart-overlay').style.display = 'none';
 };
 
+document.getElementById('cart-trigger').onclick = () => {
+    document.getElementById('side-cart').classList.add('open');
+    document.getElementById('cart-overlay').style.display = 'block';
+};
 document.getElementById('cart-close').onclick = closeCart;
 document.getElementById('cart-overlay').onclick = closeCart;
 
 window.zoomImage = (src) => {
-    const modal = document.getElementById('image-modal');
     document.getElementById('zoomed-img').src = src;
-    modal.style.display = 'flex';
+    document.getElementById('image-modal').style.display = 'flex';
 };
 
 render();

@@ -3,138 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>РАССВЕТ-С | Premium Parts</title>
+    <title>Запчасти Komatsu | РАССВЕТ-С</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<div id="custom-toast">
-    <div class="toast-icon">✓</div>
-    <span id="toast-text">Успешно!</span>
-</div>
-    <header class="glass-header">
-        <div class="header-container">
-            <div class="logo">РАССВЕТ-<span>С</span></div>
-            <nav>
-                <ul class="nav-list">
-                    <li><a href="#" class="nav-link active">Каталог</a></li>
-                    <li><a href="#" class="nav-link">О компании</a></li>
-                    <li><a href="#" class="nav-link">Доставка</a></li>
-                    <li><a href="contacts.html" class="nav-link">Контакты</a></li>
-                </ul>
-            </nav>
-            <a href="tel:+78120000000" class="phone-link">+7 (812) 000-00-00</a>
+
+    <header class="header">
+        <div class="container header-content">
+            <div class="logo">
+                <h1>РАССВЕТ-С</h1>
+                <span class="subtitle">Запчасти для лесозаготовительной техники</span>
+            </div>
+            <div class="contacts">
+                <p class="address">📍 г. Санкт-Петербург</p>
+                <a href="tel:+79818881337" class="phone-link">+7 (981) 888-13-37</a>
+            </div>
         </div>
     </header>
 
-    <main class="main-content">
-        <div class="glass-container">
-            <div class="catalog-header">
-                <h1>Каталог запчастей</h1>
-                <p class="subtext">Премиальные решения для вашей спецтехники</p>
-            </div>
-            
-            <div class="controls-wrapper">
-                <div class="search-box">
-                    <input type="text" id="search-input" placeholder="Поиск по артикулу или названию...">
-                    <div class="search-icon">🔍</div>
-                </div>
-                
-                <div class="category-filter" id="category-tags">
-                    <button class="tag active" data-cat="all">Все</button>
-                    <button class="tag" data-cat="Гидравлика">Гидравлика</button>
-                    <button class="tag" data-cat="Расходники">Расходники</button>
-                    <button class="tag" data-cat="Двигатель">Двигатель</button>
-                    <button class="tag" data-cat="Ходовая часть">Ходовая часть</button>
-                    <button class="tag" data-cat="Электрика">Электрика</button>
-                </div>
-            </div>
-
-            <div class="catalog-grid" id="catalog"></div>
-
-            <div id="show-more-box">
-                <button id="load-more-btn" class="btn-glow">Показать еще</button>
-            </div>
+    <section class="hero">
+        <div class="container">
+            <h2>Надежные детали для вашей техники Komatsu</h2>
+            <p>Более 1000 позиций в наличии и под заказ</p>
         </div>
+    </section>
+
+    <main class="container">
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Поиск по названию или артикулу...">
+        </div>
+
+        <div id="catalog" class="catalog-grid">
+            </div>
     </main>
 
-    <footer class="main-footer">
-        <div class="footer-container">
-            <div class="footer-grid">
-                <div class="footer-col">
-                    <h4 class="footer-h4">РАССВЕТ-<span>С</span></h4>
-                    <p class="footer-mini-text">Ваш надежный партнер в мире запчастей. Высокое качество, быстрая доставка и профессиональный подбор.</p>
-                </div>
-                <div class="footer-col">
-                    <h4 class="footer-h4">Разделы</h4>
-                    <ul class="footer-nav">
-                        <li><a href="#">О компании</a></li>
-                        <li><a href="#">Доставка</a></li>
-                        <li><a href="#">Гарантия</a></li>
-                        <li><a href="contacts.html">Контакты</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col contacts-info">
-                    <h4 class="footer-h4">Контакты</h4>
-                    <div class="contact-row"><p>СПб, Южное шоссе, 37</p></div>
-                    <div class="contact-row"><p>info@rassvet-s.ru</p></div>
-                    <div class="contact-row"><p class="accent-text">+7 (812) 000-00-00</p></div>
-                </div>
-            </div>
-            <div class="footer-bottom-line">© 2025 ООО «РАССВЕТ-С». Все права защищены.</div>
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 РАССВЕТ-С. Все права защищены.</p>
+            <p>Продажа запчастей Komatsu.</p>
         </div>
     </footer>
 
-    <div class="floating-cart" id="cart-trigger">
-        <div class="cart-pulse"></div>
-        <div class="cart-badge" id="cart-count">0</div>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zm-8.9-5h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01-1.74-.96h-.01L15.42 11H8.1L7.07 9l-.13-.27L4.16 3l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.59 14.46 5.42 16 7 16h12v-2H7.42l1.1-2z"/></svg>
-    </div>
-
-    <div class="cart-overlay" id="cart-overlay"></div>
-    <div class="side-cart" id="side-cart">
-        <div class="cart-header">
-            <h2>Ваш заказ</h2>
-            <button class="close-cart" id="cart-close">×</button>
-        </div>
-        
-        <div class="cart-items" id="cart-items-list"></div>
-        
-        <div class="cart-footer">
-            <div class="total-row">
-                <span>Итого:</span>
-                <span id="cart-total-price" class="total-price">0 ₽</span>
-            </div>
-            
-            <form id="order-form" onsubmit="return false;">
-                <div class="input-group">
-                    <input type="text" id="cart-name" class="modal-input" placeholder=" " required>
-                    <label>Ваше имя</label>
-                    <span class="status-icon"></span>
-                </div>
-                
-                <div class="input-group">
-                    <input type="tel" id="cart-phone" class="modal-input" placeholder=" " required maxlength="18">
-                    <label>Телефон</label>
-                    <span class="status-icon"></span>
-                </div>
-
-                <div class="input-group">
-                    <input type="email" id="cart-email" class="modal-input" placeholder=" " required>
-                    <label>E-mail</label>
-                    <span class="status-icon"></span>
-                </div>
-
-                <button class="btn-send" id="cart-send-btn">Оформить заявку</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="image-modal" class="image-zoom-modal" onclick="this.style.display='none'">
-        <img id="zoomed-img" src="">
-    </div>
-
-    <script src="products.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

@@ -3,21 +3,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     let productsData = [];
 
-    // 1. Загружаем данные
+    // Загрузка данных из внешнего файла JSON
     fetch('products.json')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Ошибка HTTP: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             productsData = data;
             renderCatalog(productsData);
         })
-        .catch(error => console.error('Ошибка загрузки товаров:', error));
+        .catch(error => {
+            console.error('Ошибка загрузки:', error);
+            // Сообщение об ошибке, если файл не грузится (например, из-за CORS)
+            catalogContainer.innerHTML = `
+                <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; color: red;">
+                    <h3>Не удалось загрузить каталог</h3>
+                    <p>Если вы открыли файл index.html с компьютера, браузер заблокировал загрузку базы данных.</p>
+                    <p>Пожалуйста, используйте "Live Server" или загрузите сайт на хостинг.</p>
+                </div>
+            `;
+        });
 
-    // 2. Функция отрисовки товаров (ОБНОВЛЕНА)
+    // Функция отрисовки каталога
     function renderCatalog(items) {
         catalogContainer.innerHTML = '';
 
         if (items.length === 0) {
-            catalogContainer.innerHTML = '<p style="background: white; padding: 20px; border-radius: 5px;">По вашему запросу ничего не найдено.</p>';
+            catalogContainer.innerHTML = '<p style="background: white; padding: 20px; border-radius: 5px; grid-column: 1/-1; text-align: center;">Ничего не найдено.</p>';
             return;
         }
 
@@ -25,29 +40,39 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.classList.add('product-card');
 
-            // Формируем путь к картинке. 
-            // Если в JSON картинка не указана, можно подставить заглушку (пока оставил пустой).
-            const imagePath = product.image ? `images/parts/${product.image}` : 'images/no-image.png'; 
+            // Путь к картинке: images/parts/ИМЯ_ФАЙЛА
+            // Если картинки нет, подставляем заглушку
+            const imagePath = product.image ? `images/parts/${product.image}` : 'images/no-image.png';
 
             card.innerHTML = `
-                <img src="${imagePath}" alt="${product.name}" class="product-img" onerror="this.src='images/no-image.png'">
+                <div class="img-wrapper">
+                    <img src="${imagePath}" 
+                         alt="${product.name}" 
+                         class="product-img" 
+                         onerror="this.src='https://placehold.co/300x220?text=Нет+фото'">
+                </div>
                 
-                <div class="product-sku">Артикул: ${product.sku}</div>
+                <div class="product-sku">Арт: ${product.sku}</div>
                 <h3 class="product-title">${product.name}</h3>
-                <div class="product-price">${product.price} ₽</div>
-                <a href="tel:+79818881337" class="btn-order">Позвонить и заказать</a>
+                <div class="product-price">${formatPrice(product.price)} ₽</div>
+                <a href="tel:+79818881337" class="btn-order">Заказать</a>
             `;
             catalogContainer.appendChild(card);
         });
     }
 
-    // 3. Живой поиск (без изменений)
+    // Поиск
     searchInput.addEventListener('input', (e) => {
-        const searchText = e.target.value.toLowerCase();
+        const searchText = e.target.value.toLowerCase().trim();
         const filteredProducts = productsData.filter(product => {
             return product.name.toLowerCase().includes(searchText) || 
                    product.sku.toLowerCase().includes(searchText);
         });
         renderCatalog(filteredProducts);
     });
+
+    // Вспомогательная функция для красивой цены (18 000 вместо 18000)
+    function formatPrice(price) {
+        return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    }
 });

@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let productsData = [];
 
     // Загрузка данных из внешнего файла JSON
-    fetch('products.json')
+    fetch('./products.json')
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Ошибка HTTP: ${response.status}`);

@@ -3,11 +3,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     let productsData = [];
 
-    // Загрузка данных из внешнего файла JSON
-    fetch('./products.json')
+    // Используем относительный путь для корректной работы на GitHub
+    const url = './products.json';
+
+    // 1. Загружаем данные из внешнего файла
+    fetch(url)
         .then(response => {
             if (!response.ok) {
-                throw new Error(`Ошибка HTTP: ${response.status}`);
+                throw new Error(`Ошибка загрузки: ${response.status} (Файл не найден)`);
             }
             return response.json();
         })
@@ -16,23 +19,22 @@ document.addEventListener('DOMContentLoaded', () => {
             renderCatalog(productsData);
         })
         .catch(error => {
-            console.error('Ошибка загрузки:', error);
-            // Сообщение об ошибке, если файл не грузится (например, из-за CORS)
+            console.error('Критическая ошибка:', error);
             catalogContainer.innerHTML = `
-                <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; color: red;">
-                    <h3>Не удалось загрузить каталог</h3>
-                    <p>Если вы открыли файл index.html с компьютера, браузер заблокировал загрузку базы данных.</p>
-                    <p>Пожалуйста, используйте "Live Server" или загрузите сайт на хостинг.</p>
+                <div style="background: rgba(255,255,255,0.9); padding: 30px; border-radius: 10px; text-align: center; grid-column: 1/-1;">
+                    <h3 style="color: #d32f2f; margin-top: 0;">Каталог временно недоступен</h3>
+                    <p>Проверьте, что файл <b>products.json</b> загружен на GitHub в ту же папку, что и сайт.</p>
+                    <p style="font-size: 12px; color: #666;">Техническая ошибка: ${error.message}</p>
                 </div>
             `;
         });
 
-    // Функция отрисовки каталога
+    // 2. Функция отрисовки товаров
     function renderCatalog(items) {
         catalogContainer.innerHTML = '';
 
         if (items.length === 0) {
-            catalogContainer.innerHTML = '<p style="background: white; padding: 20px; border-radius: 5px; grid-column: 1/-1; text-align: center;">Ничего не найдено.</p>';
+            catalogContainer.innerHTML = '<p style="background: white; padding: 20px; border-radius: 5px; grid-column: 1/-1; text-align: center;">Товары не найдены.</p>';
             return;
         }
 
@@ -40,38 +42,42 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.classList.add('product-card');
 
-            // Путь к картинке: images/parts/ИМЯ_ФАЙЛА
-            // Если картинки нет, подставляем заглушку
-            const imagePath = product.image ? `images/parts/${product.image}` : 'images/no-image.png';
+            // Путь к картинке: images/parts/название.jpg
+            // Если в JSON поле image пустое, используем заглушку
+            const imageFileName = product.image ? product.image : 'no-image.png';
+            const imagePath = `images/parts/${imageFileName}`;
 
             card.innerHTML = `
                 <div class="img-wrapper">
                     <img src="${imagePath}" 
                          alt="${product.name}" 
                          class="product-img" 
-                         onerror="this.src='https://placehold.co/300x220?text=Нет+фото'">
+                         onerror="this.src='https://placehold.co/400x300?text=Нет+фото'">
                 </div>
                 
                 <div class="product-sku">Арт: ${product.sku}</div>
                 <h3 class="product-title">${product.name}</h3>
                 <div class="product-price">${formatPrice(product.price)} ₽</div>
-                <a href="tel:+79818881337" class="btn-order">Заказать</a>
+                <a href="tel:+79818881337" class="btn-order">Заказать запчасть</a>
             `;
             catalogContainer.appendChild(card);
         });
     }
 
-    // Поиск
+    // 3. Живой поиск по названию и артикулу
     searchInput.addEventListener('input', (e) => {
         const searchText = e.target.value.toLowerCase().trim();
+        
         const filteredProducts = productsData.filter(product => {
-            return product.name.toLowerCase().includes(searchText) || 
-                   product.sku.toLowerCase().includes(searchText);
+            const nameMatch = product.name.toLowerCase().includes(searchText);
+            const skuMatch = product.sku.toLowerCase().includes(searchText);
+            return nameMatch || skuMatch;
         });
+
         renderCatalog(filteredProducts);
     });
 
-    // Вспомогательная функция для красивой цены (18 000 вместо 18000)
+    // Вспомогательная функция: делает из 15000 -> 15 000
     function formatPrice(price) {
         return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
     }

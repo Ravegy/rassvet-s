@@ -88,7 +88,9 @@ body {
     display: flex; 
     align-items: center; 
     justify-content: center; 
-    background: transparent; /* Прозрачный фон */
+    background: #ffffff; /* Чистый белый цвет */
+    min-height: 400px;
+    border: none; /* Убираем рамку полностью */
 }
 .product-img-box img { 
     max-width: 100%; 

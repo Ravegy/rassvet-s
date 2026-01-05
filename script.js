@@ -3,18 +3,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     let productsData = [];
 
-    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSWW1kw6De7LtGdpg_wFUyJBWeapw_WtiaRZmmwreIFphLg6W_xv-ThZJL6_OmxIUN0U8sNGSiPpAa3/pub?output=csv';
+    // Применяем настройки из config.js в шапку
+    document.title = `Запчасти Komatsu | ${SITE_CONFIG.companyName}`;
+    document.getElementById('headerPhone').textContent = SITE_CONFIG.displayPhone;
+    document.getElementById('headerPhone').href = `tel:${SITE_CONFIG.phone}`;
 
-    // 1. Пытаемся сразу загрузить данные из локальной памяти (для скорости)
+    // 1. Загрузка из локального кэша (мгновенный старт)
     const cachedData = localStorage.getItem('rassvet_catalog_cache');
     if (cachedData) {
         try {
             productsData = JSON.parse(cachedData);
             renderCatalog(productsData);
-            console.log('Каталог загружен из кэша');
-        } catch (e) {
-            console.error('Ошибка чтения кэша');
-        }
+        } catch (e) { console.error('Ошибка кэша'); }
     }
 
     // 2. Функция парсинга CSV
@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const lines = csv.split('\n');
         const result = [];
         const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-
         for (let i = 1; i < lines.length; i++) {
             if (!lines[i].trim()) continue;
             const currentline = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
@@ -36,41 +35,34 @@ document.addEventListener('DOMContentLoaded', () => {
         return result;
     }
 
-    // 3. Загружаем свежие данные из Google
-    fetch(SHEET_CSV_URL)
+    // 3. Загрузка из Google Таблиц
+    fetch(SITE_CONFIG.sheetUrl)
         .then(response => {
-            if (!response.ok) throw new Error("Сетевая ошибка");
+            if (!response.ok) throw new Error();
             return response.text();
         })
         .then(csvText => {
             const freshData = csvToJSON(csvText);
-            
-            // Если данные изменились, обновляем экран и кэш
             if (JSON.stringify(freshData) !== JSON.stringify(productsData)) {
                 productsData = freshData;
                 localStorage.setItem('rassvet_catalog_cache', JSON.stringify(productsData));
                 renderCatalog(productsData);
-                console.log('Каталог обновлен из Google Таблиц');
             }
         })
-        .catch((err) => {
-            console.warn('Google таблицы недоступны, используем кэш или показываем заглушку');
+        .catch(() => {
             if (productsData.length === 0) {
-                catalogContainer.innerHTML = `
-                    <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; grid-column: 1/-1;">
-                        <h3>Каталог запчастей</h3>
-                        <p>В данный момент мы обновляем базу товаров.</p>
-                        <p>Для заказа и уточнения цен звоните:</p>
-                        <a href="tel:+79818881337" style="color: #222; font-weight: bold; font-size: 24px; text-decoration: none;">+7 (981) 888-13-37</a>
-                    </div>
-                `;
+                catalogContainer.innerHTML = `<div style="background:white;padding:20px;grid-column:1/-1;text-align:center;border-radius:10px;">
+                    <h3>Свяжитесь с нами для уточнения наличия:</h3>
+                    <a href="tel:${SITE_CONFIG.phone}" style="font-size:24px;color:#222;text-decoration:none;font-weight:bold;">${SITE_CONFIG.displayPhone}</a>
+                </div>`;
             }
         });
 
+    // 4. Отрисовка каталога
     function renderCatalog(items) {
         catalogContainer.innerHTML = '';
         if (items.length === 0) {
-            catalogContainer.innerHTML = '<p style="color: white; grid-column: 1/-1; text-align: center; font-size: 1.2rem; background: rgba(0,0,0,0.5); padding: 20px;">Ничего не найдено.</p>';
+            catalogContainer.innerHTML = '<p style="color:white;grid-column:1/-1;text-align:center;">Запчасти не найдены.</p>';
             return;
         }
 
@@ -78,29 +70,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.classList.add('product-card');
             
-            const waMessage = encodeURIComponent(`Здравствуйте! Меня интересует запчасть: ${product.name} (Арт: ${product.sku}). Есть в наличии?`);
-            const waLink = `https://wa.me/79818881337?text=${waMessage}`;
+            const imgValue = product.image ? product.image.trim() : '';
+            const imgPath = imgValue !== '' ? `images/parts/${imgValue}` : SITE_CONFIG.placeholderImage;
+
+            const waMessage = encodeURIComponent(`${SITE_CONFIG.waDefaultMessage}${product.name} (Арт: ${product.sku}). Есть в наличии?`);
+            const waLink = `https://wa.me/${SITE_CONFIG.phone}?text=${waMessage}`;
             
-            const imgPath = product.image ? `images/parts/${product.image}` : 'https://placehold.co/400x300?text=Komatsu';
             const priceNum = parseFloat(product.price);
             const displayPrice = !isNaN(priceNum) ? priceNum.toLocaleString() + ' ₽' : 'По запросу';
 
             card.innerHTML = `
                 <div class="img-wrapper">
-                    <img src="${imgPath}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Запчасть'">
+                    <img src="${imgPath}" class="product-img" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
                 </div>
                 <div class="product-sku">Арт: ${product.sku}</div>
                 <h3 class="product-title">${product.name}</h3>
                 <div class="product-price">${displayPrice}</div>
                 <div style="display: flex; gap: 8px;">
-                    <a href="tel:+79818881337" class="btn-order" style="flex: 1; padding: 10px; font-size: 11px; background: #222;">📞 Позвонить</a>
-                    <a href="${waLink}" target="_blank" class="btn-order" style="flex: 1; padding: 10px; font-size: 11px; background: #25D366; color: white;">💬 WhatsApp</a>
+                    <a href="tel:${SITE_CONFIG.phone}" class="btn-order" style="flex:1;background:#222;padding:10px;font-size:11px;">📞 Позвонить</a>
+                    <a href="${waLink}" target="_blank" class="btn-order" style="flex:1;background:#25D366;padding:10px;font-size:11px;">💬 WhatsApp</a>
                 </div>
             `;
             catalogContainer.appendChild(card);
         });
     }
 
+    // 5. Поиск
     searchInput.addEventListener('input', (e) => {
         const text = e.target.value.toLowerCase().trim();
         const filtered = productsData.filter(p => 

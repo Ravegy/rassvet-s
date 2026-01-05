@@ -18,6 +18,7 @@
             <a href="index.html" class="logo-text"><h1>РАССВЕТ-С</h1></a>
             <nav class="header-nav" id="headerNav">
                 <a href="index.html" class="nav-link">В каталог</a>
+                <a href="#" class="nav-link">О компании</a>
                 <a href="#" class="nav-link">Доставка</a>
                 <a href="contacts.html" class="nav-link active">Контакты</a>
             </nav>
@@ -164,8 +165,22 @@
                         .then(handleResponse).catch(handleError).finally(() => resetButton(btn, originalText));
                     }
 
-                    function handleResponse(res) { if(res.ok) { alert("Сообщение отправлено!"); contactForm.reset(); document.querySelectorAll('.success').forEach(el => el.classList.remove('success')); } else { alert("Ошибка отправки."); } }
-                    function handleError(err) { console.error(err); alert("Ошибка сети."); }
+                    function handleResponse(res) { 
+                        if(res.ok) { 
+                            // ЗАМЕНИЛИ ALERT НА НАШ КРАСИВЫЙ TOAST
+                            window.showNotification("Сообщение отправлено!"); 
+                            contactForm.reset(); 
+                            document.querySelectorAll('.success').forEach(el => el.classList.remove('success')); 
+                        } else { 
+                            window.showNotification("Ошибка отправки."); 
+                        } 
+                    }
+                    
+                    function handleError(err) { 
+                        console.error(err); 
+                        window.showNotification("Ошибка сети."); 
+                    }
+                    
                     function resetButton(btn, text) { btn.textContent = text; btn.disabled = false; }
                 };
             }

@@ -3,75 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Запчасти Komatsu | РАССВЕТ-С</title>
+    <title>РАССВЕТ-С | Запчасти Komatsu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<header class="header">
-    <div class="container header-main">
-        <div class="logo-block" onclick="location.href='index.html'" style="cursor:pointer">
-            <div class="logo-symbol">K</div>
-            <div class="logo-text">
-                <h1>РАССВЕТ-С</h1>
+    <header class="header">
+        <div class="container header-main">
+            <a href="index.html" class="logo-block">
+                <div class="logo-symbol">K</div>
+                <div class="logo-text">
+                    <h1>РАССВЕТ-С</h1>
+                </div>
+            </a>
+
+            <nav class="header-nav">
+                <a href="#" class="nav-link">О компании</a>
+                <a href="#" class="nav-link">Как заказать</a>
+                <a href="#" class="nav-link">Оплата</a>
+                <a href="#" class="nav-link">Доставка</a>
+                <a href="#" class="nav-link">Контакты</a>
+            </nav>
+
+            <div class="header-contacts">
+                <a href="mailto:info@rassvet-s.ru" class="header-email" id="cfgEmail">info@rassvet-s.ru</a>
+                <a href="tel:+79818881337" class="header-phone" id="headerPhone">+7 (981) 888-13-37</a>
             </div>
         </div>
+    </header>
 
-        <nav class="header-nav">
-            <a href="#" class="nav-link">О компании</a>
-            <a href="#" class="nav-link">Как заказать</a>
-            <a href="#" class="nav-link">Оплата</a>
-            <a href="#" class="nav-link">Доставка</a>
-            <a href="#" class="nav-link">Контакты</a>
-        </nav>
-
-        <div class="header-contacts">
-            <a href="mailto:info@rassvet-s.ru" class="header-email" id="cfgEmail">info@rassvet-s.ru</a>
-            <a href="tel:+79818881337" class="header-phone" id="headerPhone">+7 (981) 888-13-37</a>
-        </div>
-    </div>
-</header>
-
-<section class="hero">
-    <div class="container">
-        <div class="hero-content">
+    <section class="hero">
+        <div class="container">
             <div class="hero-badge">Склад в СПб</div>
             <h2>Комплектующие Komatsu</h2>
             <p>Профессиональный подбор запчастей по OEM артикулам</p>
         </div>
-    </div>
-</section>
+    </section>
 
-<main class="container">
-    <div class="search-section">
+    <div class="container search-section">
         <input type="text" id="searchInput" placeholder="Поиск по названию или артикулу...">
     </div>
-    <div id="catalog" class="catalog-grid">
-        <p style="grid-column: 1/-1; text-align: center;">Загрузка каталога...</p>
-    </div>
-</main>
 
-<footer class="footer">
-    <div class="container footer-grid">
-        <div class="footer-col">
-            <h3 id="footerName"></h3>
-            <p>Надежный поставщик запчастей для лесозаготовительной техники. Работаем по всей России.</p>
-        </div>
-        <div class="footer-col">
-            <h4>Контакты</h4>
-            <p id="footerPhone"></p>
-            <p id="footerEmail"></p>
-            <p id="footerAddr"></p>
-        </div>
-        <div class="footer-col">
-            <h4>Информация</h4>
-            <p>Цены и наличие уточняйте у менеджеров. Информация на сайте не является офертой.</p>
+    <div class="container">
+        <div class="catalog-grid" id="catalog">
+            <p style="text-align:center; width:100%; opacity: 0.7;">Загрузка каталога...</p>
         </div>
     </div>
-</footer>
 
-<script src="config.js"></script>
-<script src="script.js"></script>
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div>
+                <h4>О компании</h4>
+                <p>Надежный поставщик запчастей для лесозаготовительной техники. Работаем по всей России.</p>
+            </div>
+            <div>
+                <h4>Контакты</h4>
+                <p id="footerPhone">Loading...</p>
+                <p id="footerEmail">Loading...</p>
+            </div>
+            <div>
+                <h4>Информация</h4>
+                <p>Цены и наличие уточняйте у менеджеров. Информация на сайте не является офертой.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>

@@ -41,7 +41,7 @@ body {
 .catalog-grid { 
     display: grid; 
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
-    gap: 100px 20px; /* 35px — отступ между рядами, 20px — между колонками */
+    gap: 50px 20px; /* 35px — отступ между рядами, 20px — между колонками */
     margin-bottom: 50px; 
 }
 

@@ -9,8 +9,8 @@
 body { 
     font-family: 'Roboto', sans-serif; 
     margin: 0; 
-    /* Основной фон сайта с вашей картинкой bg.webp и легким тонированием */
-    background: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15)), url('images/bg.webp');
+    /* Усилили общее затемнение фона сайта для лучшего контраста */
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/bg.webp');
     background-size: cover;
     background-position: center;
     background-attachment: fixed; 
@@ -32,9 +32,9 @@ body {
 .phone-link { font-size: 20px; color: var(--dark); text-decoration: none; font-weight: 900; }
 .btn-catalog { background: var(--main-blue); color: #fff; border: none; padding: 10px 20px; font-weight: bold; text-transform: uppercase; cursor: pointer; text-decoration: none; font-size: 12px; border-radius: 2px; }
 
-/* --- ГЛАВНЫЙ БАННЕР (ЧИСТЫЙ ТЕКСТ) --- */
+/* --- ГЛАВНЫЙ БАННЕР (ПОЛНОСТЬЮ ПРОЗРАЧНЫЙ) --- */
 .hero { 
-    background: rgba(0, 0, 0, 0.4); /* Полупрозрачная плашка для читаемости */
+    background: transparent; /* Убрали любое затемнение и фон в этом блоке */
     color: #fff; 
     padding: 60px 0; 
     text-align: center; 

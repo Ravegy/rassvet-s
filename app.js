@@ -1,4 +1,6 @@
-// НАСТРОЙКИ ТЕЛЕГРАМ
+// ==========================================
+// ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ И ФУНКЦИИ
+// ==========================================
 const TG_BOT_TOKEN = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o'; 
 const TG_CHAT_ID = '1017718880';       
 
@@ -95,6 +97,7 @@ window.removeCartItem = function(index) {
     window.updateCartUI();
 };
 
+// Функция валидации
 function validateInput(input, type) {
     const value = input.value.trim();
     let isValid = true;
@@ -122,6 +125,29 @@ function validateInput(input, type) {
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof SITE_CONFIG === 'undefined') return;
     window.updateCartUI();
+
+    // --- МОБИЛЬНОЕ МЕНЮ (Логика Гамбургера) ---
+    const menuBtn = document.getElementById('menuBtn');
+    const headerNav = document.getElementById('headerNav');
+
+    if (menuBtn && headerNav) {
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            headerNav.classList.toggle('active');
+            const isOpen = headerNav.classList.contains('active');
+            if (isOpen) {
+                menuBtn.innerHTML = '<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+            } else {
+                menuBtn.innerHTML = '<svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+            }
+        });
+        document.addEventListener('click', (e) => {
+            if (!headerNav.contains(e.target) && !menuBtn.contains(e.target) && headerNav.classList.contains('active')) {
+                headerNav.classList.remove('active');
+                menuBtn.innerHTML = '<svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+            }
+        });
+    }
 
     const modal = document.getElementById('cartModal');
     const widget = document.getElementById('cartWidget');
@@ -209,6 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .finally(() => { btn.textContent = originalText; btn.disabled = false; });
     }
 
+    // --- КАТАЛОГ: Логика ---
     let allProducts = [];
     let displayedCount = 0;
     let currentCategory = 'all';

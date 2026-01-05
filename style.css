@@ -4,11 +4,10 @@
     --whatsapp: #25D366;
     
     /* ФОНЫ И СТЕКЛО */
-    --dark-glass: rgba(20, 20, 20, 0.85); /* Основной фон интерфейса */
-    --card-glass: rgba(255, 255, 255, 0.07); /* Фон карточки товара */
+    --dark-glass: rgba(20, 20, 20, 0.85);
+    --card-glass: rgba(255, 255, 255, 0.07);
     --input-glass: rgba(255, 255, 255, 0.1);
-    
-    --border-glass: rgba(255, 255, 255, 0.15); /* Рамки */
+    --border-glass: rgba(255, 255, 255, 0.15);
     
     /* ТЕКСТ */
     --text-primary: #ffffff;
@@ -27,7 +26,7 @@ body {
     display: flex; flex-direction: column;
 }
 
-/* --- 1. КОНТЕЙНЕР (ШИРОКИЙ 1480px) --- */
+/* КОНТЕЙНЕР (ШИРОКИЙ) */
 .container { 
     max-width: 1480px; 
     margin: 0 auto; 
@@ -36,25 +35,26 @@ body {
     width: 100%; 
 }
 
-/* --- ШАПКА (ВЕРНУЛ 10px) --- */
+/* --- ШАПКА --- */
 .header { 
-    background: rgba(0, 0, 0, 0.85); 
+    background: rgba(0, 0, 0, 0.75); /* Полупрозрачность */
     backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border-glass);
     position: sticky; top: 0; z-index: 1000; 
-    padding: 10px 0; /* ВЕРНУЛ КАК БЫЛО */
+    padding: 10px 0; /* Компактный отступ */
     transition: 0.3s;
 }
 .header-main { display: flex; justify-content: space-between; align-items: center; }
 
 .logo-text { text-decoration: none; }
-.logo-text h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 2px; color: #fff; text-transform: uppercase; }
+.logo-text h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 2px; color: #fff; text-transform: uppercase; }
 
 /* МЕНЮ */
 .header-nav { display: flex; gap: 40px; }
 .nav-link { 
-    text-decoration: none; color: rgba(255,255,255,0.8); font-weight: 700; font-size: 13px; 
-    text-transform: uppercase; letter-spacing: 1.5px; position: relative; padding-bottom: 5px; transition: 0.3s; 
+    text-decoration: none; color: rgba(255,255,255,0.8); 
+    font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px;
+    position: relative; padding-bottom: 5px; transition: 0.3s; 
 }
 .nav-link:hover { color: #fff; }
 .nav-link::after {
@@ -63,10 +63,10 @@ body {
 }
 .nav-link:hover::after { width: 100%; }
 
-.header-phone { color: #fff; text-decoration: none; font-weight: 800; font-size: 18px; letter-spacing: 0.5px; }
+.header-phone { color: #fff; text-decoration: none; font-weight: 800; font-size: 20px; letter-spacing: 0.5px; }
 
 /* --- HERO --- */
-.hero { padding: 40px 0 30px; text-align: center; }
+.hero { padding: 50px 0 40px; text-align: center; }
 .hero-badge { 
     background: rgba(255,255,255,0.1); border: 1px solid var(--border-glass);
     display: inline-block; padding: 8px 18px; font-size: 12px; font-weight: 700; 
@@ -79,12 +79,9 @@ body {
     background: var(--dark-glass);
     backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
     border: 1px solid var(--border-glass);
-    border-radius: 30px;
-    padding: 40px;
-    margin-bottom: 80px;
+    border-radius: 30px; padding: 40px; margin-bottom: 80px;
     box-shadow: 0 30px 80px rgba(0,0,0,0.6);
 }
-
 .interface-header { border-bottom: 1px solid var(--border-glass); padding-bottom: 40px; margin-bottom: 40px; }
 
 /* Поиск */
@@ -107,20 +104,24 @@ body {
 .cat-btn:hover { background: rgba(255,255,255,0.15); color: #fff; border-color: #fff; }
 .cat-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 5px 20px rgba(0, 86, 179, 0.5); }
 
-/* СЕТКА ТОВАРОВ */
+/* Сетка */
 .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; min-height: 200px; }
 
-/* КАРТОЧКА ТОВАРА */
+/* КАРТОЧКА В КАТАЛОГЕ */
 .product-card { 
     background: var(--card-glass); border: 1px solid var(--border-glass);
     border-radius: 20px; padding: 20px; display: flex; flex-direction: column; 
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative; height: auto; 
 }
-.product-card:hover { transform: translateY(-7px); background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.4); z-index: 2; }
+.product-card:hover { 
+    transform: translateY(-7px); background: rgba(255, 255, 255, 0.1); 
+    border-color: rgba(255, 255, 255, 0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.4); z-index: 2; 
+}
 
 .img-wrapper { 
-    height: 180px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; 
-    background: #fff; padding: 10px; border-radius: 12px; box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+    height: 180px; display: flex; align-items: center; justify-content: center; 
+    margin-bottom: 20px; background: #fff; padding: 10px; border-radius: 12px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
 }
 .product-img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
@@ -141,6 +142,7 @@ body {
 .btn-green { background: rgba(37, 211, 102, 0.2); color: #25D366; border: 1px solid rgba(37, 211, 102, 0.3); }
 .btn-green:hover { background: #25D366; color: #fff; box-shadow: 0 0 15px rgba(37, 211, 102, 0.4); }
 
+/* Кнопка "ПОКАЗАТЬ БОЛЬШЕ" */
 .load-more-container { text-align: center; margin-top: 50px; }
 .btn-load-more {
     display: inline-block; background: var(--accent); color: #fff; text-decoration: none; font-weight: 800;
@@ -155,7 +157,7 @@ body {
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 .cat-skeleton { width: 100px; height: 42px; background: rgba(255,255,255,0.05); border-radius: 50px; }
 
-/* ПОДВАЛ */
+/* Подвал */
 .footer { background: #050505; border-top: 1px solid #222; padding: 60px 0; margin-top: auto; }
 .footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; }
 .footer-phone-big { font-size: 28px; font-weight: 800; color: #fff; text-decoration: none; display: block; margin-bottom: 15px;}
@@ -163,7 +165,7 @@ body {
 .footer-link:hover { color: #fff; }
 
 /* =========================================
-   СТРАНИЦА ТОВАРА (ДЛЯ ФАЙЛА product.html)
+   СТРАНИЦА ТОВАРА (product.html)
    ========================================= */
 .product-full-card {
     background: rgba(10, 10, 10, 0.95); border: 1px solid var(--border-glass);
@@ -182,7 +184,7 @@ body {
 .full-title { font-size: 32px; font-weight: 900; color: #fff; margin: 0 0 25px; line-height: 1.2; text-transform: uppercase; }
 .full-price { font-size: 40px; font-weight: 900; color: #fff; margin-bottom: 35px; }
 
-/* СТИЛИ ДЛЯ КНОПОК В КАРТОЧКЕ (КАК НА ГЛАВНОЙ, НО БОЛЬШЕ) */
+/* КНОПКИ ВНУТРИ ТОВАРА */
 .full-actions-group { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 40px; }
 
 .btn-detail {
@@ -190,22 +192,13 @@ body {
     font-weight: 800; font-size: 14px; text-transform: uppercase; text-decoration: none;
     letter-spacing: 1px; transition: 0.3s; cursor: pointer;
 }
-/* В КАТАЛОГ (Стиль как у синей кнопки в каталоге) */
-.btn-detail.blue {
-    background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2);
-}
+.btn-detail.blue { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
 .btn-detail.blue:hover { background: #fff; color: #000; }
 
-/* WHATSAPP (Стиль как у зеленой кнопки) */
-.btn-detail.green {
-    background: rgba(37, 211, 102, 0.2); color: #25D366; border: 1px solid rgba(37, 211, 102, 0.3);
-}
+.btn-detail.green { background: rgba(37, 211, 102, 0.2); color: #25D366; border: 1px solid rgba(37, 211, 102, 0.3); }
 .btn-detail.green:hover { background: #25D366; color: #fff; box-shadow: 0 0 20px rgba(37, 211, 102, 0.5); }
 
-.full-desc {
-    padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1);
-    color: #ccc; font-size: 16px; line-height: 1.8;
-}
+.full-desc { padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); color: #ccc; font-size: 16px; line-height: 1.8; }
 
 @media (max-width: 900px) {
     .product-full-card { flex-direction: column; padding: 20px; }

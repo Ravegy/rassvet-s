@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Если конфига нет, ничего не делаем
     if (typeof SITE_CONFIG === 'undefined') return;
 
     let allProducts = [];
@@ -7,60 +6,38 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentCategory = 'all';
     const itemsPerPage = SITE_CONFIG.itemsPerPage || 12;
     
-    // Получаем элементы
     const catalogGrid = document.getElementById('catalog');
     const loadMoreBtn = document.getElementById('loadMoreBtn');
     const loadMoreContainer = document.getElementById('loadMoreContainer');
     const searchInput = document.getElementById('searchInput');
     const categoryFilter = document.getElementById('categoryFilter');
 
-    // Запуск
     initSite();
 
     function initSite() {
-        fillContacts();
+        // Контакты уже в HTML, но на всякий случай обновляем, если нужно
         loadCatalogData();
     }
 
-    // Заполнение контактов
-    function fillContacts() {
-        const els = {
-            hp: document.getElementById('headerPhone'),
-            fp: document.getElementById('footerPhone'),
-            fe: document.getElementById('footerEmail')
-        };
-        if(els.hp) { els.hp.textContent = SITE_CONFIG.displayPhone; els.hp.href = `tel:+${SITE_CONFIG.phone}`; }
-        if(els.fp) { els.fp.textContent = SITE_CONFIG.displayPhone; els.fp.href = `tel:+${SITE_CONFIG.phone}`; }
-        if(els.fe) { els.fe.textContent = SITE_CONFIG.email; els.fe.href = `mailto:${SITE_CONFIG.email}`; }
-    }
-
-    // Загрузка данных
     function loadCatalogData() {
-        // Ключи для кэша
-        const cacheKey = 'rassvet_v4_data';
-        const timeKey = 'rassvet_v4_time';
+        const cacheKey = 'rassvet_v6_data'; // НОВЫЙ КЛЮЧ
+        const timeKey = 'rassvet_v6_time';
         const maxAge = (SITE_CONFIG.cacheTime || 60) * 60 * 1000;
         
         const cachedData = localStorage.getItem(cacheKey);
         const cachedTime = localStorage.getItem(timeKey);
         const now = Date.now();
 
-        // 1. Пробуем загрузить из кэша
         if (cachedData && cachedTime && (now - cachedTime < maxAge)) {
             allProducts = JSON.parse(cachedData);
             initCategories(allProducts);
-            // Передаем true, чтобы сбросить лоадер
-            renderBatch(true); 
+            renderBatch(true);
         } else {
-            // 2. Если нет в кэше, грузим из сети
             fetch(SITE_CONFIG.sheetUrl)
                 .then(res => res.text())
                 .then(csvText => {
-                    if (csvText.includes("<!DOCTYPE html>")) throw new Error("Таблица закрыта");
-                    
                     const rows = parseCSV(csvText);
-                    rows.shift(); // Убираем заголовки
-                    
+                    rows.shift();
                     allProducts = rows.map(row => {
                         if (!row[0]) return null;
                         return {
@@ -74,25 +51,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         };
                     }).filter(p => p !== null && p.name);
 
-                    // Сохраняем в кэш
                     localStorage.setItem(cacheKey, JSON.stringify(allProducts));
                     localStorage.setItem(timeKey, Date.now());
                     
                     initCategories(allProducts);
-                    renderBatch(true); // Сброс лоадера
+                    renderBatch(true);
                 })
                 .catch(err => {
                     console.error(err);
-                    catalogGrid.innerHTML = `
-                        <div class="loader-container">
-                            <h3 style="color:#ff6b6b">Ошибка загрузки</h3>
-                            <p>Проверьте подключение к интернету или ID таблицы</p>
-                        </div>`;
+                    catalogGrid.innerHTML = '<div class="loader-container"><p>Ошибка загрузки</p></div>';
                 });
         }
     }
 
-    // Создание кнопок категорий
     function initCategories(products) {
         if(!categoryFilter) return;
         const cats = ['Все', ...new Set(products.map(p => p.category).filter(c => c))];
@@ -105,23 +76,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentCategory = cat === 'Все' ? 'all' : cat;
-                renderBatch(true); // При смене категории сбрасываем сетку
+                renderBatch(true);
             };
             categoryFilter.appendChild(btn);
         });
     }
 
-    // Отрисовка товаров
     function renderBatch(reset = false) {
         if (reset) {
-            catalogGrid.innerHTML = ''; // 🔥 ВОТ ТУТ МЫ УДАЛЯЕМ НАДПИСЬ "ЗАГРУЗКА"
+            catalogGrid.innerHTML = '';
             displayedCount = 0;
             loadMoreContainer.style.display = 'none';
         }
 
         const searchVal = searchInput.value.toLowerCase();
-        
-        // Фильтрация
         const filtered = allProducts.filter(p => {
             const matchesCat = currentCategory === 'all' || p.category === currentCategory;
             const matchesSearch = !searchVal || p.name.toLowerCase().includes(searchVal) || p.sku.toLowerCase().includes(searchVal);
@@ -133,7 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Пагинация
         const nextBatch = filtered.slice(displayedCount, displayedCount + itemsPerPage);
         
         nextBatch.forEach(product => {
@@ -141,20 +108,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         displayedCount += nextBatch.length;
-        
-        // Кнопка "Показать ещё"
-        if (displayedCount < filtered.length) {
-            loadMoreContainer.style.display = 'block';
-        } else {
-            loadMoreContainer.style.display = 'none';
-        }
+        loadMoreContainer.style.display = (displayedCount < filtered.length) ? 'block' : 'none';
     }
 
-    // Слушатели событий
     if(loadMoreBtn) loadMoreBtn.addEventListener('click', () => renderBatch());
     if(searchInput) searchInput.addEventListener('input', () => renderBatch(true));
 
-    // Создание HTML карточки
     function createCard(product) {
         let imgUrl = SITE_CONFIG.placeholderImage;
         if (product.image && product.image.trim()) {

@@ -34,7 +34,7 @@ body {
 
 /* --- ГЛАВНЫЙ БАННЕР --- */
 .hero { 
-    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/bg.webp') center/cover; 
+    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/shapka.webp') center/cover; 
     color: #fff; padding: 60px 0; text-align: center; 
 }
 .hero-badge { background: var(--main-blue); display: inline-block; padding: 4px 12px; font-size: 11px; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; }

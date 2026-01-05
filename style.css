@@ -10,7 +10,7 @@ body {
     font-family: 'Roboto', sans-serif; 
     margin: 0; 
     /* Усилили общее затемнение фона сайта для лучшего контраста */
-    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/bg.webp');
+    background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), url('images/bg.webp');
     background-size: cover;
     background-position: center;
     background-attachment: fixed; 

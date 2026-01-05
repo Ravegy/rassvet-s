@@ -5,6 +5,6 @@ const SITE_CONFIG = {
     address: "г. Санкт-Петербург",
     workTime: "Пн-Пт: 09:00 - 18:00",
     sheetUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSWW1kw6De7LtGdpg_wFUyJBWeapw_WtiaRZmmwreIFphLg6W_xv-ThZJL6_OmxIUN0U8sNGSiPpAa3/pub?output=csv',
-    placeholderImage: 'https://placehold.co/400x300?text=Komatsu',
+    placeholderImage: 'https://placehold.co/800x800?text=Komatsu',
     waDefaultMessage: 'Здравствуйте! Меня интересует запчасть: '
 };

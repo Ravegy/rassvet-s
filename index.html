@@ -27,8 +27,8 @@
             </nav>
 
             <div class="header-contacts">
-                <a href="mailto:info@rassvet-s.ru" class="header-email">info@rassvet-s.ru</a>
-                <a href="tel:+79818881337" class="header-phone">+7 (981) 888-13-37</a>
+                <a href="" class="header-email" id="headerEmailLink">info@rassvet-s.ru</a>
+                <a href="" class="header-phone" id="headerPhoneLink">+7 (981) 888-13-37</a>
             </div>
         </div>
     </header>
@@ -48,8 +48,8 @@
     <div class="container">
         <div class="catalog-grid" id="catalog">
             <div style="text-align:center; width:100%; grid-column: 1/-1; padding: 40px; color: #fff;">
-                <h3>Загрузка товаров...</h3>
-                <p>Если это сообщение не исчезает, проверьте ID таблицы в config.js</p>
+                <h3>Загрузка каталога...</h3>
+                <p>Соединение с Google Таблицей...</p>
             </div>
         </div>
     </div>
@@ -62,9 +62,9 @@
             </div>
             <div>
                 <h4>Контакты</h4>
-                <p><a href="tel:+79818881337" style="color:#fff; text-decoration:none; font-weight:bold; font-size:16px;">+7 (981) 888-13-37</a></p>
+                <p><a href="" id="footerPhoneLink" style="color:#fff; text-decoration:none; font-weight:bold; font-size:16px;">Loading...</a></p>
                 <p><a href="mailto:info@rassvet-s.ru" style="color:#ccc; text-decoration:none;">info@rassvet-s.ru</a></p>
-                <p style="margin-top:10px; opacity:0.6;">Санкт-Петербург, ул. Промышленная, д. 42</p>
+                <p style="margin-top:10px; opacity:0.6;" id="footerAddress">Санкт-Петербург</p>
             </div>
             <div>
                 <h4>Информация</h4>
@@ -74,6 +74,148 @@
     </footer>
 
     <script src="config.js"></script>
-    <script src="app.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Проверка конфига
+            if (typeof SITE_CONFIG === 'undefined') {
+                document.getElementById('catalog').innerHTML = '<h3 style="color:red; text-align:center; grid-column:1/-1;">ОШИБКА: Файл config.js не подключен или пуст!</h3>';
+                return;
+            }
+
+            console.log("Config loaded:", SITE_CONFIG);
+
+            // --- 1. НАСТРАИВАЕМ КОНТАКТЫ ИЗ КОНФИГА ---
+            const els = {
+                hPhone: document.getElementById('headerPhoneLink'),
+                hEmail: document.getElementById('headerEmailLink'),
+                fPhone: document.getElementById('footerPhoneLink'),
+                fAddress: document.getElementById('footerAddress')
+            };
+
+            if (els.hPhone) {
+                els.hPhone.textContent = SITE_CONFIG.displayPhone;
+                els.hPhone.href = `tel:+${SITE_CONFIG.phone}`;
+            }
+            if (els.fPhone) {
+                els.fPhone.textContent = SITE_CONFIG.displayPhone;
+                els.fPhone.href = `tel:+${SITE_CONFIG.phone}`;
+            }
+            if (els.fAddress) {
+                els.fAddress.textContent = SITE_CONFIG.address || "Санкт-Петербург";
+            }
+
+            // --- 2. ЗАГРУЖАЕМ КАТАЛОГ ---
+            const catalogGrid = document.getElementById('catalog');
+            const searchInput = document.getElementById('searchInput');
+
+            fetch(SITE_CONFIG.sheetUrl)
+                .then(res => {
+                    if (!res.ok) throw new Error("Ошибка сети");
+                    return res.text();
+                })
+                .then(csvText => {
+                    const rows = parseCSV(csvText); // Используем умный парсер (см. ниже)
+                    rows.shift(); // Удаляем заголовки
+
+                    const allProducts = rows.map(row => {
+                        if (!row[0]) return null; 
+                        return {
+                            id: row[0],
+                            sku: row[1] ? row[1].trim() : '',
+                            name: row[2],
+                            price: row[3],
+                            category: row[4],
+                            image: row[5],
+                            desc: row[6]
+                        };
+                    }).filter(p => p !== null);
+
+                    renderCatalog(allProducts);
+
+                    // Поиск
+                    searchInput.addEventListener('input', (e) => {
+                        const val = e.target.value.toLowerCase();
+                        const filtered = allProducts.filter(p => 
+                            (p.name && p.name.toLowerCase().includes(val)) || 
+                            (p.sku && p.sku.toLowerCase().includes(val))
+                        );
+                        renderCatalog(filtered);
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    catalogGrid.innerHTML = `<h3 style="color:white; text-align:center; grid-column:1/-1;">Ошибка загрузки: ${err.message}</h3>`;
+                });
+
+            // Функция отрисовки
+            function renderCatalog(products) {
+                catalogGrid.innerHTML = '';
+                if (products.length === 0) {
+                    catalogGrid.innerHTML = '<h3 style="color:white; text-align:center; grid-column:1/-1;">Ничего не найдено</h3>';
+                    return;
+                }
+
+                products.forEach(product => {
+                    // Картинка: ссылка или файл из папки
+                    let imgUrl = SITE_CONFIG.placeholderImage;
+                    if (product.image && product.image.trim()) {
+                        imgUrl = product.image.startsWith('http') ? product.image : `images/parts/${product.image}`;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.innerHTML = `
+                        <div class="img-wrapper">
+                            <img src="${imgUrl}" alt="${product.name}" class="product-img" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
+                        </div>
+                        <div class="product-sku">АРТИКУЛ: ${product.sku}</div>
+                        <a href="product.html?id=${product.id}" class="product-title">${product.name}</a>
+                        <div class="product-price">${formatPrice(product.price)}</div>
+                        <div class="btn-group">
+                            <a href="product.html?id=${product.id}" class="btn-card btn-blue">Инфо</a>
+                            <a href="https://wa.me/${SITE_CONFIG.phone}?text=${SITE_CONFIG.waDefaultMessage} ${product.sku}" target="_blank" class="btn-card btn-green">WhatsApp</a>
+                        </div>
+                    `;
+                    catalogGrid.appendChild(card);
+                });
+            }
+
+            // Формат цены
+            function formatPrice(price) {
+                if (!price) return 'По запросу';
+                const clean = parseFloat(price.replace(/\s/g, '').replace(',', '.'));
+                return isNaN(clean) ? price : new Intl.NumberFormat('ru-RU').format(clean) + ' ₽';
+            }
+
+            // Простой парсер CSV (учитывает кавычки)
+            function parseCSV(text) {
+                const result = [];
+                let row = [];
+                let inQuote = false;
+                let cell = '';
+                
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i];
+                    if (char === '"') {
+                        inQuote = !inQuote;
+                    } else if (char === ',' && !inQuote) {
+                        row.push(cell);
+                        cell = '';
+                    } else if ((char === '\r' || char === '\n') && !inQuote) {
+                        if (cell || row.length > 0) row.push(cell);
+                        if (row.length > 0) result.push(row);
+                        row = [];
+                        cell = '';
+                        if (char === '\r' && text[i+1] === '\n') i++; // Пропуск \r\n
+                    } else {
+                        cell += char;
+                    }
+                }
+                if (cell || row.length > 0) { row.push(cell); result.push(row); }
+                return result;
+            }
+        });
+    </script>
 </body>
 </html>

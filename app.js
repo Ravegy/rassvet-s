@@ -15,42 +15,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
-    // --- КОРЗИНА ---
+    // --- КОРЗИНА: Логика ---
     let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || [];
 
+    // Функция обновления интерфейса корзины
     function updateCartUI() {
         const widget = document.getElementById('cartWidget');
         const cartItems = document.getElementById('cartItems');
         const cartTotal = document.getElementById('cartTotal');
         const orderBtn = document.getElementById('cartOrderBtn');
         
-        if(widget) widget.textContent = `Корзина: ${cart.length}`;
+        // Считаем общее количество
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        if(widget) widget.textContent = `Корзина: ${totalItems}`;
         
         if(cartItems) {
             cartItems.innerHTML = '';
-            let total = 0;
+            let totalMoney = 0;
+
             cart.forEach((item, index) => {
                 const priceNum = parseFloat(item.price.replace(/\s/g, '').replace('₽','').replace(',', '.')) || 0;
-                total += priceNum;
+                totalMoney += priceNum * item.quantity;
                 
                 const div = document.createElement('div');
                 div.className = 'cart-item';
                 div.innerHTML = `
-                    <span class="cart-item-title">${item.sku} - ${item.name}</span>
-                    <span class="cart-item-price">${item.price}</span>
+                    <div class="cart-item-info">
+                        <span class="cart-item-title">${item.sku} - ${item.name}</span>
+                        <span class="cart-item-price">${item.price}</span>
+                    </div>
+                    <div class="qty-controls">
+                        <button class="qty-btn" onclick="changeQuantity(${index}, -1)">-</button>
+                        <span class="qty-count">${item.quantity}</span>
+                        <button class="qty-btn" onclick="changeQuantity(${index}, 1)">+</button>
+                    </div>
                     <button class="btn-remove" onclick="removeCartItem(${index})">&times;</button>
                 `;
                 cartItems.appendChild(div);
             });
             
-            if(cartTotal) cartTotal.textContent = `Итого: ${new Intl.NumberFormat('ru-RU').format(total)} ₽`;
+            if(cartTotal) cartTotal.textContent = `Итого: ${new Intl.NumberFormat('ru-RU').format(totalMoney)} ₽`;
             
+            // Формируем ссылку для WhatsApp с количеством
             if(orderBtn) {
                 let msg = "Здравствуйте! Хочу оформить заказ:%0A";
                 cart.forEach(item => {
-                    msg += `- ${item.sku} ${item.name} (${item.price})%0A`;
+                    msg += `- ${item.sku} ${item.name} — ${item.quantity} шт. (${item.price})%0A`;
                 });
-                msg += `%0AИтого: ${new Intl.NumberFormat('ru-RU').format(total)} ₽`;
+                msg += `%0AИтого: ${new Intl.NumberFormat('ru-RU').format(totalMoney)} ₽`;
                 orderBtn.href = `https://wa.me/${SITE_CONFIG.phone}?text=${msg}`;
             }
         }
@@ -65,17 +77,34 @@ document.addEventListener('DOMContentLoaded', () => {
     if(close) close.onclick = () => { modal.style.display = 'none'; };
     window.onclick = (e) => { if(e.target == modal) modal.style.display = 'none'; };
 
+    // Глобальные функции
     window.addToCart = (id, sku, name, price) => {
-        cart.push({id, sku, name, price});
+        const existingItem = cart.find(item => item.id === id);
+        
+        if (existingItem) {
+            existingItem.quantity++;
+            showNotification('Количество увеличено');
+        } else {
+            cart.push({id, sku, name, price, quantity: 1});
+            showNotification('Товар добавлен в корзину');
+        }
+        
         updateCartUI();
         const widgetBtn = document.getElementById('cartWidget');
         if(widgetBtn) {
              widgetBtn.style.transform = "scale(1.2)";
              setTimeout(() => widgetBtn.style.transform = "scale(1)", 200);
         }
-        showNotification('Товар добавлен в корзину');
     };
     
+    // Функция +/-
+    window.changeQuantity = (index, delta) => {
+        const item = cart[index];
+        item.quantity += delta;
+        if (item.quantity <= 0) item.quantity = 1; 
+        updateCartUI();
+    };
+
     window.removeCartItem = (index) => {
         cart.splice(index, 1);
         updateCartUI();
@@ -102,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadCatalogData() {
-        // КЭШ ВЕРСИИ v7 ДЛЯ ОБНОВЛЕНИЯ
         const cacheKey = 'rassvet_v7_data'; 
         const timeKey = 'rassvet_v7_time';
         const maxAge = (SITE_CONFIG.cacheTime || 60) * 60 * 1000;
@@ -142,7 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 .catch(err => {
                     console.error(err);
-                    // ТЕКСТ ОШИБКИ С КЛАССОМ ERROR-TEXT
                     if(catalogGrid) catalogGrid.innerHTML = '<div class="loader-container"><p class="error-text">Ошибка загрузки</p></div>';
                 });
         }

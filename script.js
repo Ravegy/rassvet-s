@@ -1,90 +1,58 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const catalogContainer = document.getElementById('catalog');
-    const searchInput = document.getElementById('searchInput');
-    let productsData = [];
+    const catalog = document.getElementById('catalog');
+    const search = document.getElementById('searchInput');
 
-    // Применяем настройки из config.js
-    document.getElementById('cfgLogoName').textContent = SITE_CONFIG.companyName;
-    document.getElementById('footerName').textContent = SITE_CONFIG.companyName;
-    document.getElementById('cfgAddress').textContent = SITE_CONFIG.address;
-    document.getElementById('footerAddressDisplay').textContent = SITE_CONFIG.address;
-    document.getElementById('cfgWorkTime').textContent = SITE_CONFIG.workTime;
-    document.getElementById('headerPhone').textContent = SITE_CONFIG.displayPhone;
+    document.getElementById('cfgLogoName').innerText = SITE_CONFIG.companyName;
+    document.getElementById('footerName').innerText = SITE_CONFIG.companyName;
+    document.getElementById('cfgAddress').innerText = SITE_CONFIG.address;
+    document.getElementById('cfgWorkTime').innerText = SITE_CONFIG.workTime;
+    document.getElementById('headerPhone').innerText = SITE_CONFIG.displayPhone;
     document.getElementById('headerPhone').href = `tel:${SITE_CONFIG.phone}`;
-    document.getElementById('footerPhoneDisplay').textContent = `📞 ${SITE_CONFIG.displayPhone}`;
+    document.getElementById('footerPhone').innerText = `📞 ${SITE_CONFIG.displayPhone}`;
+    document.getElementById('footerEmail').innerText = `✉️ ${SITE_CONFIG.email}`;
+    document.getElementById('footerAddr').innerText = SITE_CONFIG.address;
     document.getElementById('topWaLink').href = `https://wa.me/${SITE_CONFIG.phone}`;
 
-    // 1. Загрузка из кэша
-    const cached = localStorage.getItem('rassvet_cache');
-    if (cached) {
-        productsData = JSON.parse(cached);
-        renderCatalog(productsData);
-    }
+    let data = JSON.parse(localStorage.getItem('rassvet_db') || '[]');
+    render(data);
 
-    // 2. Функция парсинга CSV
-    function csvToJSON(csv) {
-        const lines = csv.split('\n');
-        const result = [];
-        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-        for (let i = 1; i < lines.length; i++) {
-            if (!lines[i].trim()) continue;
-            const currentline = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-            const obj = {};
-            headers.forEach((header, s) => {
-                let val = currentline[s] ? currentline[s].trim() : "";
-                obj[header] = val.replace(/^"|"$/g, '');
-            });
-            result.push(obj);
-        }
-        return result;
-    }
-
-    // 3. Загрузка из Google
     fetch(SITE_CONFIG.sheetUrl)
         .then(res => res.text())
         .then(csv => {
-            const freshData = csvToJSON(csv);
-            if (JSON.stringify(freshData) !== JSON.stringify(productsData)) {
-                productsData = freshData;
-                localStorage.setItem('rassvet_cache', JSON.stringify(productsData));
-                renderCatalog(productsData);
-            }
-        })
-        .catch(() => {
-            if (!productsData.length) {
-                catalogContainer.innerHTML = '<div style="background:#fff;padding:40px;grid-column:1/-1;text-align:center;"><h3>Каталог обновляется...</h3><p>Звоните нам: ' + SITE_CONFIG.displayPhone + '</p></div>';
-            }
+            const lines = csv.split('\n').filter(l => l.trim());
+            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+            const json = lines.slice(1).map(line => {
+                const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                const obj = {};
+                headers.forEach((h, i) => obj[h] = (cols[i] || "").trim().replace(/^"|"$/g, ''));
+                return obj;
+            });
+            data = json;
+            localStorage.setItem('rassvet_db', JSON.stringify(json));
+            render(json);
         });
 
-    function renderCatalog(items) {
-        catalogContainer.innerHTML = '';
-        if (!items.length) {
-            catalogContainer.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:50px;color:#999;">Товары не найдены.</p>';
-            return;
-        }
-        items.forEach(p => {
-            const card = document.createElement('div');
-            card.classList.add('product-card');
+    function render(items) {
+        catalog.innerHTML = items.map(p => {
             const img = p.image ? `images/parts/${p.image}` : SITE_CONFIG.placeholderImage;
-            const waLink = `https://wa.me/${SITE_CONFIG.phone}?text=${encodeURIComponent(SITE_CONFIG.waDefaultMessage + p.name + ' (Арт: ' + p.sku + ')')}`;
+            const wa = `https://wa.me/${SITE_CONFIG.phone}?text=${encodeURIComponent(SITE_CONFIG.waDefaultMessage + p.name + ' Арт: ' + p.sku)}`;
             const price = p.price ? Number(p.price).toLocaleString() + ' ₽' : 'По запросу';
-
-            card.innerHTML = `
-                <div class="img-wrapper"><img src="${img}" class="product-img" onerror="this.src='${SITE_CONFIG.placeholderImage}'"></div>
-                <div class="product-sku">OEM: ${p.sku}</div>
-                <h3 class="product-title">${p.name}</h3>
-                <div class="product-price">${price}</div>
-                <div class="btn-group">
-                    <a href="tel:${SITE_CONFIG.phone}" class="btn-order btn-call">Позвонить</a>
-                    <a href="${waLink}" target="_blank" class="btn-order btn-wa">WhatsApp</a>
+            return `
+                <div class="product-card">
+                    <div class="img-wrapper"><img src="${img}" class="product-img" onerror="this.src='${SITE_CONFIG.placeholderImage}'"></div>
+                    <div class="product-sku">АРТИКУЛ: ${p.sku}</div>
+                    <h3 class="product-title">${p.name}</h3>
+                    <div class="product-price">${price}</div>
+                    <div class="btn-group">
+                        <a href="tel:${SITE_CONFIG.phone}" class="btn-card btn-blue">Позвонить</a>
+                        <a href="${wa}" target="_blank" class="btn-card btn-green">WhatsApp</a>
+                    </div>
                 </div>`;
-            catalogContainer.appendChild(card);
-        });
+        }).join('') || '<p style="grid-column:1/-1;text-align:center;padding:40px;">Загрузка товаров...</p>';
     }
 
-    searchInput.addEventListener('input', (e) => {
-        const text = e.target.value.toLowerCase().trim();
-        const filtered = productsData.filter(p => (p.name && p.name.toLowerCase().includes(text)) || (p.sku && p.sku.toLowerCase().includes(text)));
-        renderCatalog(filtered);
-    });
+    search.oninput = (e) => {
+        const val = e.target.value.toLowerCase();
+        render(data.filter(p => p.name.toLowerCase().includes(val) || p.sku.toLowerCase().includes(val)));
+    };
 });

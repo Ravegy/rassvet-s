@@ -12,11 +12,11 @@
 <header class="header">
     <div class="container header-top">
         <div class="header-info">
-            <span class="info-item" id="cfgAddress"></span>
-            <span class="info-item" id="cfgWorkTime"></span>
+            <span id="cfgAddress"></span>
+            <span id="cfgWorkTime" style="margin-left: 20px;"></span>
         </div>
         <div class="header-actions">
-            <a href="#" id="topWaLink" class="top-wa-link" target="_blank">Написать в WhatsApp</a>
+            <a href="#" id="topWaLink" class="top-wa-link" target="_blank">WhatsApp чат</a>
         </div>
     </div>
     <div class="container header-main">
@@ -24,58 +24,51 @@
             <div class="logo-symbol">K</div>
             <div class="logo-text">
                 <h1 id="cfgLogoName"></h1>
-                <span class="subtitle">Поставка запчастей Komatsu по РФ</span>
+                <span class="subtitle">Запчасти для лесозаготовительной техники</span>
             </div>
         </div>
         <div class="contact-block">
             <div class="phone-wrapper">
-                <span class="phone-label">Отдел продаж:</span>
+                <span class="phone-label">Консультация:</span>
                 <a href="" id="headerPhone" class="phone-link"></a>
             </div>
-            <button class="btn-callback" onclick="document.getElementById('catalog').scrollIntoView({behavior: 'smooth'})">Каталог</button>
+            <button class="btn-catalog" onclick="document.getElementById('catalog').scrollIntoView({behavior: 'smooth'})">Каталог</button>
         </div>
     </div>
 </header>
 
 <section class="hero">
     <div class="container">
-        <div class="hero-badge">Промышленное оборудование</div>
-        <h2>Запчасти Komatsu напрямую со склада</h2>
-        <p>Более 1000 позиций для лесозаготовительной техники в наличии</p>
+        <div class="hero-content">
+            <div class="hero-badge">Спецтехника</div>
+            <h2>Комплектующие Komatsu</h2>
+            <p>Прямые поставки запчастей со склада в Санкт-Петербурге</p>
+        </div>
     </div>
 </section>
 
 <main class="container">
-    <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Поиск по названию или артикулу OEM...">
+    <div class="search-section">
+        <input type="text" id="searchInput" placeholder="Введите название или артикул для поиска...">
     </div>
-    <div id="catalog" class="catalog-grid">
-        </div>
+    <div id="catalog" class="catalog-grid"></div>
 </main>
 
 <footer class="footer">
     <div class="container footer-grid">
-        <div class="footer-about">
+        <div class="footer-col">
             <h3 id="footerName"></h3>
-            <p>Специализированный поставщик качественных комплектующих и запчастей для техники Komatsu. Работаем по всей России.</p>
+            <p>Надежный партнер в сфере поставок запчастей для тяжелой техники. Гарантия качества и быстрая логистика.</p>
         </div>
-        <div class="footer-contacts">
-            <h4>Контакты</h4>
-            <p id="footerPhoneDisplay"></p>
-            <p>✉️ info@rassvet-s.ru</p>
-            <p id="footerAddressDisplay"></p>
+        <div class="footer-col">
+            <h4>Связь</h4>
+            <p id="footerPhone"></p>
+            <p id="footerEmail"></p>
+            <p id="footerAddr"></p>
         </div>
-        <div class="footer-nav">
-            <h4>Навигация</h4>
-            <ul>
-                <li><a href="#" onclick="location.reload()">Обновить каталог</a></li>
-                <li><a href="#searchInput">Поиск деталей</a></li>
-            </ul>
-        </div>
-    </div>
-    <div class="footer-bottom">
-        <div class="container">
-            <p>&copy; 2026 ООО «РАССВЕТ-С». Информация на сайте не является публичной офертой.</p>
+        <div class="footer-col">
+            <h4>Информация</h4>
+            <p>Сайт носит информационный характер и не является публичной офертой.</p>
         </div>
     </div>
 </footer>

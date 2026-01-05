@@ -129,7 +129,7 @@ body {
 }
 .btn-cart-order:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(37, 211, 102, 0.5); }
 
-/* СТИЛИ ДЛЯ ФОРМЫ (НОВОЕ) */
+/* СТИЛИ ДЛЯ ФОРМЫ */
 .order-form { margin-top: 15px; }
 .form-group { margin-bottom: 15px; }
 .form-input {

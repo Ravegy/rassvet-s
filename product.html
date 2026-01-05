@@ -84,7 +84,7 @@
     <div id="toast-container"></div>
 
     <script src="config.js"></script>
-    <script src="app.js"></script> 
+    <script src="app.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -169,8 +169,11 @@
                     </div>
                 `;
                 document.getElementById('productDetail').innerHTML = html;
-                // Функция из app.js, которая проверит корзину и обновит кнопки
-                if(typeof syncButtonsWithCart === 'function') syncButtonsWithCart();
+                
+                // ВАЖНО: Вызываем синхронизацию кнопок сразу после отрисовки
+                if(typeof window.updateCartUI === 'function') {
+                    window.updateCartUI();
+                }
             }
 
             function parseCSV(text) {

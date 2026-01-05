@@ -1,89 +1,184 @@
+// ==========================================
+// ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ И ФУНКЦИИ
+// ==========================================
+const TG_BOT_TOKEN = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o'; 
+const TG_CHAT_ID = '1017718880';       
+
+// Инициализация корзины СРАЗУ, чтобы другие скрипты видели её
+let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || [];
+
+// Функция уведомлений (глобальная)
+window.showNotification = function(message) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.add('hiding');
+        toast.addEventListener('animationend', () => toast.remove());
+    }, 3000);
+};
+
+// Функция обновления UI корзины (глобальная)
+window.updateCartUI = function() {
+    const widget = document.getElementById('cartWidget');
+    const cartItems = document.getElementById('cartItems');
+    const cartTotal = document.getElementById('cartTotal');
+    const orderBtn = document.getElementById('cartOrderBtn');
+    
+    // Считаем общее количество
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    if(widget) widget.textContent = `Корзина: ${totalItems}`;
+    
+    if(cartItems) {
+        cartItems.innerHTML = '';
+        let totalMoney = 0;
+
+        cart.forEach((item, index) => {
+            const priceNum = parseFloat(item.price.replace(/\s/g, '').replace('₽','').replace(',', '.')) || 0;
+            totalMoney += priceNum * item.quantity;
+            
+            const div = document.createElement('div');
+            div.className = 'cart-item';
+            div.innerHTML = `
+                <div class="cart-item-info">
+                    <span class="cart-item-title">${item.sku} - ${item.name}</span>
+                    <span class="cart-item-price">${item.price}</span>
+                </div>
+                <div class="qty-controls">
+                    <button class="qty-btn" onclick="changeQuantity(${index}, -1)">-</button>
+                    <span class="qty-count">${item.quantity}</span>
+                    <button class="qty-btn" onclick="changeQuantity(${index}, 1)">+</button>
+                </div>
+                <button class="btn-remove" onclick="removeCartItem(${index})">&times;</button>
+            `;
+            cartItems.appendChild(div);
+        });
+        
+        if(cartTotal) cartTotal.textContent = `Итого: ${new Intl.NumberFormat('ru-RU').format(totalMoney)} ₽`;
+    }
+    
+    localStorage.setItem('rassvet_cart', JSON.stringify(cart));
+    // Синхронизируем кнопки (если мы на странице каталога или товара)
+    if (typeof window.syncButtonsWithCart === 'function') {
+        window.syncButtonsWithCart();
+    }
+};
+
+// Функция синхронизации кнопок (глобальная)
+window.syncButtonsWithCart = function() {
+    const allProductCards = document.querySelectorAll('[data-product-id]');
+    
+    allProductCards.forEach(card => {
+        const id = card.getAttribute('data-product-id');
+        const cartItem = cart.find(item => item.id === id);
+        
+        const btnAdd = document.getElementById(`btn-add-${id}`);
+        const btnQty = document.getElementById(`btn-qty-${id}`);
+        const countSpan = document.getElementById(`qty-val-${id}`);
+
+        if (btnAdd && btnQty && countSpan) {
+            if (cartItem) {
+                // Товар в корзине: показываем +/-
+                btnAdd.classList.add('hidden');
+                btnQty.classList.remove('hidden');
+                countSpan.textContent = cartItem.quantity;
+            } else {
+                // Товара нет: показываем кнопку "В корзину"
+                btnAdd.classList.remove('hidden');
+                btnQty.classList.add('hidden');
+            }
+        }
+    });
+};
+
+// Глобальные функции управления корзиной
+window.addToCart = function(id, sku, name, price) {
+    const existingItem = cart.find(item => item.id === id);
+    if (existingItem) {
+        existingItem.quantity++;
+    } else {
+        cart.push({id, sku, name, price, quantity: 1});
+        window.showNotification('Товар добавлен в корзину');
+    }
+    window.updateCartUI();
+    const widgetBtn = document.getElementById('cartWidget');
+    if(widgetBtn) {
+            widgetBtn.style.transform = "scale(1.2)";
+            setTimeout(() => widgetBtn.style.transform = "scale(1)", 200);
+    }
+};
+
+window.updateItemQty = function(id, delta) {
+    const item = cart.find(p => p.id === id);
+    if (item) {
+        item.quantity += delta;
+        if (item.quantity <= 0) {
+            cart = cart.filter(p => p.id !== id);
+        }
+        window.updateCartUI();
+    }
+};
+
+window.changeQuantity = function(index, delta) {
+    const item = cart[index];
+    item.quantity += delta;
+    if (item.quantity <= 0) item.quantity = 1; 
+    window.updateCartUI();
+};
+
+window.removeCartItem = function(index) {
+    cart.splice(index, 1);
+    window.updateCartUI();
+};
+
+// ==========================================
+// ОСНОВНОЙ КОД ПОСЛЕ ЗАГРУЗКИ DOM
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof SITE_CONFIG === 'undefined') return;
 
-    // ==========================================
-    // ТЕЛЕГРАМ НАСТРОЙКИ (ВСТАВЛЕНЫ)
-    // ==========================================
-    const TG_BOT_TOKEN = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o'; 
-    const TG_CHAT_ID = '1017718880';       
+    // Инициализация UI при загрузке
+    window.updateCartUI();
 
-    // --- УВЕДОМЛЕНИЯ ---
-    function showNotification(message) {
-        const container = document.getElementById('toast-container');
-        if (!container) return;
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.textContent = message;
-        container.appendChild(toast);
-        setTimeout(() => {
-            toast.classList.add('hiding');
-            toast.addEventListener('animationend', () => toast.remove());
-        }, 3000);
-    }
-
-    // --- КОРЗИНА: Логика ---
-    let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || [];
-
-    function updateCartUI() {
-        const widget = document.getElementById('cartWidget');
-        const cartItems = document.getElementById('cartItems');
-        const cartTotal = document.getElementById('cartTotal');
-        const orderBtn = document.getElementById('cartOrderBtn');
-        
-        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-        if(widget) widget.textContent = `Корзина: ${totalItems}`;
-        
-        if(cartItems) {
-            cartItems.innerHTML = '';
-            let totalMoney = 0;
-
-            cart.forEach((item, index) => {
-                const priceNum = parseFloat(item.price.replace(/\s/g, '').replace('₽','').replace(',', '.')) || 0;
-                totalMoney += priceNum * item.quantity;
-                
-                const div = document.createElement('div');
-                div.className = 'cart-item';
-                div.innerHTML = `
-                    <div class="cart-item-info">
-                        <span class="cart-item-title">${item.sku} - ${item.name}</span>
-                        <span class="cart-item-price">${item.price}</span>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="changeQuantity(${index}, -1)">-</button>
-                        <span class="qty-count">${item.quantity}</span>
-                        <button class="qty-btn" onclick="changeQuantity(${index}, 1)">+</button>
-                    </div>
-                    <button class="btn-remove" onclick="removeCartItem(${index})">&times;</button>
-                `;
-                cartItems.appendChild(div);
-            });
-            
-            if(cartTotal) cartTotal.textContent = `Итого: ${new Intl.NumberFormat('ru-RU').format(totalMoney)} ₽`;
-            
-            // Логика открытия формы
-            if(orderBtn) {
-                orderBtn.onclick = () => {
-                    if (cart.length === 0) {
-                        showNotification('Корзина пуста');
-                        return;
-                    }
-                    // Закрываем корзину, открываем форму
-                    document.getElementById('cartModal').style.display = 'none';
-                    document.getElementById('orderModal').style.display = 'flex';
-                };
+    // Обработчики модального окна корзины
+    const modal = document.getElementById('cartModal');
+    const widget = document.getElementById('cartWidget');
+    const close = document.getElementById('closeCart');
+    const orderBtn = document.getElementById('cartOrderBtn');
+    
+    if(widget) widget.onclick = () => { modal.style.display = 'flex'; window.updateCartUI(); };
+    if(close) close.onclick = () => { modal.style.display = 'none'; };
+    
+    // Обработка кнопки "Отправить запрос" в корзине
+    if(orderBtn) {
+        orderBtn.onclick = () => {
+            if (cart.length === 0) {
+                window.showNotification('Корзина пуста');
+                return;
             }
-        }
-        localStorage.setItem('rassvet_cart', JSON.stringify(cart));
-        syncButtonsWithCart();
+            // Закрываем корзину, открываем форму
+            document.getElementById('cartModal').style.display = 'none';
+            document.getElementById('orderModal').style.display = 'flex';
+        };
     }
 
-    // --- ОБРАБОТКА ФОРМЫ ЗАКАЗА ---
+    // Обработчики модального окна оформления
     const orderModal = document.getElementById('orderModal');
     const closeOrder = document.getElementById('closeOrder');
     const orderForm = document.getElementById('orderForm');
 
     if(closeOrder) closeOrder.onclick = () => { orderModal.style.display = 'none'; };
 
+    // Закрытие по клику вне окна
+    window.onclick = (e) => { 
+        if(e.target == modal) modal.style.display = 'none'; 
+        if(e.target == orderModal) orderModal.style.display = 'none';
+    };
+
+    // Отправка формы в Telegram
     if(orderForm) {
         orderForm.onsubmit = (e) => {
             e.preventDefault();
@@ -133,10 +228,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if(response.ok) {
                 cart = []; // Очищаем корзину
                 localStorage.setItem('rassvet_cart', JSON.stringify(cart));
-                updateCartUI(); 
+                window.updateCartUI(); 
                 orderForm.reset(); 
                 orderModal.style.display = 'none'; 
-                showNotification("Заказ успешно отправлен!");
+                window.showNotification("Заказ успешно отправлен!");
             } else {
                 alert("Ошибка отправки. Проверьте консоль.");
                 console.error(response);
@@ -152,77 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function syncButtonsWithCart() {
-        const allProductCards = document.querySelectorAll('[data-product-id]');
-        allProductCards.forEach(card => {
-            const id = card.getAttribute('data-product-id');
-            const cartItem = cart.find(item => item.id === id);
-            const btnAdd = document.getElementById(`btn-add-${id}`);
-            const btnQty = document.getElementById(`btn-qty-${id}`);
-            const countSpan = document.getElementById(`qty-val-${id}`);
-
-            if (btnAdd && btnQty && countSpan) {
-                if (cartItem) {
-                    btnAdd.classList.add('hidden');
-                    btnQty.classList.remove('hidden');
-                    countSpan.textContent = cartItem.quantity;
-                } else {
-                    btnAdd.classList.remove('hidden');
-                    btnQty.classList.add('hidden');
-                }
-            }
-        });
-    }
-
-    const modal = document.getElementById('cartModal');
-    const widget = document.getElementById('cartWidget');
-    const close = document.getElementById('closeCart');
-    
-    if(widget) widget.onclick = () => { modal.style.display = 'flex'; updateCartUI(); };
-    if(close) close.onclick = () => { modal.style.display = 'none'; };
-    window.onclick = (e) => { 
-        if(e.target == modal) modal.style.display = 'none'; 
-        if(e.target == orderModal) orderModal.style.display = 'none';
-    };
-
-    window.addToCart = (id, sku, name, price) => {
-        const existingItem = cart.find(item => item.id === id);
-        if (existingItem) {
-            existingItem.quantity++;
-        } else {
-            cart.push({id, sku, name, price, quantity: 1});
-            showNotification('Товар добавлен в корзину');
-        }
-        updateCartUI();
-        const widgetBtn = document.getElementById('cartWidget');
-        if(widgetBtn) {
-             widgetBtn.style.transform = "scale(1.2)";
-             setTimeout(() => widgetBtn.style.transform = "scale(1)", 200);
-        }
-    };
-
-    window.updateItemQty = (id, delta) => {
-        const item = cart.find(p => p.id === id);
-        if (item) {
-            item.quantity += delta;
-            if (item.quantity <= 0) cart = cart.filter(p => p.id !== id);
-            updateCartUI();
-        }
-    };
-    
-    window.changeQuantity = (index, delta) => {
-        const item = cart[index];
-        item.quantity += delta;
-        if (item.quantity <= 0) item.quantity = 1; 
-        updateCartUI();
-    };
-
-    window.removeCartItem = (index) => {
-        cart.splice(index, 1);
-        updateCartUI();
-    };
-
-    // --- КАТАЛОГ ---
+    // --- КАТАЛОГ: Логика ---
     let allProducts = [];
     let displayedCount = 0;
     let currentCategory = 'all';
@@ -330,7 +355,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         displayedCount += nextBatch.length;
         if(loadMoreContainer) loadMoreContainer.style.display = (displayedCount < filtered.length) ? 'block' : 'none';
-        updateCartUI(); 
+        
+        // После отрисовки обновляем кнопки, чтобы показать +/- если товар в корзине
+        window.updateCartUI(); 
     }
 
     if(loadMoreBtn) loadMoreBtn.addEventListener('click', () => renderBatch());
@@ -358,7 +385,13 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="product-price">${priceFmt}</div>
             <div class="btn-group">
                 <a href="product.html?id=${product.id}" class="btn-card btn-blue">Инфо</a>
-                <button id="btn-add-${product.id}" onclick="addToCart('${product.id}', '${product.sku}', '${nameClean}', '${priceFmt}')" class="btn-card btn-green">В КОРЗИНУ</button>
+                
+                <button id="btn-add-${product.id}" 
+                        onclick="addToCart('${product.id}', '${product.sku}', '${nameClean}', '${priceFmt}')" 
+                        class="btn-card btn-green">
+                    В КОРЗИНУ
+                </button>
+
                 <div id="btn-qty-${product.id}" class="btn-qty-grid hidden">
                     <button onclick="updateItemQty('${product.id}', -1)">-</button>
                     <span id="qty-val-${product.id}">1</span>

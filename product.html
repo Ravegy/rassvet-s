@@ -51,17 +51,17 @@
             const params = new URLSearchParams(window.location.search);
             const productId = params.get('id');
 
-            // Если ID нет, показываем кнопку возврата
             if (!productId) {
                 document.getElementById('productDetail').innerHTML = `
                     <h2 style="text-align:center; color:#fff; margin-bottom:30px;">Товар не найден</h2>
                     <div style="text-align:center">
-                        <a href="index.html" class="btn-detail-back" style="display:inline-block; min-width:200px;">В КАТАЛОГ</a>
+                        <a href="index.html" class="btn-load-more">Вернуться в каталог</a>
                     </div>`;
                 return;
             }
 
-            const cacheKey = 'rassvet_v4_data';
+            // ВАЖНО: Новый ключ кэша v5, чтобы сбросить старый дизайн у тебя в браузере
+            const cacheKey = 'rassvet_v5_data';
             const cachedData = localStorage.getItem(cacheKey);
 
             if (cachedData) {
@@ -96,7 +96,7 @@
                              document.getElementById('productDetail').innerHTML = `
                                 <h2 style="text-align:center; color:#fff; margin-bottom:30px;">Товар не найден</h2>
                                 <div style="text-align:center">
-                                    <a href="index.html" class="btn-detail-back" style="display:inline-block; min-width:200px;">В КАТАЛОГ</a>
+                                    <a href="index.html" class="btn-load-more">Вернуться в каталог</a>
                                 </div>`;
                         }
                     });
@@ -120,9 +120,9 @@
                             <h1 class="full-title">${p.name}</h1>
                             <div class="full-price">${priceFmt}</div>
                             
-                            <div class="full-actions">
-                                <a href="index.html" class="btn-detail-back">В КАТАЛОГ</a>
-                                <a href="https://wa.me/${SITE_CONFIG.phone}?text=Здравствуйте! Интересует запчасть ${p.sku} ${p.name}" target="_blank" class="btn-detail-buy">
+                            <div class="full-actions-group">
+                                <a href="index.html" class="btn-detail blue">В КАТАЛОГ</a>
+                                <a href="https://wa.me/${SITE_CONFIG.phone}?text=Здравствуйте! Интересует запчасть ${p.sku} ${p.name}" target="_blank" class="btn-detail green">
                                     ЗАКАЗАТЬ В WHATSAPP
                                 </a>
                             </div>

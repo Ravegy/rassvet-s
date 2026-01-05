@@ -1,20 +1,31 @@
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof SITE_CONFIG === 'undefined') return;
 
-    // --- КОРЗИНА: Логика ---
+    // --- УВЕДОМЛЕНИЯ ---
+    function showNotification(message) {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add('hiding');
+            toast.addEventListener('animationend', () => toast.remove());
+        }, 3000);
+    }
+
+    // --- КОРЗИНА ---
     let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || [];
 
-    // Функция обновления интерфейса корзины
     function updateCartUI() {
         const widget = document.getElementById('cartWidget');
         const cartItems = document.getElementById('cartItems');
         const cartTotal = document.getElementById('cartTotal');
         const orderBtn = document.getElementById('cartOrderBtn');
         
-        // Обновляем виджет в шапке
         if(widget) widget.textContent = `Корзина: ${cart.length}`;
         
-        // Обновляем список в модалке
         if(cartItems) {
             cartItems.innerHTML = '';
             let total = 0;
@@ -34,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if(cartTotal) cartTotal.textContent = `Итого: ${new Intl.NumberFormat('ru-RU').format(total)} ₽`;
             
-            // Формируем ссылку для WhatsApp
             if(orderBtn) {
                 let msg = "Здравствуйте! Хочу оформить заказ:%0A";
                 cart.forEach(item => {
@@ -44,11 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 orderBtn.href = `https://wa.me/${SITE_CONFIG.phone}?text=${msg}`;
             }
         }
-        // Сохраняем
         localStorage.setItem('rassvet_cart', JSON.stringify(cart));
     }
 
-    // Обработчики модального окна
     const modal = document.getElementById('cartModal');
     const widget = document.getElementById('cartWidget');
     const close = document.getElementById('closeCart');
@@ -57,14 +65,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if(close) close.onclick = () => { modal.style.display = 'none'; };
     window.onclick = (e) => { if(e.target == modal) modal.style.display = 'none'; };
 
-    // Глобальные функции (чтобы работали из onclick в HTML)
     window.addToCart = (id, sku, name, price) => {
         cart.push({id, sku, name, price});
         updateCartUI();
-        // Небольшая визуальная обратная связь
-        const widget = document.getElementById('cartWidget');
-        widget.style.transform = "scale(1.2)";
-        setTimeout(() => widget.style.transform = "scale(1)", 200);
+        const widgetBtn = document.getElementById('cartWidget');
+        if(widgetBtn) {
+             widgetBtn.style.transform = "scale(1.2)";
+             setTimeout(() => widgetBtn.style.transform = "scale(1)", 200);
+        }
+        showNotification('Товар добавлен в корзину');
     };
     
     window.removeCartItem = (index) => {
@@ -72,11 +81,9 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCartUI();
     };
 
-    // Запускаем обновление при старте
     updateCartUI();
 
-
-    // --- КАТАЛОГ: Логика ---
+    // --- КАТАЛОГ ---
     let allProducts = [];
     let displayedCount = 0;
     let currentCategory = 'all';
@@ -95,8 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadCatalogData() {
-        const cacheKey = 'rassvet_v6_data';
-        const timeKey = 'rassvet_v6_time';
+        // КЭШ ВЕРСИИ v7 ДЛЯ ОБНОВЛЕНИЯ
+        const cacheKey = 'rassvet_v7_data'; 
+        const timeKey = 'rassvet_v7_time';
         const maxAge = (SITE_CONFIG.cacheTime || 60) * 60 * 1000;
         
         const cachedData = localStorage.getItem(cacheKey);
@@ -134,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 .catch(err => {
                     console.error(err);
+                    // ТЕКСТ ОШИБКИ С КЛАССОМ ERROR-TEXT
                     if(catalogGrid) catalogGrid.innerHTML = '<div class="loader-container"><p class="error-text">Ошибка загрузки</p></div>';
                 });
         }
@@ -195,9 +204,8 @@ document.addEventListener('DOMContentLoaded', () => {
             imgUrl = product.image.startsWith('http') ? product.image : `images/parts/${product.image}`;
         }
         
-        // Форматируем цену для передачи в функцию
         const priceFmt = formatPrice(product.price);
-        const nameClean = product.name.replace(/'/g, ""); // Убираем кавычки из названия
+        const nameClean = product.name.replace(/'/g, "");
 
         const card = document.createElement('div');
         card.className = 'product-card';

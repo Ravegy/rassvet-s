@@ -60,10 +60,26 @@
         </div>
     </footer>
 
+    <div id="toast-container"></div>
+
     <script src="config.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- ЛОГИКА КОРЗИНЫ ---
+            // --- УВЕДОМЛЕНИЯ ---
+            function showNotification(message) {
+                const container = document.getElementById('toast-container');
+                if (!container) return;
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = message;
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.classList.add('hiding');
+                    toast.addEventListener('animationend', () => toast.remove());
+                }, 3000);
+            }
+
+            // --- КОРЗИНА ---
             let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || [];
             
             function updateCartUI() {
@@ -93,7 +109,6 @@
                     
                     if(cartTotal) cartTotal.textContent = `Итого: ${new Intl.NumberFormat('ru-RU').format(total)} ₽`;
                     
-                    // Ссылка для WhatsApp
                     if(orderBtn) {
                         let msg = "Здравствуйте! Хочу оформить заказ:%0A";
                         cart.forEach(item => {
@@ -106,7 +121,6 @@
                 localStorage.setItem('rassvet_cart', JSON.stringify(cart));
             }
 
-            // Открытие/Закрытие корзины
             const modal = document.getElementById('cartModal');
             const widget = document.getElementById('cartWidget');
             const close = document.getElementById('closeCart');
@@ -115,33 +129,40 @@
             if(close) close.onclick = () => { modal.style.display = 'none'; };
             window.onclick = (e) => { if(e.target == modal) modal.style.display = 'none'; };
 
-            // Глобальные функции для кнопок
+            // Глобальные функции
             window.addToCart = (id, sku, name, price) => {
                 cart.push({id, sku, name, price});
                 updateCartUI();
-                alert('Товар добавлен в корзину');
+                const widgetBtn = document.getElementById('cartWidget');
+                if(widgetBtn) {
+                     widgetBtn.style.transform = "scale(1.2)";
+                     setTimeout(() => widgetBtn.style.transform = "scale(1)", 200);
+                }
+                showNotification('Товар добавлен в корзину');
             };
             window.removeCartItem = (index) => {
                 cart.splice(index, 1);
                 updateCartUI();
             };
 
-            updateCartUI(); // Запуск при загрузке
+            updateCartUI(); 
 
-            // --- ЛОГИКА ТОВАРА ---
+            // --- ТОВАР ---
             const params = new URLSearchParams(window.location.search);
             const productId = params.get('id');
 
+            // КНОПКА ВОЗВРАТА ТУТ
             if (!productId) {
                 document.getElementById('productDetail').innerHTML = `
                     <h2 style="text-align:center; color:#fff; margin-bottom:30px;">Товар не найден</h2>
                     <div style="text-align:center">
-                        <a href="index.html" class="btn-load-more">Вернуться в каталог</a>
+                        <a href="index.html" class="btn-detail blue">Вернуться в каталог</a>
                     </div>`;
                 return;
             }
 
-            const cacheKey = 'rassvet_v6_data';
+            // КЭШ V7
+            const cacheKey = 'rassvet_v7_data';
             const cachedData = localStorage.getItem(cacheKey);
 
             if (cachedData) {
@@ -176,7 +197,7 @@
                              document.getElementById('productDetail').innerHTML = `
                                 <h2 style="text-align:center; color:#fff; margin-bottom:30px;">Товар не найден</h2>
                                 <div style="text-align:center">
-                                    <a href="index.html" class="btn-load-more">Вернуться в каталог</a>
+                                    <a href="index.html" class="btn-detail blue">Вернуться в каталог</a>
                                 </div>`;
                         }
                     });
@@ -188,8 +209,8 @@
                     imgUrl = p.image.startsWith('http') ? p.image : `images/parts/${p.image}`;
                 }
                 const priceFmt = p.price ? new Intl.NumberFormat('ru-RU').format(parseFloat(p.price.replace(/\s/g,'').replace(',','.'))) + ' ₽' : 'По запросу';
+                const nameClean = p.name.replace(/'/g, "");
 
-                // Здесь кнопка "ЗАКАЗАТЬ" заменена на "В КОРЗИНУ"
                 const html = `
                     <div class="product-full-card">
                         <div class="full-img-wrapper">
@@ -203,7 +224,7 @@
                             
                             <div class="full-actions-group">
                                 <a href="index.html" class="btn-detail blue">В КАТАЛОГ</a>
-                                <button onclick="addToCart('${p.id}', '${p.sku}', '${p.name.replace(/'/g, "")}', '${priceFmt}')" class="btn-detail green">
+                                <button onclick="addToCart('${p.id}', '${p.sku}', '${nameClean}', '${priceFmt}')" class="btn-detail green">
                                     В КОРЗИНУ
                                 </button>
                             </div>

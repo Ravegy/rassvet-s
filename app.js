@@ -1,6 +1,82 @@
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof SITE_CONFIG === 'undefined') return;
 
+    // --- КОРЗИНА: Логика ---
+    let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || [];
+
+    // Функция обновления интерфейса корзины
+    function updateCartUI() {
+        const widget = document.getElementById('cartWidget');
+        const cartItems = document.getElementById('cartItems');
+        const cartTotal = document.getElementById('cartTotal');
+        const orderBtn = document.getElementById('cartOrderBtn');
+        
+        // Обновляем виджет в шапке
+        if(widget) widget.textContent = `Корзина: ${cart.length}`;
+        
+        // Обновляем список в модалке
+        if(cartItems) {
+            cartItems.innerHTML = '';
+            let total = 0;
+            cart.forEach((item, index) => {
+                const priceNum = parseFloat(item.price.replace(/\s/g, '').replace('₽','').replace(',', '.')) || 0;
+                total += priceNum;
+                
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <span class="cart-item-title">${item.sku} - ${item.name}</span>
+                    <span class="cart-item-price">${item.price}</span>
+                    <button class="btn-remove" onclick="removeCartItem(${index})">&times;</button>
+                `;
+                cartItems.appendChild(div);
+            });
+            
+            if(cartTotal) cartTotal.textContent = `Итого: ${new Intl.NumberFormat('ru-RU').format(total)} ₽`;
+            
+            // Формируем ссылку для WhatsApp
+            if(orderBtn) {
+                let msg = "Здравствуйте! Хочу оформить заказ:%0A";
+                cart.forEach(item => {
+                    msg += `- ${item.sku} ${item.name} (${item.price})%0A`;
+                });
+                msg += `%0AИтого: ${new Intl.NumberFormat('ru-RU').format(total)} ₽`;
+                orderBtn.href = `https://wa.me/${SITE_CONFIG.phone}?text=${msg}`;
+            }
+        }
+        // Сохраняем
+        localStorage.setItem('rassvet_cart', JSON.stringify(cart));
+    }
+
+    // Обработчики модального окна
+    const modal = document.getElementById('cartModal');
+    const widget = document.getElementById('cartWidget');
+    const close = document.getElementById('closeCart');
+    
+    if(widget) widget.onclick = () => { modal.style.display = 'flex'; updateCartUI(); };
+    if(close) close.onclick = () => { modal.style.display = 'none'; };
+    window.onclick = (e) => { if(e.target == modal) modal.style.display = 'none'; };
+
+    // Глобальные функции (чтобы работали из onclick в HTML)
+    window.addToCart = (id, sku, name, price) => {
+        cart.push({id, sku, name, price});
+        updateCartUI();
+        // Небольшая визуальная обратная связь
+        const widget = document.getElementById('cartWidget');
+        widget.style.transform = "scale(1.2)";
+        setTimeout(() => widget.style.transform = "scale(1)", 200);
+    };
+    
+    window.removeCartItem = (index) => {
+        cart.splice(index, 1);
+        updateCartUI();
+    };
+
+    // Запускаем обновление при старте
+    updateCartUI();
+
+
+    // --- КАТАЛОГ: Логика ---
     let allProducts = [];
     let displayedCount = 0;
     let currentCategory = 'all';
@@ -12,14 +88,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     const categoryFilter = document.getElementById('categoryFilter');
 
-    initSite();
+    if(catalogGrid) initCatalog();
 
-    function initSite() {
+    function initCatalog() {
         loadCatalogData();
     }
 
     function loadCatalogData() {
-        const cacheKey = 'rassvet_v6_data'; // Используем ту же версию кэша
+        const cacheKey = 'rassvet_v6_data';
         const timeKey = 'rassvet_v6_time';
         const maxAge = (SITE_CONFIG.cacheTime || 60) * 60 * 1000;
         
@@ -58,8 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 .catch(err => {
                     console.error(err);
-                    // ВАЖНО: Добавил <p class="error-text"> для стилизации ошибки
-                    catalogGrid.innerHTML = '<div class="loader-container"><p class="error-text">Ошибка загрузки</p></div>';
+                    if(catalogGrid) catalogGrid.innerHTML = '<div class="loader-container"><p class="error-text">Ошибка загрузки</p></div>';
                 });
         }
     }
@@ -89,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loadMoreContainer.style.display = 'none';
         }
 
-        const searchVal = searchInput.value.toLowerCase();
+        const searchVal = searchInput ? searchInput.value.toLowerCase() : '';
         const filtered = allProducts.filter(p => {
             const matchesCat = currentCategory === 'all' || p.category === currentCategory;
             const matchesSearch = !searchVal || p.name.toLowerCase().includes(searchVal) || p.sku.toLowerCase().includes(searchVal);
@@ -108,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         displayedCount += nextBatch.length;
-        loadMoreContainer.style.display = (displayedCount < filtered.length) ? 'block' : 'none';
+        if(loadMoreContainer) loadMoreContainer.style.display = (displayedCount < filtered.length) ? 'block' : 'none';
     }
 
     if(loadMoreBtn) loadMoreBtn.addEventListener('click', () => renderBatch());
@@ -119,6 +194,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (product.image && product.image.trim()) {
             imgUrl = product.image.startsWith('http') ? product.image : `images/parts/${product.image}`;
         }
+        
+        // Форматируем цену для передачи в функцию
+        const priceFmt = formatPrice(product.price);
+        const nameClean = product.name.replace(/'/g, ""); // Убираем кавычки из названия
 
         const card = document.createElement('div');
         card.className = 'product-card';
@@ -128,10 +207,10 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="product-sku">АРТ: ${product.sku}</div>
             <a href="product.html?id=${product.id}" class="product-title">${product.name}</a>
-            <div class="product-price">${formatPrice(product.price)}</div>
+            <div class="product-price">${priceFmt}</div>
             <div class="btn-group">
                 <a href="product.html?id=${product.id}" class="btn-card btn-blue">Инфо</a>
-                <a href="https://wa.me/${SITE_CONFIG.phone}?text=${SITE_CONFIG.waDefaultMessage} ${product.sku}" target="_blank" class="btn-card btn-green">Купить</a>
+                <button onclick="addToCart('${product.id}', '${product.sku}', '${nameClean}', '${priceFmt}')" class="btn-card btn-green">В КОРЗИНУ</button>
             </div>
         `;
         return card;

@@ -19,6 +19,7 @@
             </nav>
             <div class="header-contacts">
                 <a href="tel:+79818881337" class="header-phone" id="headerPhone">+7 (981) 888-13-37</a>
+                <div id="cartWidget" class="cart-widget">Корзина: 0</div>
             </div>
         </div>
     </header>
@@ -51,6 +52,21 @@
             
             <div class="load-more-container" id="loadMoreContainer" style="display: none;">
                 <button id="loadMoreBtn" class="btn-load-more">Показать больше товаров</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cartModal" class="cart-modal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h2>Ваша корзина</h2>
+                <span class="close-cart" id="closeCart">&times;</span>
+            </div>
+            <div class="cart-items" id="cartItems">
+                </div>
+            <div class="cart-footer">
+                <span id="cartTotal" class="cart-total">Итого: 0 ₽</span>
+                <a href="#" id="cartOrderBtn" class="btn-cart-order" target="_blank">Оформить в WhatsApp</a>
             </div>
         </div>
     </div>

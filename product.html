@@ -18,6 +18,7 @@
             </nav>
             <div class="header-contacts">
                 <a href="tel:+79818881337" class="header-phone" id="headerPhone">+7 (981) 888-13-37</a>
+                <div id="cartWidget" class="cart-widget">Корзина: 0</div>
             </div>
         </div>
     </header>
@@ -27,6 +28,20 @@
             <div class="loader-container">
                 <div class="spinner"></div>
                 <p>Загрузка товара...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="cartModal" class="cart-modal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h2>Ваша корзина</h2>
+                <span class="close-cart" id="closeCart">&times;</span>
+            </div>
+            <div class="cart-items" id="cartItems"></div>
+            <div class="cart-footer">
+                <span id="cartTotal" class="cart-total">Итого: 0 ₽</span>
+                <a href="#" id="cartOrderBtn" class="btn-cart-order" target="_blank">Оформить в WhatsApp</a>
             </div>
         </div>
     </div>
@@ -48,10 +63,75 @@
     <script src="config.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- ЛОГИКА КОРЗИНЫ ---
+            let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || [];
+            
+            function updateCartUI() {
+                const widget = document.getElementById('cartWidget');
+                const cartItems = document.getElementById('cartItems');
+                const cartTotal = document.getElementById('cartTotal');
+                const orderBtn = document.getElementById('cartOrderBtn');
+                
+                if(widget) widget.textContent = `Корзина: ${cart.length}`;
+                
+                if(cartItems) {
+                    cartItems.innerHTML = '';
+                    let total = 0;
+                    cart.forEach((item, index) => {
+                        const priceNum = parseFloat(item.price.replace(/\s/g, '').replace('₽','').replace(',', '.')) || 0;
+                        total += priceNum;
+                        
+                        const div = document.createElement('div');
+                        div.className = 'cart-item';
+                        div.innerHTML = `
+                            <span class="cart-item-title">${item.sku} - ${item.name}</span>
+                            <span class="cart-item-price">${item.price}</span>
+                            <button class="btn-remove" onclick="removeCartItem(${index})">&times;</button>
+                        `;
+                        cartItems.appendChild(div);
+                    });
+                    
+                    if(cartTotal) cartTotal.textContent = `Итого: ${new Intl.NumberFormat('ru-RU').format(total)} ₽`;
+                    
+                    // Ссылка для WhatsApp
+                    if(orderBtn) {
+                        let msg = "Здравствуйте! Хочу оформить заказ:%0A";
+                        cart.forEach(item => {
+                            msg += `- ${item.sku} ${item.name} (${item.price})%0A`;
+                        });
+                        msg += `%0AИтого: ${new Intl.NumberFormat('ru-RU').format(total)} ₽`;
+                        orderBtn.href = `https://wa.me/${SITE_CONFIG.phone}?text=${msg}`;
+                    }
+                }
+                localStorage.setItem('rassvet_cart', JSON.stringify(cart));
+            }
+
+            // Открытие/Закрытие корзины
+            const modal = document.getElementById('cartModal');
+            const widget = document.getElementById('cartWidget');
+            const close = document.getElementById('closeCart');
+            
+            if(widget) widget.onclick = () => { modal.style.display = 'flex'; updateCartUI(); };
+            if(close) close.onclick = () => { modal.style.display = 'none'; };
+            window.onclick = (e) => { if(e.target == modal) modal.style.display = 'none'; };
+
+            // Глобальные функции для кнопок
+            window.addToCart = (id, sku, name, price) => {
+                cart.push({id, sku, name, price});
+                updateCartUI();
+                alert('Товар добавлен в корзину');
+            };
+            window.removeCartItem = (index) => {
+                cart.splice(index, 1);
+                updateCartUI();
+            };
+
+            updateCartUI(); // Запуск при загрузке
+
+            // --- ЛОГИКА ТОВАРА ---
             const params = new URLSearchParams(window.location.search);
             const productId = params.get('id');
 
-            // 1. ИСПРАВИЛ ТУТ: заменил класс на btn-load-more (Синяя кнопка)
             if (!productId) {
                 document.getElementById('productDetail').innerHTML = `
                     <h2 style="text-align:center; color:#fff; margin-bottom:30px;">Товар не найден</h2>
@@ -93,7 +173,6 @@
                                 desc: foundRow[6]
                             });
                         } else {
-                             // 2. ИСПРАВИЛ ТУТ: заменил класс на btn-load-more (Синяя кнопка)
                              document.getElementById('productDetail').innerHTML = `
                                 <h2 style="text-align:center; color:#fff; margin-bottom:30px;">Товар не найден</h2>
                                 <div style="text-align:center">
@@ -110,6 +189,7 @@
                 }
                 const priceFmt = p.price ? new Intl.NumberFormat('ru-RU').format(parseFloat(p.price.replace(/\s/g,'').replace(',','.'))) + ' ₽' : 'По запросу';
 
+                // Здесь кнопка "ЗАКАЗАТЬ" заменена на "В КОРЗИНУ"
                 const html = `
                     <div class="product-full-card">
                         <div class="full-img-wrapper">
@@ -123,9 +203,9 @@
                             
                             <div class="full-actions-group">
                                 <a href="index.html" class="btn-detail blue">В КАТАЛОГ</a>
-                                <a href="https://wa.me/${SITE_CONFIG.phone}?text=Здравствуйте! Интересует запчасть ${p.sku} ${p.name}" target="_blank" class="btn-detail green">
-                                    ЗАКАЗАТЬ В WHATSAPP
-                                </a>
+                                <button onclick="addToCart('${p.id}', '${p.sku}', '${p.name.replace(/'/g, "")}', '${priceFmt}')" class="btn-detail green">
+                                    В КОРЗИНУ
+                                </button>
                             </div>
 
                             <div class="full-desc">

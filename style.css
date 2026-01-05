@@ -45,9 +45,9 @@ body {
 .hero h2 { font-size: 42px; font-weight: 900; margin: 0; letter-spacing: 1px; text-transform: uppercase; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
 .catalog-interface { background: var(--dark-glass); backdrop-filter: blur(40px); border: 1px solid var(--border-glass); border-radius: 30px; padding: 40px; margin-bottom: 80px; box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
 
-/* --- ИСПРАВЛЕНИЕ ТУТ: УБРАЛ border-bottom --- */
+/* УБРАЛ border-bottom ТУТ */
 .interface-header { 
-    border-bottom: none; /* Убрали линию под поиском */
+    border-bottom: none; 
     padding-bottom: 20px; 
     margin-bottom: 20px; 
 }
@@ -62,24 +62,37 @@ body {
 .cat-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 5px 20px rgba(0, 86, 179, 0.5); }
 .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; min-height: 200px; }
 
-/* --- ИСПРАВЛЕНИЕ ТУТ: ВЕРНУЛ border-top --- */
+/* === ДИСКЛЕЙМЕР (БЕГУЩАЯ СТРОКА) === */
 .catalog-disclaimer {
-    border-top: 1px solid var(--border-glass);    /* Вернули верхнюю линию */
-    border-bottom: 1px solid var(--border-glass); /* Оставили нижнюю линию */
-    padding: 15px 20px;
+    border-top: 1px solid var(--border-glass);    
+    border-bottom: 1px solid var(--border-glass); 
+    padding: 5px 0; /* Очень маленькие отступы сверху и снизу */
     margin-bottom: 40px;
-    text-align: center;
     background: rgba(255, 68, 68, 0.05);
+    overflow: hidden; /* Скрываем то, что вылезает за края */
+    white-space: nowrap; /* Запрещаем перенос строк */
+    position: relative;
+    height: 24px; /* Фиксированная маленькая высота */
+    display: flex;
+    align-items: center;
 }
+
 .disclaimer-text {
     color: #ff4444; 
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    text-shadow: 0 0 10px rgba(255, 68, 68, 0.4);
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px rgba(255, 68, 68, 0.6);
     margin: 0;
-    line-height: 1.5;
+    display: inline-block;
+    padding-left: 100%; /* Начало за пределами экрана справа */
+    animation: marquee 25s linear infinite; /* Анимация бегущей строки */
+}
+
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); } /* Двигаем влево */
 }
 
 /* КАРТОЧКА */

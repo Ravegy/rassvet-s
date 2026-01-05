@@ -1,16 +1,15 @@
 :root {
     --main-blue: #004a99;
     --wa-green: #25D366;
-    --dark-overlay: rgba(0, 0, 0, 0.65); /* Затемнение фона */
-    --glass-bg: rgba(20, 20, 20, 0.9); /* Фон шапки */
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --dark-overlay: rgba(0, 0, 0, 0.65);
+    --glass-bg: rgba(20, 20, 20, 0.95);
+    --glass-border: rgba(255, 255, 255, 0.15);
     --text-color: #333;
 }
 
 body { 
     font-family: 'Roboto', sans-serif; 
     margin: 0; 
-    /* Твой фон с затемнением */
     background: linear-gradient(var(--dark-overlay), var(--dark-overlay)), url('images/bg.webp');
     background-size: cover;
     background-position: center;
@@ -23,21 +22,21 @@ body {
 
 .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; width: 100%; box-sizing: border-box; }
 
-/* --- ШАПКА (Fixed/Sticky) --- */
+/* --- ШАПКА --- */
 .header { 
     background: var(--glass-bg); 
     backdrop-filter: blur(10px); 
     -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--glass-border);
-    position: sticky; /* Липкая шапка */
-    top: 0; 
-    z-index: 1000;
+    position: sticky; top: 0; z-index: 1000;
     transition: 0.3s;
     box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
 
 .header-main { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; }
 
+/* ИСПРАВЛЕНИЕ 1: Убираем подчеркивание у ссылки-логотипа */
+.logo-text { text-decoration: none; }
 .logo-text h1 { 
     margin: 0; font-size: 24px; color: #fff; 
     text-transform: uppercase; font-weight: 900; letter-spacing: 1px; 
@@ -56,124 +55,114 @@ body {
 .header-phone { color: #fff; text-decoration: none; font-weight: 900; font-size: 18px; }
 
 /* --- HERO --- */
-.hero { padding: 60px 0 30px; text-align: center; }
+.hero { padding: 50px 0 20px; text-align: center; }
 .hero-badge { background: var(--main-blue); display: inline-block; padding: 5px 12px; font-size: 11px; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; border-radius: 4px; letter-spacing: 1px;}
 .hero h2 { font-size: 42px; font-weight: 900; text-transform: uppercase; margin: 0; letter-spacing: 2px; text-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 .hero p { font-size: 16px; opacity: 0.8; margin-top: 10px; font-weight: 300; }
 
 /* --- ПОИСК --- */
-.search-section { margin: 20px auto 40px; max-width: 700px; display: flex; justify-content: center; }
+.search-section { margin: 20px auto 30px; max-width: 700px; display: flex; justify-content: center; }
 #searchInput { 
     width: 100%; padding: 18px 25px; border: none; border-radius: 50px; 
     font-size: 16px; background: #fff; outline: none; 
     box-shadow: 0 5px 25px rgba(0,0,0,0.3); color: #333;
 }
 
-/* --- КАТАЛОГ (Твои настройки сетки) --- */
+/* --- КАТЕГОРИИ (Новое) --- */
+.categories-wrapper {
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 30px;
+}
+.cat-btn {
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: #fff; padding: 8px 16px; border-radius: 20px; cursor: pointer;
+    font-size: 13px; text-transform: uppercase; font-weight: bold; transition: 0.3s;
+}
+.cat-btn:hover, .cat-btn.active { background: var(--main-blue); border-color: var(--main-blue); }
+
+/* --- РАМКА ДЛЯ КАТАЛОГА (Исправление 3) --- */
+.catalog-frame {
+    background: rgba(255, 255, 255, 0.05); /* Легкий фон */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Рамка */
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 40px;
+}
+
 .catalog-grid { 
     display: grid; 
-    /* Возвращаем твой любимый размер колонок */
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
-    gap: 50px 16px; /* Твои отступы */
-    padding-bottom: 40px; 
-    flex: 1; 
+    gap: 30px 20px; 
 }
 
-.loading-msg { grid-column: 1/-1; text-align: center; font-size: 18px; color: #fff; padding: 40px; }
+.loading-msg { grid-column: 1/-1; text-align: center; font-size: 18px; color: #fff; padding: 20px; }
 
-/* --- СОВРЕМЕННАЯ КАРТОЧКА --- */
+/* --- КАРТОЧКА --- */
 .product-card { 
-    background: #fff; 
-    border-radius: 12px; /* Скругление */
-    padding: 15px; 
-    display: flex; 
-    flex-direction: column; 
-    transition: all 0.3s ease; 
-    color: var(--text-color);
-    position: relative;
-    overflow: hidden;
-    height: 100%; /* Чтобы все карточки были одной высоты */
+    background: #fff; border-radius: 8px; padding: 15px; 
+    display: flex; flex-direction: column; transition: all 0.3s ease; 
+    color: var(--text-color); position: relative; height: 100%;
 }
-
-.product-card:hover { 
-    transform: translateY(-8px); 
-    box-shadow: 0 15px 35px rgba(0,0,0,0.5); 
-}
+.product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
 .img-wrapper { 
-    height: 200px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    margin-bottom: 15px; 
-    background: #fff;
-    border-radius: 8px;
+    height: 180px; display: flex; align-items: center; justify-content: center; 
+    margin-bottom: 15px; background: #fff; border-bottom: 1px solid #eee;
 }
 .product-img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
-.product-sku { 
-    font-size: 10px; color: #888; text-transform: uppercase; 
-    margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px;
-}
+.product-sku { font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
 .product-title { 
-    font-size: 15px; font-weight: 700; color: #000; 
-    margin-bottom: 15px; height: 40px; overflow: hidden; 
-    text-decoration: none; display: block; line-height: 1.3;
-    transition: 0.2s;
+    font-size: 14px; font-weight: 700; color: #000; margin-bottom: 15px; 
+    height: 38px; overflow: hidden; text-decoration: none; display: block; line-height: 1.3;
 }
 .product-title:hover { color: var(--main-blue); }
+.product-price { font-size: 20px; font-weight: 900; color: #000; margin-top: auto; margin-bottom: 15px; }
 
-.product-price { font-size: 22px; font-weight: 900; color: #000; margin-top: auto; margin-bottom: 15px; }
-
-/* Кнопки в карточке */
-.btn-group { display: flex; gap: 10px; }
+.btn-group { display: flex; gap: 8px; }
 .btn-card { 
-    flex: 1; padding: 12px 0; text-align: center; text-decoration: none; 
-    font-size: 12px; font-weight: 800; text-transform: uppercase; 
-    border-radius: 6px; transition: 0.2s; 
+    flex: 1; padding: 10px 0; text-align: center; text-decoration: none; 
+    font-size: 11px; font-weight: 800; text-transform: uppercase; 
+    border-radius: 4px; transition: 0.2s; 
 }
 .btn-blue { background: #f0f2f5; color: #333; }
 .btn-blue:hover { background: var(--main-blue); color: #fff; }
-
 .btn-green { background: #E9FBF0; color: var(--wa-green); border: 1px solid transparent; }
-.btn-green:hover { background: var(--wa-green); color: #fff; box-shadow: 0 4px 10px rgba(37,211,102,0.3); }
+.btn-green:hover { background: var(--wa-green); color: #fff; }
 
 /* --- КНОПКА ПОКАЗАТЬ ЕЩЁ --- */
-.load-more-container { text-align: center; padding-bottom: 60px; margin-top: 20px; }
+.load-more-container { text-align: center; padding-top: 30px; }
 .btn-load-more {
-    background: transparent;
-    color: #fff;
-    border: 2px solid rgba(255,255,255,0.3);
-    padding: 12px 40px;
-    font-size: 13px; font-weight: bold; text-transform: uppercase;
-    cursor: pointer; border-radius: 50px;
-    transition: 0.3s;
+    background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.3);
+    padding: 12px 40px; font-size: 13px; font-weight: bold; text-transform: uppercase;
+    cursor: pointer; border-radius: 50px; transition: 0.3s;
 }
 .btn-load-more:hover { background: #fff; color: #000; border-color: #fff; }
 
-/* --- СОВРЕМЕННЫЙ ПОДВАЛ --- */
-.footer { 
-    background: #111; 
-    color: #fff; 
-    padding: 60px 0 30px; 
-    border-top: 1px solid #333; 
-    margin-top: auto; 
-}
-.footer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 50px; }
-.footer-col h4 { color: #fff; margin-bottom: 25px; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; opacity: 0.5; }
-.footer-link, .footer-link-phone { display: block; color: #999; text-decoration: none; margin-bottom: 10px; transition: 0.2s; font-size: 14px; }
-.footer-link-phone { font-size: 20px; font-weight: bold; color: #fff; margin-bottom: 15px; }
-.footer-link:hover { color: #fff; padding-left: 5px; }
-.footer-addr { color: #666; font-size: 13px; line-height: 1.6; margin-top: 15px; }
+/* --- ПОДВАЛ --- */
+.footer { background: #111; color: #fff; padding: 50px 0 20px; border-top: 1px solid #333; margin-top: auto; }
+.footer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+.footer-col h4 { color: #fff; margin-bottom: 20px; text-transform: uppercase; font-size: 14px; opacity: 0.5; }
+.footer-link, .footer-link-phone { display: block; color: #999; text-decoration: none; margin-bottom: 8px; transition: 0.2s; font-size: 14px; }
+.footer-link-phone { font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 12px; }
+.footer-link:hover { color: #fff; }
+.footer-addr { color: #666; font-size: 13px; line-height: 1.5; margin-top: 10px; }
 .copyright { margin-top: 30px; font-size: 12px; color: #444; }
 
-/* Адаптив */
-@media (max-width: 900px) {
-    .header-nav { display: none; }
-    .catalog-grid { gap: 30px 10px; }
+/* СТИЛИ ДЛЯ СТРАНИЦЫ ТОВАРА (product.html) */
+.product-detail-card {
+    background: #fff; border-radius: 12px; padding: 30px;
+    display: flex; gap: 40px; color: #333; min-height: 400px;
 }
+.detail-img-box { flex: 1; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; border-radius: 8px; padding: 20px;}
+.detail-img-box img { max-width: 100%; max-height: 400px; object-fit: contain; }
+.detail-info { flex: 1; display: flex; flex-direction: column; }
+.detail-sku { font-size: 14px; color: #999; font-weight: bold; margin-bottom: 10px; }
+.detail-title { font-size: 28px; margin: 0 0 20px; font-weight: 900; line-height: 1.2; color: #000; }
+.detail-price { font-size: 32px; font-weight: 900; color: #000; margin-bottom: 30px; }
+.detail-desc { font-size: 16px; line-height: 1.6; color: #555; margin-bottom: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+.btn-detail { padding: 15px 30px; text-decoration: none; font-weight: bold; border-radius: 6px; text-transform: uppercase; display: inline-block; text-align: center; }
+
 @media (max-width: 768px) {
-    .footer-grid { grid-template-columns: 1fr; text-align: center; gap: 30px; }
-    .header-main { flex-direction: column; gap: 15px; }
-    .header-contacts { text-align: center; }
+    .product-detail-card { flex-direction: column; }
+    .footer-grid { grid-template-columns: 1fr; text-align: center; }
 }

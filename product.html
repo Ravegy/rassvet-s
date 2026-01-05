@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карточка товара | РАССВЕТ-С</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="container header-main">
+            <a href="index.html" class="logo-text"><h1>РАССВЕТ-С</h1></a>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link">В каталог</a>
+                <a href="#" class="nav-link">Контакты</a>
+            </nav>
+            <div class="header-contacts">
+                <a href="" class="header-phone" id="headerPhone">...</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" style="padding-top: 50px; padding-bottom: 50px; flex: 1;">
+        <div id="productDetail">
+            <h2 style="text-align:center;">Загрузка товара...</h2>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-col">
+                <h4>РАССВЕТ-С</h4>
+                <p>Профессиональные запчасти Komatsu</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Получаем ID из ссылки
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get('id');
+
+            if (!productId) {
+                document.getElementById('productDetail').innerHTML = '<h2 style="text-align:center">Товар не найден</h2><div style="text-align:center"><a href="index.html" class="btn-blue" style="display:inline-block; padding:10px 20px; color:#fff; text-decoration:none;">Вернуться в каталог</a></div>';
+                return;
+            }
+
+            // Настраиваем телефон
+            if(typeof SITE_CONFIG !== 'undefined') {
+                document.getElementById('headerPhone').textContent = SITE_CONFIG.displayPhone;
+                document.getElementById('headerPhone').href = 'tel:+' + SITE_CONFIG.phone;
+            }
+
+            // Пытаемся найти товар в кэше, если нет - грузим CSV
+            const cacheKey = 'rassvet_products_v2';
+            const cachedData = localStorage.getItem(cacheKey);
+
+            if (cachedData) {
+                const products = JSON.parse(cachedData);
+                const product = products.find(p => p.id === productId);
+                if (product) renderProduct(product);
+                else loadFromNetwork(productId);
+            } else {
+                loadFromNetwork(productId);
+            }
+
+            function loadFromNetwork(id) {
+                fetch(SITE_CONFIG.sheetUrl)
+                    .then(res => res.text())
+                    .then(csvText => {
+                        const rows = parseCSV(csvText); // Используем тот же парсер
+                        rows.shift();
+                        const foundRow = rows.find(r => r[0] === id);
+                        
+                        if (foundRow) {
+                            renderProduct({
+                                id: foundRow[0],
+                                sku: foundRow[1],
+                                name: foundRow[2],
+                                price: foundRow[3],
+                                category: foundRow[4],
+                                image: foundRow[5],
+                                desc: foundRow[6]
+                            });
+                        } else {
+                            document.getElementById('productDetail').innerHTML = '<h2 style="text-align:center">Товар не найден</h2>';
+                        }
+                    });
+            }
+
+            function renderProduct(p) {
+                let imgUrl = SITE_CONFIG.placeholderImage;
+                if (p.image && p.image.trim()) {
+                    imgUrl = p.image.startsWith('http') ? p.image : `images/parts/${p.image}`;
+                }
+                const priceFmt = p.price ? new Intl.NumberFormat('ru-RU').format(parseFloat(p.price.replace(/\s/g,'').replace(',','.'))) + ' ₽' : 'По запросу';
+
+                const html = `
+                    <div class="product-detail-card">
+                        <div class="detail-img-box">
+                            <img src="${imgUrl}" alt="${p.name}" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
+                        </div>
+                        <div class="detail-info">
+                            <div class="detail-sku">АРТИКУЛ: ${p.sku}</div>
+                            <h1 class="detail-title">${p.name}</h1>
+                            <div class="detail-price">${priceFmt}</div>
+                            
+                            <div class="btn-group" style="margin-bottom: 20px;">
+                                <a href="https://wa.me/${SITE_CONFIG.phone}?text=Здравствуйте! Интересует ${p.sku} ${p.name}" target="_blank" class="btn-detail btn-green" style="color:#fff;">Купить в WhatsApp</a>
+                            </div>
+
+                            <div class="detail-desc">
+                                <strong>Описание:</strong><br>
+                                ${p.desc || 'Описание отсутствует.'}
+                                <br><br>
+                                <strong>Категория:</strong> ${p.category || '-'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('productDetail').innerHTML = html;
+            }
+
+            // Копия парсера для автономности страницы
+            function parseCSV(text) {
+                const result = []; let row = []; let inQuote = false; let cell = '';
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i];
+                    if (char === '"') inQuote = !inQuote;
+                    else if (char === ',' && !inQuote) { row.push(cell); cell = ''; }
+                    else if ((char === '\r' || char === '\n') && !inQuote) {
+                        if (cell || row.length > 0) row.push(cell);
+                        if (row.length > 0) result.push(row);
+                        row = []; cell = ''; if (char === '\r' && text[i+1] === '\n') i++;
+                    } else cell += char;
+                }
+                if (cell || row.length > 0) { row.push(cell); result.push(row); }
+                return result;
+            }
+        });
+    </script>
+</body>
+</html>

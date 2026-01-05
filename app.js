@@ -1,6 +1,4 @@
-// ==========================================
-// ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ И ФУНКЦИИ
-// ==========================================
+// НАСТРОЙКИ ТЕЛЕГРАМ
 const TG_BOT_TOKEN = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o'; 
 const TG_CHAT_ID = '1017718880';       
 
@@ -97,7 +95,6 @@ window.removeCartItem = function(index) {
     window.updateCartUI();
 };
 
-// Функция валидации
 function validateInput(input, type) {
     const value = input.value.trim();
     let isValid = true;
@@ -212,7 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .finally(() => { btn.textContent = originalText; btn.disabled = false; });
     }
 
-    // --- КАТАЛОГ: Логика ---
     let allProducts = [];
     let displayedCount = 0;
     let currentCategory = 'all';

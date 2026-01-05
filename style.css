@@ -3,14 +3,10 @@
     --accent-hover: #004494;
     --whatsapp: #25D366;
     --telegram: #2AABEE;
-    
-    /* ФОНЫ И СТЕКЛО */
     --dark-glass: rgba(20, 20, 20, 0.85);
     --card-glass: rgba(255, 255, 255, 0.07);
     --input-glass: rgba(255, 255, 255, 0.1);
     --border-glass: rgba(255, 255, 255, 0.15);
-    
-    /* ТЕКСТ */
     --text-primary: #ffffff;
     --text-secondary: #aaaaaa;
 }
@@ -35,7 +31,6 @@ body {
 .nav-link::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: var(--accent); transition: 0.3s ease; }
 .nav-link:hover::after, .nav-link.active::after { width: 100%; }
 
-/* КОНТАКТЫ В ШАПКЕ (Только корзина) */
 .header-contacts { display: flex; align-items: center; }
 .cart-widget { font-size: 12px; font-weight: 700; color: var(--whatsapp); cursor: pointer; text-transform: uppercase; background: rgba(37, 211, 102, 0.1); padding: 6px 14px; border-radius: 20px; transition: 0.3s; border: 1px solid rgba(37, 211, 102, 0.2); }
 .cart-widget:hover { background: var(--whatsapp); color: #fff; }
@@ -79,7 +74,7 @@ body {
 .cat-skeleton { width: 100px; height: 42px; background: rgba(255,255,255,0.05); border-radius: 50px; }
 .error-text { color: #ff4444; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 20px rgba(255, 68, 68, 0.5); }
 
-/* --- ПОДВАЛ (ЕДИНЫЙ СТИЛЬ) --- */
+/* --- ПОДВАЛ --- */
 .footer { background: #080808; border-top: 1px solid #222; padding: 60px 0 20px; margin-top: auto; font-size: 14px; }
 .footer-content { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
 .footer-col h4 { color: #fff; font-size: 16px; font-weight: 800; text-transform: uppercase; margin-top: 0; margin-bottom: 20px; letter-spacing: 1px; }
@@ -107,15 +102,14 @@ body {
 .full-title { font-size: 32px; font-weight: 900; color: #fff; margin: 0 0 25px; line-height: 1.2; text-transform: uppercase; }
 .full-price { font-size: 40px; font-weight: 900; color: #fff; margin-bottom: 35px; }
 .full-actions-group { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 40px; }
-/* ВОЗВРАЩАЕМ СИНЮЮ КНОПКУ ДЛЯ СТРАНИЦЫ ТОВАРА */
 .btn-detail { flex: 1; min-width: 200px; text-align: center; padding: 20px 0; border-radius: 16px; font-weight: 800; font-size: 14px; text-transform: uppercase; text-decoration: none; letter-spacing: 1px; transition: 0.3s; cursor: pointer; }
-.btn-detail.blue { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
-.btn-detail.blue:hover { background: #fff; color: #000; }
+.btn-detail.blue { background: var(--accent); color: #fff; border: 1px solid var(--accent); box-shadow: 0 5px 20px rgba(0, 86, 179, 0.3); }
+.btn-detail.blue:hover { background: var(--accent-hover); box-shadow: 0 10px 30px rgba(0, 86, 179, 0.5); transform: translateY(-3px); }
 .btn-detail.green { background: rgba(37, 211, 102, 0.2); color: #25D366; border: 1px solid rgba(37, 211, 102, 0.3); }
 .btn-detail.green:hover { background: #25D366; color: #fff; box-shadow: 0 0 20px rgba(37, 211, 102, 0.5); }
 .full-desc { padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); color: #ccc; font-size: 16px; line-height: 1.8; }
 
-/* КОРЗИНА И ФОРМЫ */
+/* КОРЗИНА */
 .cart-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
 .cart-content { background: #1a1a1a; width: 90%; max-width: 600px; border-radius: 20px; padding: 30px; border: 1px solid var(--border-glass); box-shadow: 0 20px 60px rgba(0,0,0,0.8); position: relative; max-height: 80vh; display: flex; flex-direction: column; }
 .cart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 15px; }
@@ -184,14 +178,3 @@ body {
 input[type="file"].form-input { padding: 12px; height: auto; display: flex; align-items: center; cursor: pointer; }
 input[type="file"]::file-selector-button { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 8px; margin-right: 15px; cursor: pointer; font-family: 'Manrope', sans-serif; font-weight: 600; transition: 0.3s; }
 input[type="file"]::file-selector-button:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
-
-@media (max-width: 900px) {
-    .product-full-card { flex-direction: column; padding: 20px; }
-    .full-img-wrapper { width: 100%; min-width: auto; min-height: 300px; box-sizing: border-box; }
-    .header-nav { display: none; }
-    #toast-container { top: 110px; right: 10px; }
-    .footer-content { grid-template-columns: 1fr; gap: 30px; }
-    .contacts-wrapper { grid-template-columns: 1fr; }
-    .contact-card { grid-template-columns: 1fr !important; } 
-    .map-container { height: 300px; }
-}

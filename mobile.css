@@ -1,0 +1,33 @@
+@media (max-width: 900px) {
+    .container { padding: 0 15px; }
+    body { font-size: 15px; }
+
+    .header-main { flex-direction: row; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+    .header-contacts { margin-left: auto; }
+
+    .header-nav { display: flex; gap: 20px; width: 100%; overflow-x: auto; white-space: nowrap; padding-bottom: 10px; margin-top: 10px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .header-nav::-webkit-scrollbar { display: none; }
+    .nav-link { font-size: 14px; padding: 5px 10px; background: rgba(255,255,255,0.05); border-radius: 15px; }
+
+    .catalog-grid { grid-template-columns: 1fr; gap: 20px; }
+    .product-card { padding: 15px; }
+    .product-title { font-size: 18px; min-height: auto; }
+    .interface-header { flex-direction: column; gap: 15px; }
+    .search-wrapper { width: 100%; margin-bottom: 10px; }
+
+    .product-full-card { flex-direction: column; padding: 20px; }
+    .full-img-wrapper { width: 100%; height: auto; min-height: 250px; margin-bottom: 20px; }
+    .full-title { font-size: 24px; }
+    .full-actions-group { flex-direction: column; width: 100%; }
+    .btn-detail, .btn-qty-grid { width: 100%; padding: 18px 0; }
+
+    .contacts-wrapper { grid-template-columns: 1fr; }
+    .contact-card { padding: 25px; grid-template-columns: 1fr !important; }
+    .map-container { height: 300px; }
+
+    .footer-content { grid-template-columns: 1fr; gap: 30px; text-align: center; }
+    .footer-contacts-list { align-items: center; }
+    .footer-contact-item { justify-content: center; }
+
+    .cart-content { width: 95%; max-height: 90vh; padding: 20px; }
+}

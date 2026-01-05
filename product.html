@@ -75,11 +75,11 @@
                 container.appendChild(toast);
                 setTimeout(() => {
                     toast.classList.add('hiding');
-                    toast.addEventListener('animationend', () => toast.remove());
+                    toast.addEventListener('animationend', () => { toast.remove(); });
                 }, 3000);
             }
 
-            // --- КОРЗИНА ---
+            // --- ЛОГИКА КОРЗИНЫ ---
             let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || [];
             
             function updateCartUI() {
@@ -88,20 +88,29 @@
                 const cartTotal = document.getElementById('cartTotal');
                 const orderBtn = document.getElementById('cartOrderBtn');
                 
-                if(widget) widget.textContent = `Корзина: ${cart.length}`;
+                // Виджет
+                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+                if(widget) widget.textContent = `Корзина: ${totalItems}`;
                 
                 if(cartItems) {
                     cartItems.innerHTML = '';
                     let total = 0;
                     cart.forEach((item, index) => {
                         const priceNum = parseFloat(item.price.replace(/\s/g, '').replace('₽','').replace(',', '.')) || 0;
-                        total += priceNum;
+                        total += priceNum * item.quantity;
                         
                         const div = document.createElement('div');
                         div.className = 'cart-item';
                         div.innerHTML = `
-                            <span class="cart-item-title">${item.sku} - ${item.name}</span>
-                            <span class="cart-item-price">${item.price}</span>
+                            <div class="cart-item-info">
+                                <span class="cart-item-title">${item.sku} - ${item.name}</span>
+                                <span class="cart-item-price">${item.price}</span>
+                            </div>
+                            <div class="qty-controls">
+                                <button class="qty-btn" onclick="changeQuantityModal(${index}, -1)">-</button>
+                                <span class="qty-count">${item.quantity}</span>
+                                <button class="qty-btn" onclick="changeQuantityModal(${index}, 1)">+</button>
+                            </div>
                             <button class="btn-remove" onclick="removeCartItem(${index})">&times;</button>
                         `;
                         cartItems.appendChild(div);
@@ -112,13 +121,38 @@
                     if(orderBtn) {
                         let msg = "Здравствуйте! Хочу оформить заказ:%0A";
                         cart.forEach(item => {
-                            msg += `- ${item.sku} ${item.name} (${item.price})%0A`;
+                            msg += `- ${item.sku} ${item.name} — ${item.quantity} шт. (${item.price})%0A`;
                         });
                         msg += `%0AИтого: ${new Intl.NumberFormat('ru-RU').format(total)} ₽`;
                         orderBtn.href = `https://wa.me/${SITE_CONFIG.phone}?text=${msg}`;
                     }
                 }
                 localStorage.setItem('rassvet_cart', JSON.stringify(cart));
+                syncButtonsWithCart();
+            }
+
+            function syncButtonsWithCart() {
+                // Ищем контейнер товара на странице
+                const productCard = document.querySelector('[data-product-id]');
+                if (!productCard) return;
+
+                const id = productCard.getAttribute('data-product-id');
+                const cartItem = cart.find(item => item.id === id);
+                
+                const btnAdd = document.getElementById(`btn-add-${id}`);
+                const btnQty = document.getElementById(`btn-qty-${id}`);
+                const countSpan = document.getElementById(`qty-val-${id}`);
+
+                if (btnAdd && btnQty && countSpan) {
+                    if (cartItem) {
+                        btnAdd.classList.add('hidden');
+                        btnQty.classList.remove('hidden');
+                        countSpan.textContent = cartItem.quantity;
+                    } else {
+                        btnAdd.classList.remove('hidden');
+                        btnQty.classList.add('hidden');
+                    }
+                }
             }
 
             const modal = document.getElementById('cartModal');
@@ -131,15 +165,39 @@
 
             // Глобальные функции
             window.addToCart = (id, sku, name, price) => {
-                cart.push({id, sku, name, price});
+                const existingItem = cart.find(item => item.id === id);
+                if (existingItem) {
+                    existingItem.quantity++;
+                } else {
+                    cart.push({id, sku, name, price, quantity: 1});
+                    showNotification('Товар добавлен в корзину');
+                }
                 updateCartUI();
                 const widgetBtn = document.getElementById('cartWidget');
                 if(widgetBtn) {
                      widgetBtn.style.transform = "scale(1.2)";
                      setTimeout(() => widgetBtn.style.transform = "scale(1)", 200);
                 }
-                showNotification('Товар добавлен в корзину');
             };
+
+            window.updateItemQty = (id, delta) => {
+                const item = cart.find(p => p.id === id);
+                if (item) {
+                    item.quantity += delta;
+                    if (item.quantity <= 0) {
+                        cart = cart.filter(p => p.id !== id);
+                    }
+                    updateCartUI();
+                }
+            };
+
+            window.changeQuantityModal = (index, delta) => {
+                const item = cart[index];
+                item.quantity += delta;
+                if (item.quantity <= 0) item.quantity = 1; 
+                updateCartUI();
+            };
+
             window.removeCartItem = (index) => {
                 cart.splice(index, 1);
                 updateCartUI();
@@ -147,21 +205,19 @@
 
             updateCartUI(); 
 
-            // --- ТОВАР ---
+            // --- ЗАГРУЗКА ДАННЫХ ТОВАРА ---
             const params = new URLSearchParams(window.location.search);
             const productId = params.get('id');
 
-            // КНОПКА ВОЗВРАТА ТУТ
             if (!productId) {
                 document.getElementById('productDetail').innerHTML = `
                     <h2 style="text-align:center; color:#fff; margin-bottom:30px;">Товар не найден</h2>
                     <div style="text-align:center">
-                        <a href="index.html" class="btn-detail blue">Вернуться в каталог</a>
+                        <a href="index.html" class="btn-load-more">Вернуться в каталог</a>
                     </div>`;
                 return;
             }
 
-            // КЭШ V7
             const cacheKey = 'rassvet_v7_data';
             const cachedData = localStorage.getItem(cacheKey);
 
@@ -197,7 +253,7 @@
                              document.getElementById('productDetail').innerHTML = `
                                 <h2 style="text-align:center; color:#fff; margin-bottom:30px;">Товар не найден</h2>
                                 <div style="text-align:center">
-                                    <a href="index.html" class="btn-detail blue">Вернуться в каталог</a>
+                                    <a href="index.html" class="btn-load-more">Вернуться в каталог</a>
                                 </div>`;
                         }
                     });
@@ -212,7 +268,7 @@
                 const nameClean = p.name.replace(/'/g, "");
 
                 const html = `
-                    <div class="product-full-card">
+                    <div class="product-full-card" data-product-id="${p.id}">
                         <div class="full-img-wrapper">
                             <img src="${imgUrl}" alt="${p.name}" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
                         </div>
@@ -224,9 +280,18 @@
                             
                             <div class="full-actions-group">
                                 <a href="index.html" class="btn-detail blue">В КАТАЛОГ</a>
-                                <button onclick="addToCart('${p.id}', '${p.sku}', '${nameClean}', '${priceFmt}')" class="btn-detail green">
+                                
+                                <button id="btn-add-${p.id}" 
+                                        onclick="addToCart('${p.id}', '${p.sku}', '${nameClean}', '${priceFmt}')" 
+                                        class="btn-detail green">
                                     В КОРЗИНУ
                                 </button>
+
+                                <div id="btn-qty-${p.id}" class="btn-qty-grid hidden">
+                                    <button onclick="updateItemQty('${p.id}', -1)">-</button>
+                                    <span id="qty-val-${p.id}">1</span>
+                                    <button onclick="updateItemQty('${p.id}', 1)">+</button>
+                                </div>
                             </div>
 
                             <div class="full-desc">
@@ -239,6 +304,7 @@
                     </div>
                 `;
                 document.getElementById('productDetail').innerHTML = html;
+                syncButtonsWithCart(); // Сразу проверяем, в корзине ли товар
             }
 
             function parseCSV(text) {

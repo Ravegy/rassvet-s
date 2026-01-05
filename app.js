@@ -18,14 +18,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- КОРЗИНА: Логика ---
     let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || [];
 
-    // Функция обновления интерфейса корзины
+    // Главная функция обновления всего UI
     function updateCartUI() {
         const widget = document.getElementById('cartWidget');
         const cartItems = document.getElementById('cartItems');
         const cartTotal = document.getElementById('cartTotal');
         const orderBtn = document.getElementById('cartOrderBtn');
         
-        // Считаем общее количество
         const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
         if(widget) widget.textContent = `Корзина: ${totalItems}`;
         
@@ -56,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if(cartTotal) cartTotal.textContent = `Итого: ${new Intl.NumberFormat('ru-RU').format(totalMoney)} ₽`;
             
-            // Формируем ссылку для WhatsApp с количеством
             if(orderBtn) {
                 let msg = "Здравствуйте! Хочу оформить заказ:%0A";
                 cart.forEach(item => {
@@ -67,8 +65,40 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         localStorage.setItem('rassvet_cart', JSON.stringify(cart));
+        
+        // ВАЖНО: Синхронизируем кнопки на карточках товаров
+        syncButtonsWithCart();
     }
 
+    // Функция синхронизации кнопок на странице с состоянием корзины
+    function syncButtonsWithCart() {
+        // Ищем все товары, у которых есть контейнеры кнопок
+        const allProductCards = document.querySelectorAll('[data-product-id]');
+        
+        allProductCards.forEach(card => {
+            const id = card.getAttribute('data-product-id');
+            const cartItem = cart.find(item => item.id === id);
+            
+            const btnAdd = document.getElementById(`btn-add-${id}`);
+            const btnQty = document.getElementById(`btn-qty-${id}`);
+            const countSpan = document.getElementById(`qty-val-${id}`);
+
+            if (btnAdd && btnQty && countSpan) {
+                if (cartItem) {
+                    // Товар в корзине: показываем +/-
+                    btnAdd.classList.add('hidden');
+                    btnQty.classList.remove('hidden');
+                    countSpan.textContent = cartItem.quantity;
+                } else {
+                    // Товара нет: показываем кнопку "В корзину"
+                    btnAdd.classList.remove('hidden');
+                    btnQty.classList.add('hidden');
+                }
+            }
+        });
+    }
+
+    // Обработчики модального окна
     const modal = document.getElementById('cartModal');
     const widget = document.getElementById('cartWidget');
     const close = document.getElementById('closeCart');
@@ -77,27 +107,41 @@ document.addEventListener('DOMContentLoaded', () => {
     if(close) close.onclick = () => { modal.style.display = 'none'; };
     window.onclick = (e) => { if(e.target == modal) modal.style.display = 'none'; };
 
-    // Глобальные функции
+    // === ГЛОБАЛЬНЫЕ ФУНКЦИИ (доступны из HTML) ===
+
+    // 1. Добавить новый товар (кнопка "В КОРЗИНУ")
     window.addToCart = (id, sku, name, price) => {
         const existingItem = cart.find(item => item.id === id);
-        
         if (existingItem) {
             existingItem.quantity++;
-            showNotification('Количество увеличено');
         } else {
             cart.push({id, sku, name, price, quantity: 1});
             showNotification('Товар добавлен в корзину');
         }
-        
         updateCartUI();
+        
+        // Анимация виджета
         const widgetBtn = document.getElementById('cartWidget');
         if(widgetBtn) {
              widgetBtn.style.transform = "scale(1.2)";
              setTimeout(() => widgetBtn.style.transform = "scale(1)", 200);
         }
     };
+
+    // 2. Изменить кол-во товара из КАРТОЧКИ (маленькие кнопки +/-)
+    window.updateItemQty = (id, delta) => {
+        const item = cart.find(p => p.id === id);
+        if (item) {
+            item.quantity += delta;
+            if (item.quantity <= 0) {
+                // Если стало 0, удаляем из корзины
+                cart = cart.filter(p => p.id !== id);
+            }
+            updateCartUI();
+        }
+    };
     
-    // Функция +/-
+    // 3. Изменить кол-во товара внутри МОДАЛКИ КОРЗИНЫ
     window.changeQuantity = (index, delta) => {
         const item = cart[index];
         item.quantity += delta;
@@ -109,8 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
         cart.splice(index, 1);
         updateCartUI();
     };
-
-    updateCartUI();
 
     // --- КАТАЛОГ ---
     let allProducts = [];
@@ -124,9 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     const categoryFilter = document.getElementById('categoryFilter');
 
-    if(catalogGrid) initCatalog();
-
-    function initCatalog() {
+    if(catalogGrid) {
         loadCatalogData();
     }
 
@@ -220,6 +260,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         displayedCount += nextBatch.length;
         if(loadMoreContainer) loadMoreContainer.style.display = (displayedCount < filtered.length) ? 'block' : 'none';
+        
+        // После отрисовки обновляем кнопки
+        updateCartUI(); 
     }
 
     if(loadMoreBtn) loadMoreBtn.addEventListener('click', () => renderBatch());
@@ -236,6 +279,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const card = document.createElement('div');
         card.className = 'product-card';
+        // Добавляем атрибут, чтобы легко искать кнопку этого товара
+        card.setAttribute('data-product-id', product.id);
+
         card.innerHTML = `
             <div class="img-wrapper">
                 <img src="${imgUrl}" alt="${product.name}" class="product-img" loading="lazy" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
@@ -245,7 +291,18 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="product-price">${priceFmt}</div>
             <div class="btn-group">
                 <a href="product.html?id=${product.id}" class="btn-card btn-blue">Инфо</a>
-                <button onclick="addToCart('${product.id}', '${product.sku}', '${nameClean}', '${priceFmt}')" class="btn-card btn-green">В КОРЗИНУ</button>
+                
+                <button id="btn-add-${product.id}" 
+                        onclick="addToCart('${product.id}', '${product.sku}', '${nameClean}', '${priceFmt}')" 
+                        class="btn-card btn-green">
+                    В КОРЗИНУ
+                </button>
+
+                <div id="btn-qty-${product.id}" class="btn-qty-grid hidden">
+                    <button onclick="updateItemQty('${product.id}', -1)">-</button>
+                    <span id="qty-val-${product.id}">1</span>
+                    <button onclick="updateItemQty('${product.id}', 1)">+</button>
+                </div>
             </div>
         `;
         return card;

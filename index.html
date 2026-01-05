@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>РАССВЕТ-С | Запчасти Komatsu</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,63 +14,64 @@
             <a href="index.html" class="logo-text"><h1>РАССВЕТ-С</h1></a>
             <nav class="header-nav">
                 <a href="#" class="nav-link">О компании</a>
-                <a href="#" class="nav-link">Как заказать</a>
-                <a href="#" class="nav-link">Оплата</a>
+                <a href="#" class="nav-link">Доставка</a>
                 <a href="#" class="nav-link">Контакты</a>
             </nav>
             <div class="header-contacts">
-                <a href="" class="header-email" id="headerEmail">Loading...</a>
-                <a href="" class="header-phone" id="headerPhone">Loading...</a>
+                <a href="tel:+79818881337" class="header-phone" id="headerPhone">+7 (981) 888-13-37</a>
             </div>
         </div>
     </header>
 
     <section class="hero">
         <div class="container">
-            <div class="hero-badge">Склад в СПб</div>
+            <div class="hero-badge">Склад в Санкт-Петербурге</div>
             <h2>Комплектующие Komatsu</h2>
-            <p>Профессиональный подбор запчастей по OEM артикулам</p>
         </div>
     </section>
 
-    <div class="container search-section">
-        <input type="text" id="searchInput" placeholder="Поиск по названию или артикулу...">
-    </div>
-
     <div class="container">
-        
-        <div class="categories-wrapper" id="categoryFilter">
+        <div class="catalog-interface">
+            
+            <div class="interface-header">
+                <div class="search-wrapper">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="searchInput" placeholder="Поиск по артикулу или названию...">
+                </div>
+
+                <div class="categories-wrapper" id="categoryFilter">
+                    <div class="cat-skeleton"></div><div class="cat-skeleton"></div><div class="cat-skeleton"></div>
+                </div>
             </div>
 
-        <div class="catalog-frame">
             <div class="catalog-grid" id="catalog">
-                <div class="loading-msg">Загрузка каталога...</div>
+                <div class="loader-container">
+                    <div class="spinner"></div>
+                    <p>Загрузка каталога...</p>
+                </div>
             </div>
             
             <div class="load-more-container" id="loadMoreContainer" style="display: none;">
-                <button id="loadMoreBtn" class="btn-load-more">Показать ещё</button>
+                <button id="loadMoreBtn" class="btn-load-more">Показать больше товаров</button>
             </div>
+
         </div>
     </div>
 
     <footer class="footer">
         <div class="container footer-grid">
             <div class="footer-col">
-                <h4 id="footerCompany">РАССВЕТ-С</h4>
-                <p>Надежный поставщик запчастей для лесозаготовительной техники. Работаем по всей России.</p>
-                <p id="footerWorkTime" style="color: #aaa; margin-top: 10px;"></p>
+                <h4>РАССВЕТ-С</h4>
+                <p>Надежные запчасти для лесозаготовительной техники. Работаем по всей России.</p>
+                <p style="color: #666; font-size: 13px; margin-top: 15px;">
+                    Санкт-Петербург, ул. Промышленная, д. 42<br>
+                    Пн-Пт: 09:00 - 18:00
+                </p>
             </div>
             <div class="footer-col">
                 <h4>Контакты</h4>
-                <a href="" id="footerPhone" class="footer-link-phone">Loading...</a>
-                <a href="" id="footerEmail" class="footer-link">Loading...</a>
-                <p id="footerAddress" class="footer-addr">Loading...</p>
-            </div>
-            <div class="footer-col">
-                <h4>Информация</h4>
-                <a href="#" class="footer-link">Политика конфиденциальности</a>
-                <a href="#" class="footer-link">Договор оферты</a>
-                <p class="copyright">© 2025 РАССВЕТ-С. Все права защищены.</p>
+                <a href="tel:+79818881337" id="footerPhone" class="footer-phone-big">+7 (981) 888-13-37</a>
+                <a href="mailto:info@rassvet-s.ru" id="footerEmail" class="footer-link">info@rassvet-s.ru</a>
             </div>
         </div>
     </footer>

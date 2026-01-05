@@ -1,49 +1,63 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Запчасти Komatsu | РАССВЕТ-С</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
-</head>
-<body>
-
-    <header class="header">
-        <div class="container header-content">
-            <div class="logo">
+<header class="header">
+    <div class="container header-top">
+        <div class="header-info">
+            <span class="info-item">📍 г. Санкт-Петербург</span>
+            <span class="info-item">🕒 Пн-Пт: 09:00 - 18:00</span>
+        </div>
+        <div class="header-actions">
+            <a href="https://wa.me/79818881337" class="top-wa-link">Написать в WhatsApp</a>
+        </div>
+    </div>
+    <div class="container header-main">
+        <div class="logo-block">
+            <div class="logo-symbol">K</div>
+            <div class="logo-text">
                 <h1>РАССВЕТ-С</h1>
-                <span class="subtitle">Запчасти для лесозаготовительной техники</span>
+                <span class="subtitle">Поставка запчастей Komatsu по РФ</span>
             </div>
-            <div class="contacts">
-                <p class="address">📍 г. Санкт-Петербург</p>
+        </div>
+        <div class="contact-block">
+            <div class="phone-wrapper">
+                <span class="phone-label">Отдел продаж:</span>
                 <a href="tel:+79818881337" id="headerPhone" class="phone-link">+7 (981) 888-13-37</a>
             </div>
+            <button class="btn-callback" onclick="document.getElementById('catalog').scrollIntoView({behavior: 'smooth'})">Заказать звонок</button>
         </div>
-    </header>
+    </div>
+</header>
 
-    <section class="hero">
+<section class="hero">
+    <div class="container">
+        <div class="hero-badge">Промышленное оборудование</div>
+        <h2>Запчасти Komatsu напрямую со склада</h2>
+        <p>Обеспечиваем бесперебойную работу вашей техники с 2015 года</p>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container footer-grid">
+        <div class="footer-about">
+            <h3>РАССВЕТ-С</h3>
+            <p>Специализированный поставщик качественных комплектующих и запчастей для лесозаготовительной и строительной техники Komatsu.</p>
+        </div>
+        <div class="footer-contacts">
+            <h4>Контакты</h4>
+            <p>📞 <a href="tel:+79818881337">+7 (981) 888-13-37</a></p>
+            <p>✉️ info@rassvet-s.ru</p>
+            <p>📍 Санкт-Петербург, промышленная зона</p>
+        </div>
+        <div class="footer-nav">
+            <h4>Навигация</h4>
+            <ul>
+                <li><a href="#">Каталог</a></li>
+                <li><a href="#">О компании</a></li>
+                <li><a href="#">Доставка</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
         <div class="container">
-            <h2>Надежные детали для вашей техники Komatsu</h2>
-            <p>Более 1000 позиций в наличии и под заказ</p>
+            <p>&copy; 2026 ООО «РАССВЕТ-С». Все права защищены. Информация на сайте не является публичной офертой.</p>
         </div>
-    </section>
-
-    <main class="container">
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Поиск по названию или артикулу...">
-        </div>
-        <div id="catalog" class="catalog-grid">
-            </div>
-    </main>
-
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2026 РАССВЕТ-С. Продажа запчастей Komatsu.</p>
-        </div>
-    </footer>
-
-    <script src="config.js"></script>
-    <script src="script.js"></script>
-</body>
-</html>
+    </div>
+</footer>

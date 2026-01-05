@@ -1,95 +1,75 @@
 :root {
-    --primary: #004a99;
-    --accent: #e31e24;
+    --primary: #004a99; /* Синий Sever */
+    --primary-dark: #003366;
+    --accent: #e31e24; /* Красный для кнопок */
     --dark: #1a1a1a;
-    --light-bg: #f4f6f8;
-    --border: #e0e4e8;
+    --gray-light: #f4f7f9;
+    --border-color: #d1d9e0;
 }
 
-body {
-    font-family: 'Roboto', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: var(--light-bg); /* Светлый фон как на Sever-Filters */
-    color: #333;
+/* Стильная шапка */
+.header { background: #fff; border-bottom: 1px solid var(--border-color); }
+
+.header-top { 
+    display: flex; justify-content: space-between; padding: 8px 15px; 
+    font-size: 13px; color: #666; border-bottom: 1px solid #eee;
 }
 
-.container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
+.info-item { margin-right: 20px; }
+.top-wa-link { color: #25D366; text-decoration: none; font-weight: bold; }
 
-/* Шапка */
-.header {
-    background-color: var(--dark);
-    color: #fff;
-    padding: 15px 0;
-    border-bottom: 4px solid var(--primary);
+.header-main { 
+    display: flex; justify-content: space-between; align-items: center; padding: 20px 15px; 
 }
 
-.header-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+.logo-block { display: flex; align-items: center; gap: 15px; }
 
-.logo h1 { margin: 0; font-size: 26px; font-weight: 900; color: #fff; text-transform: uppercase; }
-
-.subtitle { color: #aaa; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-
-.phone-link { 
-    color: #fff; font-weight: bold; text-decoration: none; font-size: 18px; 
-    border: 1px solid var(--primary); padding: 8px 15px; border-radius: 2px; transition: 0.3s;
+.logo-symbol {
+    background: var(--primary); color: #fff; font-size: 32px; font-weight: 900;
+    width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;
+    border-radius: 4px;
 }
 
-.phone-link:hover { background: var(--primary); }
+.logo-text h1 { margin: 0; font-size: 28px; color: var(--dark); line-height: 1; }
+.subtitle { font-size: 12px; color: var(--primary); font-weight: bold; text-transform: uppercase; }
 
-/* Баннер */
-.hero { 
-    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/bg.jpg');
-    background-size: cover; background-position: center;
-    color: #fff; padding: 50px 0; text-align: center; 
+.contact-block { display: flex; align-items: center; gap: 25px; }
+.phone-wrapper { display: flex; flex-direction: column; text-align: right; }
+.phone-label { font-size: 11px; color: #888; text-transform: uppercase; }
+.phone-link { font-size: 22px; color: var(--dark); text-decoration: none; font-weight: 900; }
+
+.btn-callback {
+    background: var(--primary); color: #fff; border: none; padding: 12px 20px;
+    font-weight: bold; text-transform: uppercase; cursor: pointer; border-radius: 3px;
+    transition: 0.3s; font-size: 12px;
+}
+.btn-callback:hover { background: var(--accent); }
+
+/* Серьезный подвал */
+.footer { background: var(--dark); color: #fff; padding: 60px 0 0 0; margin-top: 80px; }
+
+.footer-grid { 
+    display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; padding-bottom: 40px; 
 }
 
-/* Поиск */
-.search-bar { margin: -30px auto 40px auto; max-width: 700px; position: relative; z-index: 10; }
+.footer h3 { color: #fff; margin-bottom: 20px; font-size: 24px; }
+.footer h4 { color: var(--primary); margin-bottom: 20px; text-transform: uppercase; font-size: 16px; }
 
-#searchInput {
-    width: 100%; padding: 20px; font-size: 16px; border: none; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-radius: 3px; box-sizing: border-box;
+.footer p { color: #aaa; line-height: 1.6; font-size: 14px; }
+.footer-contacts a { color: #fff; text-decoration: none; }
+.footer-nav ul { list-style: none; padding: 0; }
+.footer-nav li { margin-bottom: 10px; }
+.footer-nav a { color: #aaa; text-decoration: none; transition: 0.3s; }
+.footer-nav a:hover { color: var(--primary); padding-left: 5px; }
+
+.footer-bottom { 
+    background: #111; padding: 20px 0; border-top: 1px solid #222; 
+    font-size: 12px; color: #555; text-align: center;
 }
 
-/* Карточка товара */
-.catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
-
-.product-card {
-    background: #fff; border: 1px solid var(--border); border-radius: 0px; 
-    padding: 15px; display: flex; flex-direction: column; transition: 0.3s;
+/* Адаптивность для мобилок */
+@media (max-width: 768px) {
+    .header-main, .footer-grid { flex-direction: column; text-align: center; gap: 20px; }
+    .contact-block { flex-direction: column; gap: 10px; }
+    .footer-grid { grid-template-columns: 1fr; }
 }
-
-.product-card:hover { border-color: var(--primary); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-
-.img-wrapper { 
-    width: 100%; height: 200px; overflow: hidden; margin-bottom: 15px; 
-    display: flex; align-items: center; justify-content: center; background: #fff;
-}
-
-.product-img { max-width: 100%; max-height: 100%; object-fit: contain; }
-
-.product-sku { font-size: 12px; color: #888; margin-bottom: 5px; text-transform: uppercase; }
-
-.product-title { 
-    font-size: 15px; font-weight: 700; color: var(--primary); 
-    margin: 0 0 15px 0; line-height: 1.4; height: 42px; overflow: hidden; 
-}
-
-.product-price { font-size: 20px; font-weight: 900; color: #000; margin-bottom: 20px; }
-
-/* Кнопки */
-.btn-group { display: flex; gap: 5px; }
-
-.btn-order { 
-    flex: 1; padding: 12px 5px; text-align: center; text-decoration: none; 
-    font-size: 11px; font-weight: bold; text-transform: uppercase; border-radius: 2px; transition: 0.3s;
-}
-
-.btn-call { background: var(--primary); color: #fff; }
-.btn-call:hover { background: #003570; }
-
-.btn-wa { border: 1px solid #25D366; color: #25D366; }
-.btn-wa:hover { background: #25D366; color: #fff; }
-
-.footer { background: var(--dark); color: #666; padding: 30px 0; text-align: center; margin-top: 60px; }

@@ -15,10 +15,9 @@
             <nav class="header-nav">
                 <a href="index.html" class="nav-link">В каталог</a>
                 <a href="#" class="nav-link">Доставка</a>
-                <a href="contacts.html" class="nav-link" style="color: #fff;">Контакты</a>
+                <a href="contacts.html" class="nav-link active">Контакты</a>
             </nav>
             <div class="header-contacts">
-                <a href="tel:+79818881337" class="header-phone" id="headerPhone">+7 (981) 888-13-37</a>
                 <div id="cartWidget" class="cart-widget">Корзина: 0</div>
             </div>
         </div>
@@ -27,190 +26,122 @@
     <div class="container" style="padding-top: 60px; padding-bottom: 80px; flex: 1;">
         <h1 class="contact-page-title">Свяжитесь с нами</h1>
 
-        <div class="contacts-wrapper">
-            
-            <div class="contact-card">
+        <div class="contacts-wrapper" style="grid-template-columns: 1fr;"> 
+            <div class="contact-card" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
                 <div class="info-list">
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                        </div>
-                        <div class="info-content">
-                            <h3>Телефон</h3>
-                            <a href="tel:+79818881337">+7 (981) 888-13-37</a>
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                        </div>
-                        <div class="info-content">
-                            <h3>Email</h3>
-                            <a href="mailto:info@rassvet-s.ru">info@rassvet-s.ru</a>
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                        </div>
-                        <div class="info-content">
-                            <h3>Адрес склада</h3>
-                            <p>г. Санкт-Петербург,<br>ул. Промышленная, д. 42</p>
-                        </div>
-                    </div>
+                    <h2 style="margin-top:0; margin-bottom: 30px; font-size: 22px;">Контактная информация</h2>
+                    <div class="info-item"><div class="info-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></div><div class="info-content"><h3>Телефон</h3><a href="tel:+79818881337">+7 (981) 888-13-37</a></div></div>
+                    <div class="info-item"><div class="info-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></div><div class="info-content"><h3>Email</h3><a href="mailto:info@rassvet-s.ru">info@rassvet-s.ru</a></div></div>
+                    <div class="info-item"><div class="info-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div><div class="info-content"><h3>Адрес склада</h3><p>г. Санкт-Петербург,<br>ул. Промышленная, д. 42</p></div></div>
+                    <div style="margin-top: 0;"><h3 style="color: #fff; margin-bottom: 15px; font-size: 18px;">Реквизиты</h3><p style="font-size: 13px; line-height: 1.6; color: #ccc; margin: 0;"><strong>ООО «РАССВЕТ-С»</strong><br>ИНН: 7805626388 / КПП: 780501001<br>ОГРН: 1137847277873<br>Юр. адрес: 198095, г. СПб, ул. Промышленная, д. 42, лит. А, пом. 9-Н, оф. 407</p></div>
                 </div>
-            </div>
 
-            <div class="contact-card">
-                <h2 style="margin-top:0; margin-bottom: 20px; font-size: 22px;">Напишите нам</h2>
-                <form id="contactPageForm" class="order-form" style="margin-top: 0;">
-                    <div class="form-group">
-                        <input type="text" id="contactName" class="form-input" placeholder="Ваше Имя" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="tel" id="contactPhone" class="form-input" placeholder="Номер телефона" required>
-                    </div>
-                    <div class="form-group">
-                        <textarea id="contactMessage" class="form-input" placeholder="Ваше сообщение или вопрос..." rows="4" style="resize: none;" required></textarea>
-                    </div>
-                    <button type="submit" class="btn-cart-order">Отправить сообщение</button>
-                </form>
+                <div>
+                    <h2 style="margin-top:0; margin-bottom: 20px; font-size: 22px;">Напишите нам</h2>
+                    <form id="contactPageForm" class="order-form" style="margin-top: 0;">
+                        <div class="form-group"><input type="text" id="contactName" class="form-input" placeholder="Ваше Имя" required></div>
+                        <div class="form-group"><input type="tel" id="contactPhone" class="form-input" placeholder="Номер телефона" required></div>
+                        <div class="form-group"><textarea id="contactMessage" class="form-input" placeholder="Ваше сообщение или вопрос..." rows="6" style="resize: none;" required></textarea></div>
+                        <div class="form-group"><input type="file" id="contactFile" class="form-input"></div>
+                        <button type="submit" class="btn-cart-order">Отправить сообщение</button>
+                    </form>
+                </div>
             </div>
         </div>
 
         <div class="map-container">
             <iframe src="https://yandex.ru/map-widget/v1/?ll=30.264178%2C59.894451&z=16&pt=30.264178,59.894451,pm2rdm" width="100%" height="100%" frameborder="0" allowfullscreen="true"></iframe>
         </div>
-
     </div>
 
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <div class="footer-col">
-                    <h4>О компании</h4>
-                    <p>ООО «РАССВЕТ-С» — надежный поставщик запчастей и комплектующих для лесозаготовительной техники Komatsu.</p>
-                    <p>Мы гарантируем качество поставляемой продукции и оперативность обработки заказов.</p>
-                </div>
-                <div class="footer-col">
-                    <h4>Навигация</h4>
-                    <nav class="footer-nav">
-                        <a href="index.html">Каталог</a>
-                        <a href="#">О компании</a>
-                        <a href="#">Доставка и оплата</a>
-                        <a href="contacts.html">Контакты</a>
-                        <a href="#">Политика конфиденциальности</a>
-                    </nav>
-                </div>
-                <div class="footer-col">
-                    <h4>Контакты</h4>
-                    <div class="footer-contacts-list">
-                        <div class="footer-contact-item">
-                            <div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></div>
-                            <div class="footer-contact-info"><span class="footer-contact-label">Телефон</span><a href="tel:+79818881337" class="footer-phone-big">+7 (981) 888-13-37</a></div>
-                        </div>
-                        <div class="footer-contact-item">
-                            <div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></div>
-                            <div class="footer-contact-info"><span class="footer-contact-label">Email</span><a href="mailto:info@rassvet-s.ru" class="footer-link">info@rassvet-s.ru</a></div>
-                        </div>
-                        <div class="footer-contact-item">
-                            <div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div>
-                            <div class="footer-contact-info"><span class="footer-contact-label">Адрес склада</span><span style="color: #ccc; line-height: 1.4;">г. Санкт-Петербург, <br>ул. Промышленная, д. 42</span></div>
-                        </div>
-                    </div>
-                </div>
+                <div class="footer-col"><h4>О компании</h4><p>ООО «РАССВЕТ-С» — надежный поставщик запчастей.</p></div>
+                <div class="footer-col"><h4>Навигация</h4><nav class="footer-nav"><a href="index.html">Каталог</a><a href="#">О компании</a><a href="contacts.html">Контакты</a></nav></div>
+                <div class="footer-col"><h4>Контакты</h4><div class="footer-contacts-list"><div class="footer-contact-item"><div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></div><div class="footer-contact-info"><span class="footer-contact-label">Телефон</span><a href="tel:+79818881337" class="footer-phone-big">+7 (981) 888-13-37</a></div></div><div class="footer-contact-item"><div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></div><div class="footer-contact-info"><span class="footer-contact-label">Email</span><a href="mailto:info@rassvet-s.ru" class="footer-link">info@rassvet-s.ru</a></div></div><div class="footer-contact-item"><div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div><div class="footer-contact-info"><span class="footer-contact-label">Адрес склада</span><span style="color: #ccc; line-height: 1.4;">г. Санкт-Петербург, <br>ул. Промышленная, д. 42</span></div></div></div></div>
             </div>
-            <div class="footer-bottom">
-                <p class="footer-disclaimer">Данный сайт носит исключительно информационный характер и ни при каких условиях информационные материалы и цены, размещенные на сайте, не являются публичной офертой, определяемой положениями Статьи 437 Гражданского кодекса РФ.</p>
-            </div>
+            <div class="footer-bottom"><p class="footer-disclaimer">Данный сайт носит исключительно информационный характер...</p></div>
         </div>
     </footer>
 
-    <div id="cartModal" class="cart-modal">
-        <div class="cart-content">
-            <div class="cart-header"><h2>Ваша корзина</h2><span class="close-cart" id="closeCart">&times;</span></div>
-            <div class="cart-items" id="cartItems"></div>
-            <div class="cart-footer"><span id="cartTotal" class="cart-total">Итого: 0 ₽</span><button id="cartOrderBtn" class="btn-cart-order">Отправить запрос</button></div>
-        </div>
-    </div>
-    
-    <div id="orderModal" class="cart-modal" style="z-index: 2100;">
-        <div class="cart-content">
-            <div class="cart-header"><h2>Оформление заказа</h2><span class="close-cart" id="closeOrder">&times;</span></div>
-            <form id="orderForm" class="order-form">
-                <div class="form-group"><input type="text" id="orderName" class="form-input" placeholder="Ваше Имя" required></div>
-                <div class="form-group"><input type="tel" id="orderPhone" class="form-input" placeholder="Номер телефона" required></div>
-                <div class="form-group"><input type="email" id="orderEmail" class="form-input" placeholder="Email (необязательно)"></div>
-                <button type="submit" class="btn-cart-order">Подтвердить заказ</button>
-            </form>
-        </div>
-    </div>
-
     <div id="toast-container"></div>
 
+    <script src="https://unpkg.com/imask"></script>
     <script src="config.js"></script>
     <script src="app.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Берем токены, которые уже объявлены в app.js, но так как они там const внутри scope,
-            // нам нужно их продублировать здесь для надежности, или сделать глобальными.
-            // Для простоты продублирую здесь твои настройки.
             const TG_BOT_TOKEN_CONTACT = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o'; 
             const TG_CHAT_ID_CONTACT = '1017718880';
 
+            function validateContactInput(input, type) {
+                const value = input.value.trim();
+                let isValid = true;
+                let msg = '';
+                input.classList.remove('error', 'success');
+                const parent = input.parentElement;
+                let errorDiv = parent.querySelector('.error-message');
+                if (!errorDiv) { errorDiv = document.createElement('div'); errorDiv.className = 'error-message'; parent.appendChild(errorDiv); }
+                parent.classList.remove('has-error');
+
+                if (type === 'name') { if (value.length < 2) { isValid = false; msg = 'Имя слишком короткое'; } }
+                else if (type === 'phone') { if (value.length < 18) { isValid = false; msg = 'Введите полный номер'; } }
+                
+                if (!isValid) { input.classList.add('error'); parent.classList.add('has-error'); errorDiv.textContent = msg; }
+                else if (value.length > 0) { input.classList.add('success'); }
+                return isValid;
+            }
+
             const contactForm = document.getElementById('contactPageForm');
+            const nameInput = document.getElementById('contactName');
+            const phoneInput = document.getElementById('contactPhone');
 
             if(contactForm) {
+                if (window.IMask) { IMask(phoneInput, { mask: '+{7} (000) 000-00-00' }); }
+                nameInput.addEventListener('input', () => validateContactInput(nameInput, 'name'));
+                phoneInput.addEventListener('input', () => validateContactInput(phoneInput, 'phone'));
+
                 contactForm.onsubmit = (e) => {
                     e.preventDefault();
-                    
-                    const name = document.getElementById('contactName').value;
-                    const phone = document.getElementById('contactPhone').value;
+                    const isNameValid = validateContactInput(nameInput, 'name');
+                    const isPhoneValid = validateContactInput(phoneInput, 'phone');
+
+                    if (!isNameValid || !isPhoneValid) {
+                        contactForm.querySelector('.btn-cart-order').style.background = '#ff4444';
+                        setTimeout(() => contactForm.querySelector('.btn-cart-order').style.background = '', 300);
+                        return;
+                    }
+
+                    const name = nameInput.value;
+                    const phone = phoneInput.value;
                     const msg = document.getElementById('contactMessage').value;
+                    const fileInput = document.getElementById('contactFile');
+                    const file = fileInput.files[0];
 
-                    // Формируем сообщение
-                    let text = `<b>📩 Новое сообщение с сайта (Контакты)!</b>\n\n`;
-                    text += `<b>Имя:</b> ${name}\n`;
-                    text += `<b>Телефон:</b> ${phone}\n`;
-                    text += `<b>Сообщение:</b>\n${msg}`;
-
+                    let text = `<b>📩 Сообщение (Контакты)!</b>\n\n<b>Имя:</b> ${name}\n<b>Телефон:</b> ${phone}\n<b>Сообщение:</b>\n${msg}`;
                     const btn = contactForm.querySelector('button');
                     const originalText = btn.textContent;
                     btn.textContent = 'Отправка...';
                     btn.disabled = true;
 
-                    fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN_CONTACT}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: TG_CHAT_ID_CONTACT,
-                            text: text,
-                            parse_mode: 'HTML'
-                        })
-                    })
-                    .then(res => {
-                        if(res.ok) {
-                            if(typeof window.showNotification === 'function') {
-                                window.showNotification("Сообщение отправлено!");
-                            } else {
-                                alert("Сообщение отправлено!");
-                            }
-                            contactForm.reset();
-                        } else {
-                            alert("Ошибка отправки.");
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert("Ошибка сети.");
-                    })
-                    .finally(() => {
-                        btn.textContent = originalText;
-                        btn.disabled = false;
-                    });
+                    if (file) {
+                        const formData = new FormData();
+                        formData.append('chat_id', TG_CHAT_ID_CONTACT);
+                        formData.append('caption', text);
+                        formData.append('parse_mode', 'HTML');
+                        formData.append('document', file);
+                        fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN_CONTACT}/sendDocument`, { method: 'POST', body: formData })
+                        .then(handleResponse).catch(handleError).finally(() => resetButton(btn, originalText));
+                    } else {
+                        fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN_CONTACT}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: TG_CHAT_ID_CONTACT, text: text, parse_mode: 'HTML' }) })
+                        .then(handleResponse).catch(handleError).finally(() => resetButton(btn, originalText));
+                    }
+
+                    function handleResponse(res) { if(res.ok) { alert("Сообщение отправлено!"); contactForm.reset(); document.querySelectorAll('.success').forEach(el => el.classList.remove('success')); } else { alert("Ошибка отправки."); } }
+                    function handleError(err) { console.error(err); alert("Ошибка сети."); }
+                    function resetButton(btn, text) { btn.textContent = text; btn.disabled = false; }
                 };
             }
         });

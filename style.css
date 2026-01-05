@@ -35,19 +35,19 @@ body {
     width: 100%; 
 }
 
-/* --- ШАПКА --- */
+/* --- ШАПКА (Компактная, полупрозрачная) --- */
 .header { 
-    background: rgba(0, 0, 0, 0.75); /* Полупрозрачность */
+    background: rgba(0, 0, 0, 0.75);
     backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border-glass);
     position: sticky; top: 0; z-index: 1000; 
-    padding: 10px 0; /* Компактный отступ */
+    padding: 10px 0;
     transition: 0.3s;
 }
 .header-main { display: flex; justify-content: space-between; align-items: center; }
 
 .logo-text { text-decoration: none; }
-.logo-text h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 2px; color: #fff; text-transform: uppercase; }
+.logo-text h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 2px; color: #fff; text-transform: uppercase; }
 
 /* МЕНЮ */
 .header-nav { display: flex; gap: 40px; }
@@ -63,10 +63,10 @@ body {
 }
 .nav-link:hover::after { width: 100%; }
 
-.header-phone { color: #fff; text-decoration: none; font-weight: 800; font-size: 20px; letter-spacing: 0.5px; }
+.header-phone { color: #fff; text-decoration: none; font-weight: 800; font-size: 18px; letter-spacing: 0.5px; }
 
 /* --- HERO --- */
-.hero { padding: 50px 0 40px; text-align: center; }
+.hero { padding: 40px 0 30px; text-align: center; }
 .hero-badge { 
     background: rgba(255,255,255,0.1); border: 1px solid var(--border-glass);
     display: inline-block; padding: 8px 18px; font-size: 12px; font-weight: 700; 
@@ -151,11 +151,21 @@ body {
 }
 .btn-load-more:hover { background: var(--accent-hover); transform: translateY(-3px); box-shadow: 0 15px 30px rgba(0, 86, 179, 0.5); }
 
-/* Лоадер */
+/* Лоадер и ОШИБКА */
 .loader-container { grid-column: 1/-1; text-align: center; padding: 60px; color: #888; display: flex; flex-direction: column; align-items: center; gap: 20px; }
 .spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 .cat-skeleton { width: 100px; height: 42px; background: rgba(255,255,255,0.05); border-radius: 50px; }
+
+/* ВАЖНО: СТИЛИ ДЛЯ ТЕКСТА ОШИБКИ */
+.error-text {
+    color: #ff4444; /* Яркий красный */
+    font-size: 24px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 20px rgba(255, 68, 68, 0.5); /* Красное свечение */
+}
 
 /* Подвал */
 .footer { background: #050505; border-top: 1px solid #222; padding: 60px 0; margin-top: auto; }

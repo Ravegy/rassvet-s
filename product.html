@@ -51,19 +51,18 @@
             const params = new URLSearchParams(window.location.search);
             const productId = params.get('id');
 
-            // Ключ кэша v6 - чтобы точно обновить дизайн
-            const cacheKey = 'rassvet_v6_data';
-            const cachedData = localStorage.getItem(cacheKey);
-
-            // Если ID нет
+            // 1. ИСПРАВИЛ ТУТ: заменил класс на btn-load-more (Синяя кнопка)
             if (!productId) {
                 document.getElementById('productDetail').innerHTML = `
                     <h2 style="text-align:center; color:#fff; margin-bottom:30px;">Товар не найден</h2>
                     <div style="text-align:center">
-                        <a href="index.html" class="btn-detail blue">Вернуться в каталог</a>
+                        <a href="index.html" class="btn-load-more">Вернуться в каталог</a>
                     </div>`;
                 return;
             }
+
+            const cacheKey = 'rassvet_v6_data';
+            const cachedData = localStorage.getItem(cacheKey);
 
             if (cachedData) {
                 const products = JSON.parse(cachedData);
@@ -94,10 +93,11 @@
                                 desc: foundRow[6]
                             });
                         } else {
+                             // 2. ИСПРАВИЛ ТУТ: заменил класс на btn-load-more (Синяя кнопка)
                              document.getElementById('productDetail').innerHTML = `
                                 <h2 style="text-align:center; color:#fff; margin-bottom:30px;">Товар не найден</h2>
                                 <div style="text-align:center">
-                                    <a href="index.html" class="btn-detail blue">Вернуться в каталог</a>
+                                    <a href="index.html" class="btn-load-more">Вернуться в каталог</a>
                                 </div>`;
                         }
                     });

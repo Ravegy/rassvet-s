@@ -15,12 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
     initSite();
 
     function initSite() {
-        // Контакты уже в HTML, но на всякий случай обновляем, если нужно
         loadCatalogData();
     }
 
     function loadCatalogData() {
-        const cacheKey = 'rassvet_v6_data'; // НОВЫЙ КЛЮЧ
+        const cacheKey = 'rassvet_v6_data'; // Используем ту же версию кэша
         const timeKey = 'rassvet_v6_time';
         const maxAge = (SITE_CONFIG.cacheTime || 60) * 60 * 1000;
         
@@ -59,7 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 .catch(err => {
                     console.error(err);
-                    catalogGrid.innerHTML = '<div class="loader-container"><p>Ошибка загрузки</p></div>';
+                    // ВАЖНО: Добавил <p class="error-text"> для стилизации ошибки
+                    catalogGrid.innerHTML = '<div class="loader-container"><p class="error-text">Ошибка загрузки</p></div>';
                 });
         }
     }

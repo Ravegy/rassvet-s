@@ -34,9 +34,22 @@ body {
 .nav-link:hover { color: #fff; }
 .nav-link::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: var(--accent); transition: 0.3s ease; }
 .nav-link:hover::after { width: 100%; }
-.header-contacts { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+
+/* ИЗМЕНЕНИЕ ТУТ: Увеличил gap до 40px */
+.header-contacts { 
+    display: flex; 
+    flex-direction: row; 
+    align-items: center; 
+    gap: 40px; /* Было 20px, стало 40px - больше воздуха */
+}
+
 .header-phone { color: #fff; text-decoration: none; font-weight: 800; font-size: 18px; letter-spacing: 0.5px; }
-.cart-widget { font-size: 13px; font-weight: 700; color: var(--whatsapp); cursor: pointer; text-transform: uppercase; background: rgba(37, 211, 102, 0.1); padding: 5px 12px; border-radius: 20px; transition: 0.3s; border: 1px solid rgba(37, 211, 102, 0.2); }
+
+/* ИЗМЕНЕНИЕ ТУТ: Добавил margin-right для дополнительного сдвига */
+.cart-widget { 
+    font-size: 13px; font-weight: 700; color: var(--whatsapp); cursor: pointer; text-transform: uppercase; background: rgba(37, 211, 102, 0.1); padding: 5px 12px; border-radius: 20px; transition: 0.3s; border: 1px solid rgba(37, 211, 102, 0.2); 
+    margin-right: 10px; /* Сдвигаем еще немного влево от номера */
+}
 .cart-widget:hover { background: var(--whatsapp); color: #fff; }
 
 /* --- HERO & CATALOG --- */
@@ -44,14 +57,7 @@ body {
 .hero-badge { background: rgba(255,255,255,0.1); border: 1px solid var(--border-glass); display: inline-block; padding: 8px 18px; font-size: 12px; font-weight: 700; margin-bottom: 20px; border-radius: 30px; color: #ddd; text-transform: uppercase; letter-spacing: 1px; }
 .hero h2 { font-size: 42px; font-weight: 900; margin: 0; letter-spacing: 1px; text-transform: uppercase; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
 .catalog-interface { background: var(--dark-glass); backdrop-filter: blur(40px); border: 1px solid var(--border-glass); border-radius: 30px; padding: 40px; margin-bottom: 80px; box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
-
-/* ВЕРНУЛ border-bottom */
-.interface-header { 
-    border-bottom: 1px solid var(--border-glass); 
-    padding-bottom: 40px; 
-    margin-bottom: 40px; 
-}
-
+.interface-header { border-bottom: 1px solid var(--border-glass); padding-bottom: 40px; margin-bottom: 40px; }
 .search-wrapper { position: relative; margin-bottom: 30px; max-width: 800px; margin-left: auto; margin-right: auto; }
 .search-icon { position: absolute; left: 25px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.6); }
 #searchInput { width: 100%; padding: 20px 25px 20px 60px; border: 1px solid var(--border-glass); border-radius: 20px; font-size: 16px; background: var(--input-glass); outline: none; color: #fff; transition: 0.3s; box-sizing: border-box; }

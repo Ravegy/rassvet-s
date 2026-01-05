@@ -384,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <a href="product.html?id=${product.id}" class="product-title">${product.name}</a>
             <div class="product-price">${priceFmt}</div>
             <div class="btn-group">
-                <a href="product.html?id=${product.id}" class="btn-card btn-blue">Инфо</a>
+                <a href="product.html?id=${product.id}" class="btn-card btn-blue">Подробнее</a>
                 
                 <button id="btn-add-${product.id}" 
                         onclick="addToCart('${product.id}', '${product.sku}', '${nameClean}', '${priceFmt}')" 

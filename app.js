@@ -1,6 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof SITE_CONFIG === 'undefined') return;
 
+    // ==========================================
+    // ТЕЛЕГРАМ НАСТРОЙКИ (ВСТАВЛЕНЫ)
+    // ==========================================
+    const TG_BOT_TOKEN = '8574440126:AAEvK0XXXrzTkchRfv1HtiCyO9k9Qiyu01o'; 
+    const TG_CHAT_ID = '1017718880';       
+
     // --- УВЕДОМЛЕНИЯ ---
     function showNotification(message) {
         const container = document.getElementById('toast-container');
@@ -18,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- КОРЗИНА: Логика ---
     let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || [];
 
-    // Главная функция обновления всего UI
     function updateCartUI() {
         const widget = document.getElementById('cartWidget');
         const cartItems = document.getElementById('cartItems');
@@ -55,42 +60,113 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if(cartTotal) cartTotal.textContent = `Итого: ${new Intl.NumberFormat('ru-RU').format(totalMoney)} ₽`;
             
+            // Логика открытия формы
             if(orderBtn) {
-                let msg = "Здравствуйте! Хочу оформить заказ:%0A";
-                cart.forEach(item => {
-                    msg += `- ${item.sku} ${item.name} — ${item.quantity} шт. (${item.price})%0A`;
-                });
-                msg += `%0AИтого: ${new Intl.NumberFormat('ru-RU').format(totalMoney)} ₽`;
-                orderBtn.href = `https://wa.me/${SITE_CONFIG.phone}?text=${msg}`;
+                orderBtn.onclick = () => {
+                    if (cart.length === 0) {
+                        showNotification('Корзина пуста');
+                        return;
+                    }
+                    // Закрываем корзину, открываем форму
+                    document.getElementById('cartModal').style.display = 'none';
+                    document.getElementById('orderModal').style.display = 'flex';
+                };
             }
         }
         localStorage.setItem('rassvet_cart', JSON.stringify(cart));
-        
-        // ВАЖНО: Синхронизируем кнопки на карточках товаров
         syncButtonsWithCart();
     }
 
-    // Функция синхронизации кнопок на странице с состоянием корзины
+    // --- ОБРАБОТКА ФОРМЫ ЗАКАЗА ---
+    const orderModal = document.getElementById('orderModal');
+    const closeOrder = document.getElementById('closeOrder');
+    const orderForm = document.getElementById('orderForm');
+
+    if(closeOrder) closeOrder.onclick = () => { orderModal.style.display = 'none'; };
+
+    if(orderForm) {
+        orderForm.onsubmit = (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('orderName').value;
+            const phone = document.getElementById('orderPhone').value;
+            const email = document.getElementById('orderEmail').value;
+
+            // Формируем сообщение
+            let message = `<b>Новый заказ с сайта!</b>\n`;
+            message += `<b>Имя:</b> ${name}\n`;
+            message += `<b>Телефон:</b> ${phone}\n`;
+            if(email) message += `<b>Email:</b> ${email}\n`;
+            message += `\n<b>Состав заказа:</b>\n`;
+
+            let totalMoney = 0;
+            cart.forEach(item => {
+                 const priceNum = parseFloat(item.price.replace(/\s/g, '').replace('₽','').replace(',', '.')) || 0;
+                 totalMoney += priceNum * item.quantity;
+                 message += `- ${item.sku} ${item.name} (x${item.quantity})\n`;
+            });
+            message += `\n<b>Сумма: ${new Intl.NumberFormat('ru-RU').format(totalMoney)} ₽</b>`;
+
+            sendToTelegram(message);
+        };
+    }
+
+    function sendToTelegram(text) {
+        const url = `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`;
+        const params = {
+            chat_id: TG_CHAT_ID,
+            text: text,
+            parse_mode: 'HTML'
+        };
+
+        const btn = orderForm.querySelector('button');
+        const originalText = btn.textContent;
+        btn.textContent = 'Отправка...';
+        btn.disabled = true;
+
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(params)
+        })
+        .then(response => {
+            if(response.ok) {
+                cart = []; // Очищаем корзину
+                localStorage.setItem('rassvet_cart', JSON.stringify(cart));
+                updateCartUI(); 
+                orderForm.reset(); 
+                orderModal.style.display = 'none'; 
+                showNotification("Заказ успешно отправлен!");
+            } else {
+                alert("Ошибка отправки. Проверьте консоль.");
+                console.error(response);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Ошибка сети при отправке.");
+        })
+        .finally(() => {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        });
+    }
+
     function syncButtonsWithCart() {
-        // Ищем все товары, у которых есть контейнеры кнопок
         const allProductCards = document.querySelectorAll('[data-product-id]');
-        
         allProductCards.forEach(card => {
             const id = card.getAttribute('data-product-id');
             const cartItem = cart.find(item => item.id === id);
-            
             const btnAdd = document.getElementById(`btn-add-${id}`);
             const btnQty = document.getElementById(`btn-qty-${id}`);
             const countSpan = document.getElementById(`qty-val-${id}`);
 
             if (btnAdd && btnQty && countSpan) {
                 if (cartItem) {
-                    // Товар в корзине: показываем +/-
                     btnAdd.classList.add('hidden');
                     btnQty.classList.remove('hidden');
                     countSpan.textContent = cartItem.quantity;
                 } else {
-                    // Товара нет: показываем кнопку "В корзину"
                     btnAdd.classList.remove('hidden');
                     btnQty.classList.add('hidden');
                 }
@@ -98,18 +174,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Обработчики модального окна
     const modal = document.getElementById('cartModal');
     const widget = document.getElementById('cartWidget');
     const close = document.getElementById('closeCart');
     
     if(widget) widget.onclick = () => { modal.style.display = 'flex'; updateCartUI(); };
     if(close) close.onclick = () => { modal.style.display = 'none'; };
-    window.onclick = (e) => { if(e.target == modal) modal.style.display = 'none'; };
+    window.onclick = (e) => { 
+        if(e.target == modal) modal.style.display = 'none'; 
+        if(e.target == orderModal) orderModal.style.display = 'none';
+    };
 
-    // === ГЛОБАЛЬНЫЕ ФУНКЦИИ (доступны из HTML) ===
-
-    // 1. Добавить новый товар (кнопка "В КОРЗИНУ")
     window.addToCart = (id, sku, name, price) => {
         const existingItem = cart.find(item => item.id === id);
         if (existingItem) {
@@ -119,8 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showNotification('Товар добавлен в корзину');
         }
         updateCartUI();
-        
-        // Анимация виджета
         const widgetBtn = document.getElementById('cartWidget');
         if(widgetBtn) {
              widgetBtn.style.transform = "scale(1.2)";
@@ -128,20 +201,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // 2. Изменить кол-во товара из КАРТОЧКИ (маленькие кнопки +/-)
     window.updateItemQty = (id, delta) => {
         const item = cart.find(p => p.id === id);
         if (item) {
             item.quantity += delta;
-            if (item.quantity <= 0) {
-                // Если стало 0, удаляем из корзины
-                cart = cart.filter(p => p.id !== id);
-            }
+            if (item.quantity <= 0) cart = cart.filter(p => p.id !== id);
             updateCartUI();
         }
     };
     
-    // 3. Изменить кол-во товара внутри МОДАЛКИ КОРЗИНЫ
     window.changeQuantity = (index, delta) => {
         const item = cart[index];
         item.quantity += delta;
@@ -166,7 +234,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     const categoryFilter = document.getElementById('categoryFilter');
 
-    if(catalogGrid) {
+    if(catalogGrid) initCatalog();
+
+    function initCatalog() {
         loadCatalogData();
     }
 
@@ -260,8 +330,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         displayedCount += nextBatch.length;
         if(loadMoreContainer) loadMoreContainer.style.display = (displayedCount < filtered.length) ? 'block' : 'none';
-        
-        // После отрисовки обновляем кнопки
         updateCartUI(); 
     }
 
@@ -279,7 +347,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const card = document.createElement('div');
         card.className = 'product-card';
-        // Добавляем атрибут, чтобы легко искать кнопку этого товара
         card.setAttribute('data-product-id', product.id);
 
         card.innerHTML = `
@@ -291,13 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="product-price">${priceFmt}</div>
             <div class="btn-group">
                 <a href="product.html?id=${product.id}" class="btn-card btn-blue">Инфо</a>
-                
-                <button id="btn-add-${product.id}" 
-                        onclick="addToCart('${product.id}', '${product.sku}', '${nameClean}', '${priceFmt}')" 
-                        class="btn-card btn-green">
-                    В КОРЗИНУ
-                </button>
-
+                <button id="btn-add-${product.id}" onclick="addToCart('${product.id}', '${product.sku}', '${nameClean}', '${priceFmt}')" class="btn-card btn-green">В КОРЗИНУ</button>
                 <div id="btn-qty-${product.id}" class="btn-qty-grid hidden">
                     <button onclick="updateItemQty('${product.id}', -1)">-</button>
                     <span id="qty-val-${product.id}">1</span>

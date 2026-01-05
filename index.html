@@ -65,8 +65,29 @@
             <div class="cart-items" id="cartItems"></div>
             <div class="cart-footer">
                 <span id="cartTotal" class="cart-total">Итого: 0 ₽</span>
-                <a href="#" id="cartOrderBtn" class="btn-cart-order" target="_blank">Оформить в WhatsApp</a>
+                <button id="cartOrderBtn" class="btn-cart-order">Отправить запрос</button>
             </div>
+        </div>
+    </div>
+
+    <div id="orderModal" class="cart-modal" style="z-index: 2100;">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h2>Оформление заказа</h2>
+                <span class="close-cart" id="closeOrder">&times;</span>
+            </div>
+            <form id="orderForm" class="order-form">
+                <div class="form-group">
+                    <input type="text" id="orderName" class="form-input" placeholder="Ваше Имя" required>
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="orderPhone" class="form-input" placeholder="Номер телефона" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="orderEmail" class="form-input" placeholder="Email (необязательно)">
+                </div>
+                <button type="submit" class="btn-cart-order">Подтвердить заказ</button>
+            </form>
         </div>
     </div>
 
@@ -74,7 +95,7 @@
         <div class="container footer-grid">
             <div class="footer-col">
                 <h4>РАССВЕТ-С</h4>
-                <p>Надежные запчасти для лесозаготовительной техники. Работаем по всей России.</p>
+                <p>Надежные запчасти для лесозаготовительной техники.</p>
                 <p style="color: #666; font-size: 13px; margin-top: 15px;">Санкт-Петербург, ул. Промышленная, д. 42</p>
             </div>
             <div class="footer-col">

@@ -41,8 +41,29 @@
             <div class="cart-items" id="cartItems"></div>
             <div class="cart-footer">
                 <span id="cartTotal" class="cart-total">Итого: 0 ₽</span>
-                <a href="#" id="cartOrderBtn" class="btn-cart-order" target="_blank">Оформить в WhatsApp</a>
+                <button id="cartOrderBtn" class="btn-cart-order">Отправить запрос</button>
             </div>
+        </div>
+    </div>
+
+    <div id="orderModal" class="cart-modal" style="z-index: 2100;">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h2>Оформление заказа</h2>
+                <span class="close-cart" id="closeOrder">&times;</span>
+            </div>
+            <form id="orderForm" class="order-form">
+                <div class="form-group">
+                    <input type="text" id="orderName" class="form-input" placeholder="Ваше Имя" required>
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="orderPhone" class="form-input" placeholder="Номер телефона" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="orderEmail" class="form-input" placeholder="Email (необязательно)">
+                </div>
+                <button type="submit" class="btn-cart-order">Подтвердить заказ</button>
+            </form>
         </div>
     </div>
 
@@ -63,149 +84,10 @@
     <div id="toast-container"></div>
 
     <script src="config.js"></script>
+    <script src="app.js"></script> 
+    
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- УВЕДОМЛЕНИЯ ---
-            function showNotification(message) {
-                const container = document.getElementById('toast-container');
-                if (!container) return;
-                const toast = document.createElement('div');
-                toast.className = 'toast';
-                toast.textContent = message;
-                container.appendChild(toast);
-                setTimeout(() => {
-                    toast.classList.add('hiding');
-                    toast.addEventListener('animationend', () => { toast.remove(); });
-                }, 3000);
-            }
-
-            // --- ЛОГИКА КОРЗИНЫ ---
-            let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || [];
-            
-            function updateCartUI() {
-                const widget = document.getElementById('cartWidget');
-                const cartItems = document.getElementById('cartItems');
-                const cartTotal = document.getElementById('cartTotal');
-                const orderBtn = document.getElementById('cartOrderBtn');
-                
-                // Виджет
-                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-                if(widget) widget.textContent = `Корзина: ${totalItems}`;
-                
-                if(cartItems) {
-                    cartItems.innerHTML = '';
-                    let total = 0;
-                    cart.forEach((item, index) => {
-                        const priceNum = parseFloat(item.price.replace(/\s/g, '').replace('₽','').replace(',', '.')) || 0;
-                        total += priceNum * item.quantity;
-                        
-                        const div = document.createElement('div');
-                        div.className = 'cart-item';
-                        div.innerHTML = `
-                            <div class="cart-item-info">
-                                <span class="cart-item-title">${item.sku} - ${item.name}</span>
-                                <span class="cart-item-price">${item.price}</span>
-                            </div>
-                            <div class="qty-controls">
-                                <button class="qty-btn" onclick="changeQuantityModal(${index}, -1)">-</button>
-                                <span class="qty-count">${item.quantity}</span>
-                                <button class="qty-btn" onclick="changeQuantityModal(${index}, 1)">+</button>
-                            </div>
-                            <button class="btn-remove" onclick="removeCartItem(${index})">&times;</button>
-                        `;
-                        cartItems.appendChild(div);
-                    });
-                    
-                    if(cartTotal) cartTotal.textContent = `Итого: ${new Intl.NumberFormat('ru-RU').format(total)} ₽`;
-                    
-                    if(orderBtn) {
-                        let msg = "Здравствуйте! Хочу оформить заказ:%0A";
-                        cart.forEach(item => {
-                            msg += `- ${item.sku} ${item.name} — ${item.quantity} шт. (${item.price})%0A`;
-                        });
-                        msg += `%0AИтого: ${new Intl.NumberFormat('ru-RU').format(total)} ₽`;
-                        orderBtn.href = `https://wa.me/${SITE_CONFIG.phone}?text=${msg}`;
-                    }
-                }
-                localStorage.setItem('rassvet_cart', JSON.stringify(cart));
-                syncButtonsWithCart();
-            }
-
-            function syncButtonsWithCart() {
-                // Ищем контейнер товара на странице
-                const productCard = document.querySelector('[data-product-id]');
-                if (!productCard) return;
-
-                const id = productCard.getAttribute('data-product-id');
-                const cartItem = cart.find(item => item.id === id);
-                
-                const btnAdd = document.getElementById(`btn-add-${id}`);
-                const btnQty = document.getElementById(`btn-qty-${id}`);
-                const countSpan = document.getElementById(`qty-val-${id}`);
-
-                if (btnAdd && btnQty && countSpan) {
-                    if (cartItem) {
-                        btnAdd.classList.add('hidden');
-                        btnQty.classList.remove('hidden');
-                        countSpan.textContent = cartItem.quantity;
-                    } else {
-                        btnAdd.classList.remove('hidden');
-                        btnQty.classList.add('hidden');
-                    }
-                }
-            }
-
-            const modal = document.getElementById('cartModal');
-            const widget = document.getElementById('cartWidget');
-            const close = document.getElementById('closeCart');
-            
-            if(widget) widget.onclick = () => { modal.style.display = 'flex'; updateCartUI(); };
-            if(close) close.onclick = () => { modal.style.display = 'none'; };
-            window.onclick = (e) => { if(e.target == modal) modal.style.display = 'none'; };
-
-            // Глобальные функции
-            window.addToCart = (id, sku, name, price) => {
-                const existingItem = cart.find(item => item.id === id);
-                if (existingItem) {
-                    existingItem.quantity++;
-                } else {
-                    cart.push({id, sku, name, price, quantity: 1});
-                    showNotification('Товар добавлен в корзину');
-                }
-                updateCartUI();
-                const widgetBtn = document.getElementById('cartWidget');
-                if(widgetBtn) {
-                     widgetBtn.style.transform = "scale(1.2)";
-                     setTimeout(() => widgetBtn.style.transform = "scale(1)", 200);
-                }
-            };
-
-            window.updateItemQty = (id, delta) => {
-                const item = cart.find(p => p.id === id);
-                if (item) {
-                    item.quantity += delta;
-                    if (item.quantity <= 0) {
-                        cart = cart.filter(p => p.id !== id);
-                    }
-                    updateCartUI();
-                }
-            };
-
-            window.changeQuantityModal = (index, delta) => {
-                const item = cart[index];
-                item.quantity += delta;
-                if (item.quantity <= 0) item.quantity = 1; 
-                updateCartUI();
-            };
-
-            window.removeCartItem = (index) => {
-                cart.splice(index, 1);
-                updateCartUI();
-            };
-
-            updateCartUI(); 
-
-            // --- ЗАГРУЗКА ДАННЫХ ТОВАРА ---
             const params = new URLSearchParams(window.location.search);
             const productId = params.get('id');
 
@@ -238,16 +120,10 @@
                         const rows = parseCSV(csvText);
                         rows.shift();
                         const foundRow = rows.find(r => r[0] === id);
-                        
                         if (foundRow) {
                             renderProduct({
-                                id: foundRow[0],
-                                sku: foundRow[1],
-                                name: foundRow[2],
-                                price: foundRow[3],
-                                category: foundRow[4],
-                                image: foundRow[5],
-                                desc: foundRow[6]
+                                id: foundRow[0], sku: foundRow[1], name: foundRow[2],
+                                price: foundRow[3], category: foundRow[4], image: foundRow[5], desc: foundRow[6]
                             });
                         } else {
                              document.getElementById('productDetail').innerHTML = `
@@ -272,39 +148,29 @@
                         <div class="full-img-wrapper">
                             <img src="${imgUrl}" alt="${p.name}" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
                         </div>
-                        
                         <div class="full-info">
                             <div class="full-sku">АРТИКУЛ: ${p.sku}</div>
                             <h1 class="full-title">${p.name}</h1>
                             <div class="full-price">${priceFmt}</div>
-                            
                             <div class="full-actions-group">
                                 <a href="index.html" class="btn-detail blue">В КАТАЛОГ</a>
-                                
-                                <button id="btn-add-${p.id}" 
-                                        onclick="addToCart('${p.id}', '${p.sku}', '${nameClean}', '${priceFmt}')" 
-                                        class="btn-detail green">
-                                    В КОРЗИНУ
-                                </button>
-
+                                <button id="btn-add-${p.id}" onclick="addToCart('${p.id}', '${p.sku}', '${nameClean}', '${priceFmt}')" class="btn-detail green">В КОРЗИНУ</button>
                                 <div id="btn-qty-${p.id}" class="btn-qty-grid hidden">
                                     <button onclick="updateItemQty('${p.id}', -1)">-</button>
                                     <span id="qty-val-${p.id}">1</span>
                                     <button onclick="updateItemQty('${p.id}', 1)">+</button>
                                 </div>
                             </div>
-
                             <div class="full-desc">
-                                <strong>Описание:</strong><br>
-                                ${p.desc || 'Описание отсутствует.'}
-                                <br><br>
+                                <strong>Описание:</strong><br>${p.desc || 'Описание отсутствует.'}<br><br>
                                 <strong>Категория:</strong> ${p.category || '-'}
                             </div>
                         </div>
                     </div>
                 `;
                 document.getElementById('productDetail').innerHTML = html;
-                syncButtonsWithCart(); // Сразу проверяем, в корзине ли товар
+                // Функция из app.js, которая проверит корзину и обновит кнопки
+                if(typeof syncButtonsWithCart === 'function') syncButtonsWithCart();
             }
 
             function parseCSV(text) {

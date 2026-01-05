@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Карточка товара | РАССВЕТ-С</title>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,7 +22,7 @@
         </div>
     </header>
 
-    <div class="container" style="padding-top: 40px; padding-bottom: 60px; flex: 1;">
+    <div class="container" style="padding-top: 60px; padding-bottom: 80px; flex: 1;">
         <div id="productDetail">
             <div class="loader-container">
                 <div class="spinner"></div>
@@ -52,11 +52,11 @@
             const productId = params.get('id');
 
             if (!productId) {
-                document.getElementById('productDetail').innerHTML = '<h2 style="text-align:center; color:#fff;">Товар не найден</h2><div style="text-align:center"><a href="index.html" class="btn-load-more">Вернуться в каталог</a></div>';
+                // ИСПОЛЬЗУЕМ НОВЫЙ КЛАСС ДЛЯ КНОПКИ
+                document.getElementById('productDetail').innerHTML = '<h2 style="text-align:center; color:#fff;">Товар не найден</h2><div style="text-align:center"><a href="index.html" class="btn-blue-large">Вернуться в каталог</a></div>';
                 return;
             }
 
-            // Пытаемся найти товар в кэше
             const cacheKey = 'rassvet_v4_data';
             const cachedData = localStorage.getItem(cacheKey);
 
@@ -89,7 +89,8 @@
                                 desc: foundRow[6]
                             });
                         } else {
-                            document.getElementById('productDetail').innerHTML = '<h2 style="text-align:center; color:#fff;">Товар не найден</h2>';
+                            // ИСПОЛЬЗУЕМ НОВЫЙ КЛАСС ДЛЯ КНОПКИ
+                            document.getElementById('productDetail').innerHTML = '<h2 style="text-align:center; color:#fff;">Товар не найден</h2><div style="text-align:center"><a href="index.html" class="btn-blue-large">Вернуться в каталог</a></div>';
                         }
                     });
             }
@@ -101,22 +102,23 @@
                 }
                 const priceFmt = p.price ? new Intl.NumberFormat('ru-RU').format(parseFloat(p.price.replace(/\s/g,'').replace(',','.'))) + ' ₽' : 'По запросу';
 
-                // Используем стиль product-card, но адаптированный под страницу
+                // ГЕНЕРИРУЕМ ТЕМНУЮ КАРТОЧКУ (Классы берутся из style.css внизу)
                 const html = `
-                    <div class="product-card" style="flex-direction: row; flex-wrap: wrap; gap: 40px; padding: 40px; min-height: 400px; align-items: flex-start;">
-                        <div class="img-wrapper" style="flex: 1; min-width: 300px; height: 400px; border: 1px solid #eee;">
-                            <img src="${imgUrl}" alt="${p.name}" class="product-img" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
+                    <div class="product-full-card">
+                        <div class="full-img-wrapper">
+                            <img src="${imgUrl}" alt="${p.name}" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
                         </div>
-                        <div style="flex: 1; display: flex; flex-direction: column;">
-                            <div class="product-sku" style="font-size: 14px; margin-bottom: 10px;">АРТИКУЛ: ${p.sku}</div>
-                            <h1 style="font-size: 28px; font-weight: 800; margin: 0 0 20px; color: #111;">${p.name}</h1>
-                            <div class="product-price" style="font-size: 32px; margin-bottom: 30px;">${priceFmt}</div>
+                        
+                        <div class="full-info">
+                            <div class="full-sku">АРТИКУЛ: ${p.sku}</div>
+                            <h1 class="full-title">${p.name}</h1>
+                            <div class="full-price">${priceFmt}</div>
                             
-                            <div class="btn-group" style="margin-bottom: 30px; max-width: 300px;">
-                                <a href="https://wa.me/${SITE_CONFIG.phone}?text=Здравствуйте! Интересует ${p.sku} ${p.name}" target="_blank" class="btn-card btn-green" style="padding: 15px;">Заказать в WhatsApp</a>
-                            </div>
+                            <a href="https://wa.me/${SITE_CONFIG.phone}?text=Здравствуйте! Интересует запчасть ${p.sku} ${p.name}" target="_blank" class="btn-whatsapp-large">
+                                Заказать в WhatsApp
+                            </a>
 
-                            <div style="font-size: 16px; line-height: 1.6; color: #555; border-top: 1px solid #eee; padding-top: 20px;">
+                            <div class="full-desc">
                                 <strong>Описание:</strong><br>
                                 ${p.desc || 'Описание отсутствует.'}
                                 <br><br>

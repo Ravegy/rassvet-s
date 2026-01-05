@@ -51,9 +51,13 @@
             const params = new URLSearchParams(window.location.search);
             const productId = params.get('id');
 
+            // Если ID нет, показываем кнопку возврата
             if (!productId) {
-                // ИСПОЛЬЗУЕМ НОВЫЙ КЛАСС ДЛЯ КНОПКИ
-                document.getElementById('productDetail').innerHTML = '<h2 style="text-align:center; color:#fff;">Товар не найден</h2><div style="text-align:center"><a href="index.html" class="btn-blue-large">Вернуться в каталог</a></div>';
+                document.getElementById('productDetail').innerHTML = `
+                    <h2 style="text-align:center; color:#fff; margin-bottom:30px;">Товар не найден</h2>
+                    <div style="text-align:center">
+                        <a href="index.html" class="btn-detail-back" style="display:inline-block; min-width:200px;">В КАТАЛОГ</a>
+                    </div>`;
                 return;
             }
 
@@ -89,8 +93,11 @@
                                 desc: foundRow[6]
                             });
                         } else {
-                            // ИСПОЛЬЗУЕМ НОВЫЙ КЛАСС ДЛЯ КНОПКИ
-                            document.getElementById('productDetail').innerHTML = '<h2 style="text-align:center; color:#fff;">Товар не найден</h2><div style="text-align:center"><a href="index.html" class="btn-blue-large">Вернуться в каталог</a></div>';
+                             document.getElementById('productDetail').innerHTML = `
+                                <h2 style="text-align:center; color:#fff; margin-bottom:30px;">Товар не найден</h2>
+                                <div style="text-align:center">
+                                    <a href="index.html" class="btn-detail-back" style="display:inline-block; min-width:200px;">В КАТАЛОГ</a>
+                                </div>`;
                         }
                     });
             }
@@ -102,7 +109,6 @@
                 }
                 const priceFmt = p.price ? new Intl.NumberFormat('ru-RU').format(parseFloat(p.price.replace(/\s/g,'').replace(',','.'))) + ' ₽' : 'По запросу';
 
-                // ГЕНЕРИРУЕМ ТЕМНУЮ КАРТОЧКУ (Классы берутся из style.css внизу)
                 const html = `
                     <div class="product-full-card">
                         <div class="full-img-wrapper">
@@ -114,9 +120,12 @@
                             <h1 class="full-title">${p.name}</h1>
                             <div class="full-price">${priceFmt}</div>
                             
-                            <a href="https://wa.me/${SITE_CONFIG.phone}?text=Здравствуйте! Интересует запчасть ${p.sku} ${p.name}" target="_blank" class="btn-whatsapp-large">
-                                Заказать в WhatsApp
-                            </a>
+                            <div class="full-actions">
+                                <a href="index.html" class="btn-detail-back">В КАТАЛОГ</a>
+                                <a href="https://wa.me/${SITE_CONFIG.phone}?text=Здравствуйте! Интересует запчасть ${p.sku} ${p.name}" target="_blank" class="btn-detail-buy">
+                                    ЗАКАЗАТЬ В WHATSAPP
+                                </a>
+                            </div>
 
                             <div class="full-desc">
                                 <strong>Описание:</strong><br>

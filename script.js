@@ -3,12 +3,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     let productsData = [];
 
-    // Применяем настройки из config.js в шапку
+    // Применяем базовые настройки
     document.title = `Запчасти Komatsu | ${SITE_CONFIG.companyName}`;
     document.getElementById('headerPhone').textContent = SITE_CONFIG.displayPhone;
     document.getElementById('headerPhone').href = `tel:${SITE_CONFIG.phone}`;
 
-    // 1. Загрузка из локального кэша (мгновенный старт)
     const cachedData = localStorage.getItem('rassvet_catalog_cache');
     if (cachedData) {
         try {
@@ -17,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { console.error('Ошибка кэша'); }
     }
 
-    // 2. Функция парсинга CSV
     function csvToJSON(csv) {
         const lines = csv.split('\n');
         const result = [];
@@ -35,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return result;
     }
 
-    // 3. Загрузка из Google Таблиц
     fetch(SITE_CONFIG.sheetUrl)
         .then(response => {
             if (!response.ok) throw new Error();
@@ -51,18 +48,18 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(() => {
             if (productsData.length === 0) {
-                catalogContainer.innerHTML = `<div style="background:white;padding:20px;grid-column:1/-1;text-align:center;border-radius:10px;">
-                    <h3>Свяжитесь с нами для уточнения наличия:</h3>
-                    <a href="tel:${SITE_CONFIG.phone}" style="font-size:24px;color:#222;text-decoration:none;font-weight:bold;">${SITE_CONFIG.displayPhone}</a>
+                catalogContainer.innerHTML = `<div style="background:white;padding:40px;grid-column:1/-1;text-align:center;border:1px solid #eee;">
+                    <h3>База данных временно обновляется</h3>
+                    <p>Пожалуйста, позвоните нам для заказа:</p>
+                    <a href="tel:${SITE_CONFIG.phone}" style="font-size:24px;color:${SITE_CONFIG.colors.primary};text-decoration:none;font-weight:bold;">${SITE_CONFIG.displayPhone}</a>
                 </div>`;
             }
         });
 
-    // 4. Отрисовка каталога
     function renderCatalog(items) {
         catalogContainer.innerHTML = '';
         if (items.length === 0) {
-            catalogContainer.innerHTML = '<p style="color:white;grid-column:1/-1;text-align:center;">Запчасти не найдены.</p>';
+            catalogContainer.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:50px;color:#999;">Товары не найдены. Попробуйте другой запрос.</p>';
             return;
         }
 
@@ -83,19 +80,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="img-wrapper">
                     <img src="${imgPath}" class="product-img" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
                 </div>
-                <div class="product-sku">Арт: ${product.sku}</div>
+                <div class="product-sku">АРТИКУЛ: ${product.sku}</div>
                 <h3 class="product-title">${product.name}</h3>
                 <div class="product-price">${displayPrice}</div>
-                <div style="display: flex; gap: 8px;">
-                    <a href="tel:${SITE_CONFIG.phone}" class="btn-order" style="flex:1;background:#222;padding:10px;font-size:11px;">📞 Позвонить</a>
-                    <a href="${waLink}" target="_blank" class="btn-order" style="flex:1;background:#25D366;padding:10px;font-size:11px;">💬 WhatsApp</a>
+                <div class="btn-group">
+                    <a href="tel:${SITE_CONFIG.phone}" class="btn-order btn-call">📞 Позвонить</a>
+                    <a href="${waLink}" target="_blank" class="btn-order btn-wa">💬 WhatsApp</a>
                 </div>
             `;
             catalogContainer.appendChild(card);
         });
     }
 
-    // 5. Поиск
     searchInput.addEventListener('input', (e) => {
         const text = e.target.value.toLowerCase().trim();
         const filtered = productsData.filter(p => 

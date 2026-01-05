@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Загрузка... | РАССВЕТ-С</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="product-page-body">
+    <header class="header">
+        <div class="container header-main">
+            <div class="logo-block" onclick="location.href='index.html'" style="cursor:pointer">
+                <div class="logo-symbol">K</div>
+                <div class="logo-text"><h1>РАССВЕТ-С</h1></div>
+            </div>
+            <a href="index.html" class="btn-catalog">← В каталог</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="productContent" class="product-detail-view">
+            </div>
+    </main>
+
+    <script src="config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get('id');
+            const content = document.getElementById('productContent');
+
+            const data = JSON.parse(localStorage.getItem('rassvet_db') || '[]');
+            const p = data.find(item => item.id == productId);
+
+            if (!p) {
+                content.innerHTML = '<div style="text-align:center; padding:100px;"><h2>Товар не найден</h2><a href="index.html">Вернуться в каталог</a></div>';
+                return;
+            }
+
+            document.title = `${p.name} - Артикул ${p.sku} | РАССВЕТ-С`;
+            const img = p.image ? `images/parts/${p.image}` : SITE_CONFIG.placeholderImage;
+            const wa = `https://wa.me/${SITE_CONFIG.phone}?text=${encodeURIComponent('Интересует запчасть: ' + p.name + ' (Арт: ' + p.sku + ')')}`;
+            const price = p.price ? Number(p.price).toLocaleString() + ' ₽' : 'По запросу';
+
+            content.innerHTML = `
+                <div class="product-layout">
+                    <div class="product-img-box">
+                        <img src="${img}" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
+                    </div>
+                    <div class="product-info-box">
+                        <span class="sku-tag">OEM Артикул: ${p.sku}</span>
+                        <h1>${p.name}</h1>
+                        <div class="main-price">${price}</div>
+                        <div class="action-buttons">
+                            <a href="tel:${SITE_CONFIG.phone}" class="btn-main btn-blue">Позвонить менеджеру</a>
+                            <a href="${wa}" target="_blank" class="btn-main btn-green">Заказать в WhatsApp</a>
+                        </div>
+                        <div class="extra-info">
+                            <p><b>Категория:</b> ${p.category || 'Запчасти Komatsu'}</p>
+                            <p>✅ Гарантия качества</p>
+                            <p>🚛 Доставка из СПб во все регионы РФ</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>

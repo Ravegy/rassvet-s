@@ -27,8 +27,8 @@
             </nav>
 
             <div class="header-contacts">
-                <a href="mailto:info@rassvet-s.ru" class="header-email" id="cfgEmail">info@rassvet-s.ru</a>
-                <a href="tel:+79818881337" class="header-phone" id="headerPhone">+7 (981) 888-13-37</a>
+                <a href="mailto:info@rassvet-s.ru" class="header-email">info@rassvet-s.ru</a>
+                <a href="tel:+79818881337" class="header-phone">+7 (981) 888-13-37</a>
             </div>
         </div>
     </header>
@@ -47,7 +47,10 @@
 
     <div class="container">
         <div class="catalog-grid" id="catalog">
-            <p style="text-align:center; width:100%; opacity: 0.7;">Загрузка каталога...</p>
+            <div style="text-align:center; width:100%; grid-column: 1/-1; padding: 40px; color: #fff;">
+                <h3>Загрузка товаров...</h3>
+                <p>Если это сообщение не исчезает, проверьте ID таблицы в config.js</p>
+            </div>
         </div>
     </div>
 
@@ -59,8 +62,9 @@
             </div>
             <div>
                 <h4>Контакты</h4>
-                <p id="footerPhone">Loading...</p>
-                <p id="footerEmail">Loading...</p>
+                <p><a href="tel:+79818881337" style="color:#fff; text-decoration:none; font-weight:bold; font-size:16px;">+7 (981) 888-13-37</a></p>
+                <p><a href="mailto:info@rassvet-s.ru" style="color:#ccc; text-decoration:none;">info@rassvet-s.ru</a></p>
+                <p style="margin-top:10px; opacity:0.6;">Санкт-Петербург, ул. Промышленная, д. 42</p>
             </div>
             <div>
                 <h4>Информация</h4>

@@ -44,7 +44,7 @@ body {
 .hero-badge { background: rgba(255,255,255,0.1); border: 1px solid var(--border-glass); display: inline-block; padding: 8px 18px; font-size: 12px; font-weight: 700; margin-bottom: 20px; border-radius: 30px; color: #ddd; text-transform: uppercase; letter-spacing: 1px; }
 .hero h2 { font-size: 42px; font-weight: 900; margin: 0; letter-spacing: 1px; text-transform: uppercase; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
 .catalog-interface { background: var(--dark-glass); backdrop-filter: blur(40px); border: 1px solid var(--border-glass); border-radius: 30px; padding: 40px; margin-bottom: 80px; box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
-.interface-header { border-bottom: 1px solid var(--border-glass); padding-bottom: 40px; margin-bottom: 40px; }
+.interface-header { border-bottom: 1px solid var(--border-glass); padding-bottom: 40px; margin-bottom: 30px; } /* Уменьшил margin-bottom */
 .search-wrapper { position: relative; margin-bottom: 30px; max-width: 800px; margin-left: auto; margin-right: auto; }
 .search-icon { position: absolute; left: 25px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.6); }
 #searchInput { width: 100%; padding: 20px 25px 20px 60px; border: 1px solid var(--border-glass); border-radius: 20px; font-size: 16px; background: var(--input-glass); outline: none; color: #fff; transition: 0.3s; box-sizing: border-box; }
@@ -54,6 +54,26 @@ body {
 .cat-btn:hover { background: rgba(255,255,255,0.15); color: #fff; border-color: #fff; }
 .cat-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 5px 20px rgba(0, 86, 179, 0.5); }
 .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; min-height: 200px; }
+
+/* ДИСКЛЕЙМЕР (НОВОЕ) */
+.catalog-disclaimer {
+    border-top: 1px solid var(--border-glass);
+    border-bottom: 1px solid var(--border-glass);
+    padding: 15px 20px;
+    margin-bottom: 40px; /* Отступ до товаров */
+    text-align: center;
+    background: rgba(255, 68, 68, 0.05); /* Еле заметный красный фон */
+}
+.disclaimer-text {
+    color: #ff4444; /* Красный цвет */
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 10px rgba(255, 68, 68, 0.4); /* Свечение */
+    margin: 0;
+    line-height: 1.5;
+}
 
 /* КАРТОЧКА */
 .product-card { background: var(--card-glass); border: 1px solid var(--border-glass); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative; height: auto; }

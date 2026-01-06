@@ -48,76 +48,105 @@ body {
 .hero h2 { font-size: 42px; font-weight: 900; margin: 0; letter-spacing: 1px; text-transform: uppercase; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
 .catalog-interface { background: var(--dark-glass); backdrop-filter: blur(40px); border: 1px solid var(--border-glass); border-radius: 30px; padding: 40px; margin-bottom: 80px; box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
 .interface-header { border-bottom: 1px solid var(--border-glass); padding-bottom: 40px; margin-bottom: 40px; }
-.search-wrapper { position: relative; margin-bottom: 30px; max-width: 800px; margin-left: auto; margin-right: auto; }
-.search-icon { position: absolute; left: 25px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.6); }
-#searchInput { width: 100%; padding: 20px 25px 20px 60px; border: 1px solid var(--border-glass); border-radius: 20px; font-size: 16px; background: var(--input-glass); outline: none; color: #fff; transition: 0.3s; box-sizing: border-box; }
-#searchInput:focus { background: rgba(0,0,0,0.4); border-color: var(--accent); box-shadow: 0 0 20px rgba(0, 86, 179, 0.3); }
 
-/* --- СТИЛЬНАЯ СОРТИРОВКА --- */
-.sort-wrapper {
-    max-width: 800px;
-    margin: 0 auto 20px;
+/* --- ЕДИНАЯ ПАНЕЛЬ УПРАВЛЕНИЯ (ПОИСК + СОРТИРОВКА) --- */
+.catalog-controls {
     display: flex;
-    justify-content: flex-end; /* Прижимаем вправо */
+    gap: 15px; /* Расстояние между поиском и сортировкой */
+    max-width: 900px;
+    margin: 0 auto 30px;
+    align-items: center;
+}
+
+/* Поиск занимает все свободное место */
+.search-wrapper {
+    position: relative;
+    flex: 1; 
+    margin: 0; 
+}
+
+/* Сортировка занимает столько, сколько нужно */
+.sort-wrapper {
+    position: relative;
+    width: auto;
+    margin: 0;
+    flex-shrink: 0; /* Не сжиматься */
 }
 
 .sort-container {
     position: relative;
-    display: inline-block;
-    min-width: 220px;
+    display: block;
+    width: 100%;
 }
 
-.sort-select {
+/* --- ОБЩИЙ СТИЛЬ ПОЛЕЙ (ЧТОБЫ БЫЛИ ОДИНАКОВЫЕ) --- */
+#searchInput, .sort-select {
     width: 100%;
-    appearance: none; /* Убираем стандартный дизайн */
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
+    height: 54px; /* Фиксированная высота для идеальной ровности */
+    background: var(--input-glass);
     border: 1px solid var(--border-glass);
+    border-radius: 16px; /* Чуть более скругленные углы */
     color: #fff;
-    padding: 12px 40px 12px 45px; /* Отступы для иконок */
-    border-radius: 12px;
     font-family: 'Manrope', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
+    font-size: 15px;
     outline: none;
     transition: 0.3s;
+    box-sizing: border-box;
 }
 
-.sort-select:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
+/* Специфика Поиска */
+#searchInput {
+    padding: 0 20px 0 55px; /* Отступы текста */
+}
+#searchInput:focus {
+    background: rgba(0,0,0,0.4);
+    border-color: var(--accent);
+    box-shadow: 0 0 20px rgba(0, 86, 179, 0.2);
+}
+.search-icon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255,255,255,0.5);
+    pointer-events: none;
 }
 
+/* Специфика Сортировки */
+.sort-select {
+    padding: 0 45px 0 50px; /* Место под иконки */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    background: var(--input-glass); /* Такой же фон как у поиска */
+    font-weight: 600;
+}
 .sort-select option {
     background: #1a1a1a;
     color: #fff;
-    padding: 10px;
 }
-
-/* Иконка сортировки (Слева) */
+.sort-select:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.3);
+}
 .sort-icon {
     position: absolute;
-    left: 15px;
+    left: 18px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--accent);
     pointer-events: none;
 }
-
-/* Стрелочка (Справа) */
 .sort-arrow {
     position: absolute;
-    right: 15px;
+    right: 18px;
     top: 50%;
     transform: translateY(-50%);
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.4);
     pointer-events: none;
     transition: 0.3s;
 }
-
 .sort-select:focus + .sort-arrow {
     transform: translateY(-50%) rotate(180deg);
     color: #fff;
@@ -292,7 +321,6 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     .product-card { padding: 15px; }
     .product-title { font-size: 18px; min-height: auto; }
     .interface-header { flex-direction: column; gap: 15px; }
-    .search-wrapper { width: 100%; margin-bottom: 10px; }
     .product-full-card { flex-direction: column; padding: 20px; }
     .full-img-wrapper { width: 100%; height: auto; min-height: 250px; margin-bottom: 20px; min-width: auto; }
     .full-title { font-size: 24px; }
@@ -310,11 +338,15 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     .footer-contact-item { justify-content: flex-start; }
     .footer-socials { justify-content: flex-start; }
     .footer-nav a { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: block; }
-    
-    /* --- СОРТИРОВКА НА МОБИЛЬНОМ --- */
-    .sort-wrapper { justify-content: center; margin-bottom: 15px; }
-    .sort-container { width: 100%; }
-
-    /* --- ИСПРАВЛЕНИЕ ЗАГОЛОВКОВ --- */
     .contact-page-title { font-size: 24px; word-break: break-word; }
+
+    /* --- АДАПТИВ ПАНЕЛИ УПРАВЛЕНИЯ --- */
+    .catalog-controls {
+        flex-direction: column; /* Столбик на телефоне */
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .search-wrapper, .sort-wrapper {
+        width: 100%; /* На всю ширину */
+    }
 }

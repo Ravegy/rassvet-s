@@ -32,30 +32,34 @@
     <div class="container">
         <div class="catalog-interface">
             <div class="interface-header">
-                <div class="search-wrapper">
-                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <input type="text" id="searchInput" placeholder="Поиск по артикулу или названию...">
-                </div>
                 
-                <div class="sort-wrapper">
-                    <div class="sort-container">
-                        <svg class="sort-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="12" y1="20" x2="12" y2="10"></line>
-                            <line x1="18" y1="20" x2="18" y2="4"></line>
-                            <line x1="6" y1="20" x2="6" y2="16"></line>
-                        </svg>
-                        <select id="sortSelect" class="sort-select">
-                            <option value="default">Сортировка: По умолчанию</option>
-                            <option value="price_asc">Сначала дешевые</option>
-                            <option value="price_desc">Сначала дорогие</option>
-                            <option value="name_asc">По названию (А-Я)</option>
-                        </select>
-                        <svg class="sort-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
+                <div class="catalog-controls">
+                    
+                    <div class="search-wrapper">
+                        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="searchInput" placeholder="Поиск по артикулу...">
                     </div>
-                </div>
+                    
+                    <div class="sort-wrapper">
+                        <div class="sort-container">
+                            <svg class="sort-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="20" x2="12" y2="10"></line>
+                                <line x1="18" y1="20" x2="18" y2="4"></line>
+                                <line x1="6" y1="20" x2="6" y2="16"></line>
+                            </svg>
+                            <select id="sortSelect" class="sort-select">
+                                <option value="default">По умолчанию</option>
+                                <option value="price_asc">Дешевле</option>
+                                <option value="price_desc">Дороже</option>
+                                <option value="name_asc">По названию</option>
+                            </select>
+                            <svg class="sort-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
 
+                </div>
                 <div class="categories-wrapper" id="categoryFilter">
                     <div class="cat-skeleton"></div><div class="cat-skeleton"></div><div class="cat-skeleton"></div>
                 </div>

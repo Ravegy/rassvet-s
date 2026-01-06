@@ -64,7 +64,7 @@ function renderLayout() {
         document.body.appendChild(globalComponents);
     }
 
-    // ПОДВАЛ
+    // ПОДВАЛ (БЕЗ ЛИШНИХ КНОПОК)
     const footerEl = document.querySelector('footer');
     if (footerEl) {
         footerEl.className = 'footer';
@@ -161,7 +161,7 @@ async function getCatalogData() {
     }
 }
 
-// 3. ХЕЛПЕРЫ (Debounce, Уведомления, Валидация)
+// 3. ХЕЛПЕРЫ
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -172,6 +172,11 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
+}
+
+function parsePrice(str) {
+    if (!str) return 0;
+    return parseFloat(str.replace(/\s/g, '').replace('₽', '').replace(',', '.')) || 0;
 }
 
 window.showNotification = function(message) {
@@ -198,7 +203,7 @@ window.updateCartUI = function() {
         cartItems.innerHTML = '';
         let totalMoney = 0;
         cart.forEach((item, index) => {
-            const priceNum = parseFloat(item.price.replace(/\s/g, '').replace('₽','').replace(',', '.')) || 0;
+            const priceNum = parsePrice(item.price);
             totalMoney += priceNum * item.quantity;
             const div = document.createElement('div');
             div.className = 'cart-item';
@@ -393,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
             message += `\n<b>Состав заказа:</b>\n`;
             let totalMoney = 0;
             cart.forEach(item => {
-                 const priceNum = parseFloat(item.price.replace(/\s/g, '').replace('₽','').replace(',', '.')) || 0;
+                 const priceNum = parsePrice(item.price);
                  totalMoney += priceNum * item.quantity;
                  message += `- ${item.sku} ${item.name} (x${item.quantity})\n`;
             });
@@ -415,6 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const loadMoreContainer = document.getElementById('loadMoreContainer');
         const searchInput = document.getElementById('searchInput');
         const categoryFilter = document.getElementById('categoryFilter');
+        const sortSelect = document.getElementById('sortSelect'); 
 
         initCatalog();
 
@@ -427,6 +433,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 initCategories(allProducts);
                 renderBatch(true);
+
+                // ЛОГИКА СОРТИРОВКИ
+                if (sortSelect) {
+                    sortSelect.addEventListener('change', () => {
+                        const sortType = sortSelect.value;
+                        if (sortType === 'default') { allProducts.sort((a, b) => a.id - b.id); } 
+                        else if (sortType === 'price_asc') { allProducts.sort((a, b) => parsePrice(a.price) - parsePrice(b.price)); } 
+                        else if (sortType === 'price_desc') { allProducts.sort((a, b) => parsePrice(b.price) - parsePrice(a.price)); } 
+                        else if (sortType === 'name_asc') { allProducts.sort((a, b) => a.name.localeCompare(b.name)); }
+                        renderBatch(true);
+                    });
+                }
+
             } catch (err) {
                 console.error(err);
                 catalogGrid.innerHTML = '<div class="loader-container"><p class="error-text">Ошибка сети</p></div>';

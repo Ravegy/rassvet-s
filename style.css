@@ -53,10 +53,75 @@ body {
 #searchInput { width: 100%; padding: 20px 25px 20px 60px; border: 1px solid var(--border-glass); border-radius: 20px; font-size: 16px; background: var(--input-glass); outline: none; color: #fff; transition: 0.3s; box-sizing: border-box; }
 #searchInput:focus { background: rgba(0,0,0,0.4); border-color: var(--accent); box-shadow: 0 0 20px rgba(0, 86, 179, 0.3); }
 
-/* СОРТИРОВКА */
-.sort-wrapper { max-width: 800px; margin: 0 auto 20px; text-align: right; }
-.sort-select { background: var(--dark-glass); color: #fff; border: 1px solid var(--border-glass); padding: 10px 15px; border-radius: 12px; outline: none; font-family: 'Manrope', sans-serif; cursor: pointer; font-size: 14px; }
-.sort-select option { background: #1a1a1a; color: #fff; }
+/* --- СТИЛЬНАЯ СОРТИРОВКА --- */
+.sort-wrapper {
+    max-width: 800px;
+    margin: 0 auto 20px;
+    display: flex;
+    justify-content: flex-end; /* Прижимаем вправо */
+}
+
+.sort-container {
+    position: relative;
+    display: inline-block;
+    min-width: 220px;
+}
+
+.sort-select {
+    width: 100%;
+    appearance: none; /* Убираем стандартный дизайн */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-glass);
+    color: #fff;
+    padding: 12px 40px 12px 45px; /* Отступы для иконок */
+    border-radius: 12px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    transition: 0.3s;
+}
+
+.sort-select:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.sort-select option {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 10px;
+}
+
+/* Иконка сортировки (Слева) */
+.sort-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent);
+    pointer-events: none;
+}
+
+/* Стрелочка (Справа) */
+.sort-arrow {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+    transition: 0.3s;
+}
+
+.sort-select:focus + .sort-arrow {
+    transform: translateY(-50%) rotate(180deg);
+    color: #fff;
+}
 
 .categories-wrapper { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
 .cat-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); color: #ccc; padding: 12px 24px; border-radius: 50px; cursor: pointer; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.3s; }
@@ -239,11 +304,17 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     .cart-content { width: 95%; max-height: 90vh; padding: 20px; }
     #toast-container { top: 110px; right: 10px; }
 
-    /* --- ПОДВАЛ МОБИЛЬНЫЙ (ИСПРАВЛЕННЫЙ) --- */
+    /* --- ПОДВАЛ МОБИЛЬНЫЙ --- */
     .footer-content { grid-template-columns: 1fr; gap: 30px; text-align: left; }
     .footer-contacts-list { align-items: flex-start; }
     .footer-contact-item { justify-content: flex-start; }
     .footer-socials { justify-content: flex-start; }
     .footer-nav a { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: block; }
+    
+    /* --- СОРТИРОВКА НА МОБИЛЬНОМ --- */
+    .sort-wrapper { justify-content: center; margin-bottom: 15px; }
+    .sort-container { width: 100%; }
+
+    /* --- ИСПРАВЛЕНИЕ ЗАГОЛОВКОВ --- */
     .contact-page-title { font-size: 24px; word-break: break-word; }
 }

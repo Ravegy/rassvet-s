@@ -98,7 +98,17 @@ body {
 .footer-link { color: #ccc; text-decoration: none; transition: 0.2s; font-size: 15px; }
 .footer-link:hover { color: #fff; }
 .footer-bottom { border-top: 1px solid #1a1a1a; padding-top: 20px; text-align: center; }
-.footer-disclaimer { color: #ff4444; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.5; margin: 0; text-shadow: 0 0 8px rgba(255, 68, 68, 0.3); opacity: 0.8; }
+
+/* ОБНОВЛЕННЫЙ СТИЛЬ ДИСКЛЕЙМЕРА (СЕРЫЙ И АККУРАТНЫЙ) */
+.footer-disclaimer { 
+    color: #666; /* Серый вместо красного */
+    font-size: 11px; 
+    font-weight: 400; 
+    line-height: 1.5; 
+    margin: 0; 
+    text-transform: none; /* Убран капс */
+    opacity: 0.8; 
+}
 
 /* СОЦИАЛЬНЫЕ ИКОНКИ */
 .footer-socials { display: flex; gap: 15px; margin-top: 25px; }
@@ -197,7 +207,6 @@ input[type="file"].form-input { padding: 12px; height: auto; display: flex; alig
 input[type="file"]::file-selector-button { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 8px; margin-right: 15px; cursor: pointer; font-family: 'Manrope', sans-serif; font-weight: 600; transition: 0.3s; }
 input[type="file"]::file-selector-button:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-/* --- МОБИЛЬНАЯ ВЕРСИЯ (ОБЪЕДИНЕНО) --- */
 @media (max-width: 900px) {
     .container { padding: 0 15px; }
     body { font-size: 15px; }
@@ -229,9 +238,19 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     .contacts-wrapper { grid-template-columns: 1fr; }
     .contact-card { padding: 25px; grid-template-columns: 1fr !important; }
     .map-container { height: 300px; }
-    .footer-content { grid-template-columns: 1fr; gap: 30px; text-align: center; }
-    .footer-contacts-list { align-items: center; }
-    .footer-contact-item { justify-content: center; }
     .cart-content { width: 95%; max-height: 90vh; padding: 20px; }
     #toast-container { top: 110px; right: 10px; }
+
+    /* --- ПОДВАЛ МОБИЛЬНЫЙ (ИСПРАВЛЕННЫЙ) --- */
+    .footer-content { grid-template-columns: 1fr; gap: 30px; text-align: left; } /* Ровняем влево */
+    .footer-contacts-list { align-items: flex-start; } /* Иконки слева */
+    .footer-contact-item { justify-content: flex-start; } /* Контакты слева */
+    .footer-socials { justify-content: flex-start; } /* Соцсети тоже слева */
+    .footer-nav a { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: block; } /* Кнопки крупнее */
+
+    /* --- ИСПРАВЛЕНИЕ ЗАГОЛОВКОВ --- */
+    .contact-page-title { 
+        font-size: 24px; /* Уменьшаем шрифт, чтобы влезало */
+        word-break: break-word; /* Переносим длинные слова */
+    }
 }

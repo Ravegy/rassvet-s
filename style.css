@@ -79,7 +79,7 @@ body {
 .cat-skeleton { width: 100px; height: 42px; background: rgba(255,255,255,0.05); border-radius: 50px; }
 .error-text { color: #ff4444; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 20px rgba(255, 68, 68, 0.5); }
 
-/* --- ПОДВАЛ (ЕДИНЫЙ СТИЛЬ) --- */
+/* --- ПОДВАЛ --- */
 .footer { background: #080808; border-top: 1px solid #222; padding: 60px 0 20px; margin-top: auto; font-size: 14px; }
 .footer-content { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
 .footer-col h4 { color: #fff; font-size: 16px; font-weight: 800; text-transform: uppercase; margin-top: 0; margin-bottom: 20px; letter-spacing: 1px; }
@@ -98,6 +98,16 @@ body {
 .footer-bottom { border-top: 1px solid #1a1a1a; padding-top: 20px; text-align: center; }
 .footer-disclaimer { color: #ff4444; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.5; margin: 0; text-shadow: 0 0 8px rgba(255, 68, 68, 0.3); opacity: 0.8; }
 
+/* СОЦИАЛЬНЫЕ ИКОНКИ */
+.footer-socials { display: flex; gap: 15px; margin-top: 25px; }
+.social-btn { width: 40px; height: 40px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; cursor: pointer; text-decoration: none; }
+.social-btn svg { width: 20px; height: 20px; fill: #ccc; transition: 0.3s; stroke: none; } /* stroke: none для fill иконок */
+.social-btn:hover { transform: translateY(-3px); border-color: transparent; }
+.social-btn:hover svg { fill: #fff; }
+.social-btn.telegram:hover { background: #2AABEE; box-shadow: 0 5px 15px rgba(42, 171, 238, 0.3); }
+.social-btn.whatsapp:hover { background: #25D366; box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3); }
+.social-btn.vk:hover { background: #0077FF; box-shadow: 0 5px 15px rgba(0, 119, 255, 0.3); }
+
 /* СТРАНИЦА ТОВАРА */
 .product-full-card { background: rgba(10, 10, 10, 0.95); border: 1px solid var(--border-glass); border-radius: 30px; padding: 40px; display: flex; gap: 50px; align-items: flex-start; box-shadow: 0 50px 100px rgba(0,0,0,0.8); color: #fff; }
 .full-img-wrapper { flex: 1; min-width: 300px; background: #fff; border-radius: 20px; padding: 20px; display: flex; align-items: center; justify-content: center; min-height: 400px; box-shadow: inset 0 0 20px rgba(0,0,0,0.1); }
@@ -107,8 +117,6 @@ body {
 .full-title { font-size: 32px; font-weight: 900; color: #fff; margin: 0 0 25px; line-height: 1.2; text-transform: uppercase; }
 .full-price { font-size: 40px; font-weight: 900; color: #fff; margin-bottom: 35px; }
 .full-actions-group { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 40px; }
-
-/* КНОПКИ */
 .btn-detail { flex: 1; min-width: 200px; text-align: center; padding: 20px 0; border-radius: 16px; font-weight: 800; font-size: 14px; text-transform: uppercase; text-decoration: none; letter-spacing: 1px; transition: 0.3s; cursor: pointer; }
 .btn-detail.blue { background: var(--accent); color: #fff; border: 1px solid var(--accent); box-shadow: 0 5px 20px rgba(0, 86, 179, 0.3); }
 .btn-detail.blue:hover { background: var(--accent-hover); box-shadow: 0 10px 30px rgba(0, 86, 179, 0.5); transform: translateY(-3px); }
@@ -185,59 +193,3 @@ body {
 input[type="file"].form-input { padding: 12px; height: auto; display: flex; align-items: center; cursor: pointer; }
 input[type="file"]::file-selector-button { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 8px; margin-right: 15px; cursor: pointer; font-family: 'Manrope', sans-serif; font-weight: 600; transition: 0.3s; }
 input[type="file"]::file-selector-button:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
-
-/* ... (предыдущий код подвала) ... */
-
-/* СОЦИАЛЬНЫЕ ИКОНКИ В ПОДВАЛЕ */
-.footer-socials {
-    display: flex;
-    gap: 15px;
-    margin-top: 25px; /* Отступ сверху от текста */
-}
-
-.social-btn {
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.05); /* Легкая прозрачность */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 50%; /* Круглые */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-.social-btn svg {
-    width: 20px;
-    height: 20px;
-    fill: #ccc; /* Цвет иконки по умолчанию */
-    transition: 0.3s;
-}
-
-/* Эффекты при наведении */
-.social-btn:hover {
-    transform: translateY(-3px); /* Всплытие */
-    border-color: transparent;
-}
-
-.social-btn:hover svg {
-    fill: #fff;
-}
-
-/* Цвета брендов при наведении */
-.social-btn.telegram:hover {
-    background: #2AABEE;
-    box-shadow: 0 5px 15px rgba(42, 171, 238, 0.3);
-}
-
-.social-btn.whatsapp:hover {
-    background: #25D366;
-    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
-}
-
-.social-btn.vk:hover {
-    background: #0077FF;
-    box-shadow: 0 5px 15px rgba(0, 119, 255, 0.3);
-}

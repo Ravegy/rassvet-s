@@ -185,3 +185,59 @@ body {
 input[type="file"].form-input { padding: 12px; height: auto; display: flex; align-items: center; cursor: pointer; }
 input[type="file"]::file-selector-button { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 8px; margin-right: 15px; cursor: pointer; font-family: 'Manrope', sans-serif; font-weight: 600; transition: 0.3s; }
 input[type="file"]::file-selector-button:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ... (предыдущий код подвала) ... */
+
+/* СОЦИАЛЬНЫЕ ИКОНКИ В ПОДВАЛЕ */
+.footer-socials {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px; /* Отступ сверху от текста */
+}
+
+.social-btn {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05); /* Легкая прозрачность */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%; /* Круглые */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.social-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: #ccc; /* Цвет иконки по умолчанию */
+    transition: 0.3s;
+}
+
+/* Эффекты при наведении */
+.social-btn:hover {
+    transform: translateY(-3px); /* Всплытие */
+    border-color: transparent;
+}
+
+.social-btn:hover svg {
+    fill: #fff;
+}
+
+/* Цвета брендов при наведении */
+.social-btn.telegram:hover {
+    background: #2AABEE;
+    box-shadow: 0 5px 15px rgba(42, 171, 238, 0.3);
+}
+
+.social-btn.whatsapp:hover {
+    background: #25D366;
+    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+}
+
+.social-btn.vk:hover {
+    background: #0077FF;
+    box-shadow: 0 5px 15px rgba(0, 119, 255, 0.3);
+}

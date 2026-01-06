@@ -24,7 +24,7 @@ body {
 .header { background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-glass); position: sticky; top: 0; z-index: 1000; padding: 10px 0; transition: 0.3s; }
 .header-main { display: flex; justify-content: space-between; align-items: center; position: relative; }
 
-/* КНОПКА МЕНЮ (Скрыта на ПК) */
+/* КНОПКА МЕНЮ */
 .menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 5px; }
 .menu-btn svg { width: 28px; height: 28px; stroke: #fff; stroke-width: 2; stroke-linecap: round; }
 
@@ -101,12 +101,26 @@ body {
 /* СОЦИАЛЬНЫЕ ИКОНКИ */
 .footer-socials { display: flex; gap: 15px; margin-top: 25px; }
 .social-btn { width: 40px; height: 40px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; cursor: pointer; text-decoration: none; }
-.social-btn svg { width: 20px; height: 20px; fill: #ccc; transition: 0.3s; stroke: none; } /* stroke: none для fill иконок */
+.social-btn svg { width: 20px; height: 20px; fill: #ccc; transition: 0.3s; stroke: none; }
 .social-btn:hover { transform: translateY(-3px); border-color: transparent; }
 .social-btn:hover svg { fill: #fff; }
 .social-btn.telegram:hover { background: #2AABEE; box-shadow: 0 5px 15px rgba(42, 171, 238, 0.3); }
 .social-btn.whatsapp:hover { background: #25D366; box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3); }
 .social-btn.vk:hover { background: #0077FF; box-shadow: 0 5px 15px rgba(0, 119, 255, 0.3); }
+.social-btn.avito:hover { background: #96C93D; box-shadow: 0 5px 15px rgba(150, 201, 61, 0.3); }
+
+/* --- СТРАНИЦА КОНТАКТОВ (ВЕРНУЛ ПОТЕРЯННОЕ!) --- */
+.contacts-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 60px; }
+.contact-card { background: var(--dark-glass); backdrop-filter: blur(40px); border: 1px solid var(--border-glass); border-radius: 30px; padding: 40px; box-shadow: 0 30px 80px rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: center; }
+.contact-page-title { font-size: 36px; font-weight: 900; margin: 0 0 30px; text-transform: uppercase; color: #fff; text-align: center; }
+.info-list { display: flex; flex-direction: column; gap: 30px; }
+.info-item { display: flex; gap: 20px; align-items: flex-start; }
+.info-icon { width: 50px; height: 50px; background: rgba(37, 211, 102, 0.1); border: 1px solid rgba(37, 211, 102, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.info-icon svg { width: 24px; height: 24px; stroke: var(--whatsapp); stroke-width: 2; fill: none; }
+.info-content h3 { margin: 0 0 5px; font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+.info-content p, .info-content a { margin: 0; font-size: 18px; font-weight: 700; color: #fff; text-decoration: none; line-height: 1.4; }
+.map-container { width: 100%; height: 400px; border-radius: 30px; overflow: hidden; border: 1px solid var(--border-glass); filter: grayscale(100%) invert(90%); transition: 0.3s; }
+.map-container:hover { filter: none; }
 
 /* СТРАНИЦА ТОВАРА */
 .product-full-card { background: rgba(10, 10, 10, 0.95); border: 1px solid var(--border-glass); border-radius: 30px; padding: 40px; display: flex; gap: 50px; align-items: flex-start; box-shadow: 0 50px 100px rgba(0,0,0,0.8); color: #fff; }
@@ -169,19 +183,6 @@ body {
 .toast.hiding { animation: fadeOut 0.3s ease forwards; }
 @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
 
-/* СТРАНИЦА КОНТАКТОВ */
-.contacts-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 60px; }
-.contact-card { background: var(--dark-glass); backdrop-filter: blur(40px); border: 1px solid var(--border-glass); border-radius: 30px; padding: 40px; box-shadow: 0 30px 80px rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: center; }
-.contact-page-title { font-size: 36px; font-weight: 900; margin: 0 0 30px; text-transform: uppercase; color: #fff; text-align: center; }
-.info-list { display: flex; flex-direction: column; gap: 30px; }
-.info-item { display: flex; gap: 20px; align-items: flex-start; }
-.info-icon { width: 50px; height: 50px; background: rgba(37, 211, 102, 0.1); border: 1px solid rgba(37, 211, 102, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.info-icon svg { width: 24px; height: 24px; stroke: var(--whatsapp); stroke-width: 2; fill: none; }
-.info-content h3 { margin: 0 0 5px; font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-.info-content p, .info-content a { margin: 0; font-size: 18px; font-weight: 700; color: #fff; text-decoration: none; line-height: 1.4; }
-.map-container { width: 100%; height: 400px; border-radius: 30px; overflow: hidden; border: 1px solid var(--border-glass); filter: grayscale(100%) invert(90%); transition: 0.3s; }
-.map-container:hover { filter: none; }
-
 /* ВАЛИДАЦИЯ */
 .form-input.error { border-color: #ff4444 !important; background: rgba(255, 68, 68, 0.1) !important; animation: shake 0.3s ease-in-out; }
 .form-input.success { border-color: #25D366 !important; background: rgba(37, 211, 102, 0.1) !important; }
@@ -193,3 +194,14 @@ body {
 input[type="file"].form-input { padding: 12px; height: auto; display: flex; align-items: center; cursor: pointer; }
 input[type="file"]::file-selector-button { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 8px; margin-right: 15px; cursor: pointer; font-family: 'Manrope', sans-serif; font-weight: 600; transition: 0.3s; }
 input[type="file"]::file-selector-button:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+@media (max-width: 900px) {
+    .product-full-card { flex-direction: column; padding: 20px; }
+    .full-img-wrapper { width: 100%; min-width: auto; min-height: 300px; box-sizing: border-box; }
+    .header-nav { display: none; }
+    #toast-container { top: 110px; right: 10px; }
+    .footer-content { grid-template-columns: 1fr; gap: 30px; }
+    .contacts-wrapper { grid-template-columns: 1fr; }
+    .contact-card { grid-template-columns: 1fr !important; } 
+    .map-container { height: 300px; }
+}

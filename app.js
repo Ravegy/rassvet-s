@@ -37,7 +37,7 @@ function renderLayout() {
             </div>`;
     }
 
-    // МОДАЛКИ
+    // МОДАЛКИ (КОРЗИНА, ЗАКАЗ, LIGHTBOX)
     if (!document.getElementById('cartModal')) {
         const globalComponents = document.createElement('div');
         globalComponents.innerHTML = `
@@ -58,6 +58,10 @@ function renderLayout() {
                         <button type="submit" class="btn-cart-order">Подтвердить заказ</button>
                     </form>
                 </div>
+            </div>
+            <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
+                <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
+                <img class="lightbox-content" id="lightboxImg">
             </div>
             <div id="toast-container"></div>
         `;
@@ -190,6 +194,25 @@ window.showNotification = function(message) {
         toast.classList.add('hiding');
         toast.addEventListener('animationend', () => toast.remove());
     }, 3000);
+};
+
+// ЛАЙТБОКС (ZOOM ФОТО)
+window.openLightbox = function(src) {
+    const lightbox = document.getElementById('lightbox');
+    const img = document.getElementById('lightboxImg');
+    if (lightbox && img) {
+        img.src = src;
+        lightbox.classList.add('active');
+    }
+};
+
+window.closeLightbox = function(e) {
+    const lightbox = document.getElementById('lightbox');
+    // Закрываем, если клик по фону (id="lightbox") или по крестику
+    if (lightbox && (e.target.id === 'lightbox' || e.target.classList.contains('lightbox-close'))) {
+        lightbox.classList.remove('active');
+        setTimeout(() => { document.getElementById('lightboxImg').src = ''; }, 300); // Очистка после анимации
+    }
 };
 
 window.updateCartUI = function() {
@@ -497,8 +520,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.className = 'product-card';
             card.setAttribute('data-product-id', product.id);
+            // Добавлен onclick="openLightbox(...)" для картинки
             card.innerHTML = `
-                <div class="img-wrapper"><img src="${imgUrl}" alt="${product.name}" class="product-img" loading="lazy" onerror="this.src='${SITE_CONFIG.placeholderImage}'"></div>
+                <div class="img-wrapper" onclick="openLightbox('${imgUrl}')"><img src="${imgUrl}" alt="${product.name}" class="product-img" loading="lazy" onerror="this.src='${SITE_CONFIG.placeholderImage}'"></div>
                 <div class="product-sku">АРТ: ${product.sku}</div>
                 <a href="product.html?id=${product.id}" class="product-title">${product.name}</a>
                 <div class="product-price">${priceFmt}</div>
@@ -538,9 +562,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const imgUrl = getImageUrl(p.image);
             const priceFmt = formatPrice(p.price);
             const nameClean = p.name.replace(/'/g, "");
+            // Добавлен onclick="openLightbox(...)"
             const html = `
                 <div class="product-full-card" data-product-id="${p.id}">
-                    <div class="full-img-wrapper"><img src="${imgUrl}" alt="${p.name}" onerror="this.src='${SITE_CONFIG.placeholderImage}'"></div>
+                    <div class="full-img-wrapper" onclick="openLightbox('${imgUrl}')"><img src="${imgUrl}" alt="${p.name}" onerror="this.src='${SITE_CONFIG.placeholderImage}'"></div>
                     <div class="full-info">
                         <div class="full-sku">АРТИКУЛ: ${p.sku}</div>
                         <h1 class="full-title">${p.name}</h1>

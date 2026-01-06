@@ -5,11 +5,14 @@ let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || [];
 
 // 1. РЕНДЕРИНГ ИНТЕРФЕЙСА
 function renderLayout() {
-    const isContacts = window.location.pathname.includes('contacts.html');
-    const isCatalog = window.location.pathname.includes('index.html') || window.location.pathname.endsWith('/');
-    const c = SITE_CONFIG.contacts; // Сокращение для удобства
+    // Умная подсветка активного пункта меню
+    const path = window.location.pathname;
+    const isActive = (page) => {
+        if (page === 'index.html' && (path.endsWith('/') || path.includes('index.html'))) return 'active';
+        return path.includes(page) ? 'active' : '';
+    };
 
-    // Хелпер для скрытия пустых ссылок
+    const c = SITE_CONFIG.contacts; 
     const showIf = (link) => link ? 'flex' : 'none';
 
     // ШАПКА
@@ -23,10 +26,10 @@ function renderLayout() {
                 </button>
                 <a href="index.html" class="logo-text"><h1>РАССВЕТ-С</h1></a>
                 <nav class="header-nav" id="headerNav">
-                    <a href="index.html" class="nav-link ${isCatalog ? 'active' : ''}">Каталог</a>
-                    <a href="#" class="nav-link">О компании</a>
-                    <a href="#" class="nav-link">Доставка и оплата</a>
-                    <a href="contacts.html" class="nav-link ${isContacts ? 'active' : ''}">Контакты</a>
+                    <a href="index.html" class="nav-link ${isActive('index.html')}">Каталог</a>
+                    <a href="about.html" class="nav-link ${isActive('about.html')}">О компании</a>
+                    <a href="delivery.html" class="nav-link ${isActive('delivery.html')}">Доставка</a>
+                    <a href="contacts.html" class="nav-link ${isActive('contacts.html')}">Контакты</a>
                 </nav>
                 <div class="header-contacts">
                     <div id="cartWidget" class="cart-widget">Корзина: 0</div>
@@ -61,7 +64,7 @@ function renderLayout() {
         document.body.appendChild(globalComponents);
     }
 
-    // ПОДВАЛ (Динамический)
+    // ПОДВАЛ
     const footerEl = document.querySelector('footer');
     if (footerEl) {
         footerEl.className = 'footer';
@@ -82,9 +85,10 @@ function renderLayout() {
                         <h4>Навигация</h4>
                         <nav class="footer-nav">
                             <a href="index.html">Каталог</a>
-                            <a href="#">О компании</a>
-                            <a href="#">Доставка и оплата</a>
+                            <a href="about.html">О компании</a>
+                            <a href="delivery.html">Доставка и оплата</a>
                             <a href="contacts.html">Контакты</a>
+                            <a href="policy.html">Политика конфиденциальности</a>
                         </nav>
                     </div>
                     <div class="footer-col">

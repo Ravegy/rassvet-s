@@ -366,23 +366,33 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     .catalog-controls { flex-direction: column; gap: 12px; margin-bottom: 20px; }
     .search-wrapper, .sort-wrapper { width: 100%; }
 
-    /* --- ФИКС КАРТОЧКИ ТОВАРА ДЛЯ МОБИЛЬНЫХ --- */
+    /* --- ФИКС КАРТОЧКИ ТОВАРА ДЛЯ МОБИЛЬНЫХ (ЖЕСТКИЙ) --- */
     .product-full-card { 
         flex-direction: column; 
-        padding: 15px; /* Уменьшил паддинг, чтобы влезло */
-        width: 100%; 
-        box-sizing: border-box; 
-        overflow: hidden; /* Обрезаем всё, что торчит */
+        padding: 15px !important; /* Уменьшил паддинг */
+        width: 100% !important; 
+        box-sizing: border-box !important; 
+        overflow: hidden; 
     }
+    
     .full-img-wrapper { 
-        width: 100%; 
-        min-width: 0; /* ВАЖНО: сбрасываем минимальную ширину */
-        height: auto; 
-        min-height: auto;
-        margin-bottom: 20px; 
-        padding: 10px; /* Меньше паддинг вокруг фото */
-        box-sizing: border-box;
+        width: 100% !important; 
+        min-width: 0 !important; /* Сбрасываем ограничение в 300px */
+        height: auto !important; 
+        min-height: 250px !important; /* Уменьшаем минимальную высоту */
+        margin-bottom: 20px !important; 
+        padding: 10px !important; 
+        box-sizing: border-box !important;
     }
+    
+    .full-img-wrapper img {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        object-fit: contain !important; /* Картинка вписывается целиком */
+        display: block;
+    }
+    
     .full-title { font-size: 24px; }
     .full-actions-group { flex-direction: column; width: 100%; }
     .btn-detail, .btn-qty-grid { width: 100%; padding: 18px 0; }
@@ -402,7 +412,7 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     .contact-page-title { font-size: 24px; word-break: break-word; }
 
     /* --- АДАПТИВ НОВЫХ СТРАНИЦ --- */
-    .content-padding { padding: 20px; } /* Уменьшил паддинги на мобильном */
+    .content-padding { padding: 20px; }
     .card-padding { padding: 20px; }
     .section-header { font-size: 22px; padding-left: 15px; border-width: 3px; }
     
@@ -430,7 +440,7 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     .benefit-content p { font-size: 0.85rem; }
 
     /* Policy */
-    .policy-card { padding: 20px; } /* Было 25, стало 20 - больше места для текста */
+    .policy-card { padding: 20px; }
     .policy-text { text-align: left; }
     .policy-title { font-size: 18px; padding-left: 15px; margin-top: 30px; }
 }

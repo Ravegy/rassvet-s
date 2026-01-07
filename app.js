@@ -1,11 +1,6 @@
-// ==========================================
-// ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ И ФУНКЦИИ
-// ==========================================
 let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || [];
 
-// 1. РЕНДЕРИНГ ИНТЕРФЕЙСА
 function renderLayout() {
-    // Умная подсветка активного пункта меню
     const path = window.location.pathname;
     const isActive = (page) => {
         if (page === 'index.html' && (path.endsWith('/') || path.includes('index.html'))) return 'active';
@@ -15,7 +10,6 @@ function renderLayout() {
     const c = SITE_CONFIG.contacts; 
     const showIf = (link) => link ? 'flex' : 'none';
 
-    // ШАПКА
     const headerEl = document.querySelector('header');
     if (headerEl) {
         headerEl.className = 'header';
@@ -37,7 +31,6 @@ function renderLayout() {
             </div>`;
     }
 
-    // МОДАЛКИ (КОРЗИНА, ЗАКАЗ, LIGHTBOX)
     if (!document.getElementById('cartModal')) {
         const globalComponents = document.createElement('div');
         globalComponents.innerHTML = `
@@ -68,7 +61,6 @@ function renderLayout() {
         document.body.appendChild(globalComponents);
     }
 
-    // ПОДВАЛ
     const footerEl = document.querySelector('footer');
     if (footerEl) {
         footerEl.className = 'footer';
@@ -120,7 +112,6 @@ function renderLayout() {
     }
 }
 
-// 2. УНИВЕРСАЛЬНЫЙ ЗАГРУЗЧИК ДАННЫХ
 async function getCatalogData() {
     const cacheKey = 'rassvet_v7_data'; 
     const timeKey = 'rassvet_v7_time';
@@ -165,7 +156,6 @@ async function getCatalogData() {
     }
 }
 
-// 3. ХЕЛПЕРЫ
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -196,7 +186,6 @@ window.showNotification = function(message) {
     }, 3000);
 };
 
-// ЛАЙТБОКС (ZOOM ФОТО)
 window.openLightbox = function(src) {
     const lightbox = document.getElementById('lightbox');
     const img = document.getElementById('lightboxImg');
@@ -208,10 +197,9 @@ window.openLightbox = function(src) {
 
 window.closeLightbox = function(e) {
     const lightbox = document.getElementById('lightbox');
-    // Закрываем, если клик по фону (id="lightbox") или по крестику
     if (lightbox && (e.target.id === 'lightbox' || e.target.classList.contains('lightbox-close'))) {
         lightbox.classList.remove('active');
-        setTimeout(() => { document.getElementById('lightboxImg').src = ''; }, 300); // Очистка после анимации
+        setTimeout(() => { document.getElementById('lightboxImg').src = ''; }, 300);
     }
 };
 
@@ -346,7 +334,6 @@ function getImageUrl(imagePath) {
     return `images/parts/${cleanName}`;
 }
 
-// 4. ИНИЦИАЛИЗАЦИЯ (DOM READY)
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof SITE_CONFIG === 'undefined') return;
     
@@ -431,9 +418,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // --- РОУТЕР ПО СТРАНИЦАМ ---
-
-    // КАТАЛОГ
     const catalogGrid = document.getElementById('catalog');
     if(catalogGrid) {
         let allProducts = [];
@@ -457,7 +441,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 initCategories(allProducts);
                 renderBatch(true);
 
-                // ЛОГИКА СОРТИРОВКИ
                 if (sortSelect) {
                     sortSelect.addEventListener('change', () => {
                         const sortType = sortSelect.value;
@@ -510,7 +493,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if(loadMoreBtn) loadMoreBtn.addEventListener('click', () => renderBatch());
-        // Добавляем DEBOUNCE к поиску
         if(searchInput) searchInput.addEventListener('input', debounce(() => renderBatch(true), 300));
 
         function createCard(product) {
@@ -520,7 +502,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.className = 'product-card';
             card.setAttribute('data-product-id', product.id);
-            // Добавлен onclick="openLightbox(...)" для картинки
             card.innerHTML = `
                 <div class="img-wrapper" onclick="openLightbox('${imgUrl}')"><img src="${imgUrl}" alt="${product.name}" class="product-img" loading="lazy" onerror="this.src='${SITE_CONFIG.placeholderImage}'"></div>
                 <div class="product-sku">АРТ: ${product.sku}</div>
@@ -536,7 +517,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // СТРАНИЦА ТОВАРА
     const productDetail = document.getElementById('productDetail');
     if(productDetail) {
         const params = new URLSearchParams(window.location.search);
@@ -551,7 +531,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const product = products.find(p => p.id === id);
                 if (product) { 
                     renderProduct(product); 
-                    // МЕНЯЕМ ЗАГОЛОВОК СТРАНИЦЫ
                     document.title = `${product.name} | РАССВЕТ-С`;
                 } 
                 else { productDetail.innerHTML = `<h2 style="text-align:center; color:#fff;">Товар с ID ${id} не найден в базе</h2>`; }
@@ -562,7 +541,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const imgUrl = getImageUrl(p.image);
             const priceFmt = formatPrice(p.price);
             const nameClean = p.name.replace(/'/g, "");
-            // Добавлен onclick="openLightbox(...)"
             const html = `
                 <div class="product-full-card" data-product-id="${p.id}">
                     <div class="full-img-wrapper" onclick="openLightbox('${imgUrl}')"><img src="${imgUrl}" alt="${p.name}" onerror="this.src='${SITE_CONFIG.placeholderImage}'"></div>
@@ -583,7 +561,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // КОНТАКТЫ
     const contactForm = document.getElementById('contactPageForm');
     if(contactForm) {
         const nameInput = document.getElementById('contactName');

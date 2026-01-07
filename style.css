@@ -42,10 +42,86 @@ body {
 .cart-widget { font-size: 12px; font-weight: 700; color: var(--whatsapp); cursor: pointer; text-transform: uppercase; background: rgba(37, 211, 102, 0.1); padding: 6px 14px; border-radius: 20px; transition: 0.3s; border: 1px solid rgba(37, 211, 102, 0.2); }
 .cart-widget:hover { background: var(--whatsapp); color: #fff; }
 
-/* --- HERO & CATALOG --- */
-/* Обновленный Hero - убраны лишние отступы, так как текст переехал */
+/* --- СЛАЙДЕР С ТЕХНИКОЙ (БЕЗ ПРОБЕЛОВ) --- */
+
+/* Обертка в стиле каталога (Стекло) */
+.slider-interface {
+    background: var(--dark-glass);
+    backdrop-filter: blur(40px);
+    border: 1px solid var(--border-glass);
+    border-radius: 30px;
+    padding: 10px; /* Небольшой отступ внутри рамки */
+    margin-top: 40px; /* ОТСТУП ОТ ШАПКИ */
+    margin-bottom: 40px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+    overflow: hidden;
+}
+
+/* Сам движущийся блок */
+.tech-slider {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 20px; /* Внутреннее закругление ОБЩЕГО блока */
+}
+
+.slider-track {
+    display: flex;
+    width: calc(300px * 12);
+    animation: scroll 40s linear infinite;
+}
+
+.slide {
+    width: 300px;
+    height: 200px;
+    flex-shrink: 0;
+    padding: 0; /* УБРАЛИ ОТСТУПЫ (было 0 10px) */
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+}
+
+.slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0; /* УБРАЛИ ЗАКРУГЛЕНИЯ у картинок, чтобы стыковались */
+    filter: brightness(0.8) grayscale(20%);
+    transition: 0.3s;
+    /* Убрали тень, чтобы не было линий на стыках */
+    box-shadow: none; 
+}
+
+.tech-slider:hover .slide img {
+    filter: brightness(1) grayscale(0%);
+}
+
+@keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(calc(-300px * 6)); }
+}
+
+/* Затемнения (Градиенты по краям) */
+.slider-fade-left, .slider-fade-right {
+    position: absolute;
+    top: 0;
+    width: 100px;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+.slider-fade-left { 
+    left: 0; 
+    background: linear-gradient(to right, rgba(20,20,20,1), transparent); 
+}
+.slider-fade-right { 
+    right: 0; 
+    background: linear-gradient(to left, rgba(20,20,20,1), transparent); 
+}
+
+/* --- КАТАЛОГ --- */
 .hero { padding: 20px 0 0 0; text-align: center; min-height: 0; }
-/* Старые стили Hero оставляем на всякий случай, но они не используются если HTML чист */
 .hero-badge { background: rgba(255,255,255,0.1); border: 1px solid var(--border-glass); display: inline-block; padding: 8px 18px; font-size: 12px; font-weight: 700; margin-bottom: 20px; border-radius: 30px; color: #ddd; text-transform: uppercase; letter-spacing: 1px; }
 .hero h2 { font-size: 42px; font-weight: 900; margin: 0; letter-spacing: 1px; text-transform: uppercase; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
 
@@ -295,6 +371,16 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
         font-size: 24px;
         margin-bottom: 25px;
         line-height: 1.3;
+    }
+
+    /* Адаптив слайдера техники */
+    .slider-interface { padding: 5px; margin-top: 20px; }
+    .tech-slider { height: 160px; }
+    .slide { width: 220px; height: 160px; }
+    .slider-track { width: calc(220px * 12); }
+    @keyframes scroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(calc(-220px * 6)); }
     }
 
     /* ШАПКА МОБИЛЬНАЯ */

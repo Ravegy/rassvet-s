@@ -9,9 +9,9 @@
     <link rel="icon" href="favicon.png" type="image/png">
     
     <style>
-        /* --- ПЕРЕОПРЕДЕЛЯЕМ ГЛОБАЛЬНЫЙ СИНИЙ ЦВЕТ НА ЗЕЛЕНЫЙ --- */
+        /* --- ЛОКАЛЬНЫЕ СТИЛИ (Зеленая тема для контента) --- */
         :root {
-            --accent: #25D366; 
+            /* Глобальный --accent (синий) берется из style.css, мы его НЕ трогаем, чтобы линия в меню была синей */
             --brand-green: #25D366; 
         }
 
@@ -20,7 +20,7 @@
             line-height: 1.8;
             margin-bottom: 20px;
             font-size: 15px;
-            text-align: justify; /* Ровные края текста */
+            text-align: justify;
             width: 100%; /* Текст на всю ширину */
         }
 
@@ -121,7 +121,7 @@
             line-height: 1.4;
         }
 
-        /* Кнопка скачивания */
+        /* Кнопка скачивания (Зеленая при наведении) */
         .btn-download {
             display: inline-block;
             background: rgba(255, 255, 255, 0.05);
@@ -144,7 +144,7 @@
             box-shadow: 0 5px 20px rgba(37, 211, 102, 0.3);
         }
 
-        /* Информационные плашки */
+        /* Информационные плашки (Зеленые) */
         .info-badge {
             background: rgba(37, 211, 102, 0.05);
             border: 1px solid rgba(37, 211, 102, 0.2);

@@ -301,6 +301,16 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
 .info-badge { background: rgba(37, 211, 102, 0.05); border: 1px solid rgba(37, 211, 102, 0.2); border-radius: 16px; padding: 20px; display: flex; gap: 15px; align-items: center; margin-bottom: 20px; }
 .info-badge svg { flex-shrink: 0; width: 28px; height: 28px; stroke: var(--brand-green); }
 
+/* --- Секция преимуществ (Зеленые блоки) --- */
+.delivery-benefits { padding: 20px 0 60px; width: 100%; }
+.benefits-grid { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 800px; margin: 0 auto; }
+.benefit-card { background-color: rgba(34, 197, 94, 0.05); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 24px; display: flex; align-items: flex-start; gap: 20px; transition: transform 0.3s ease; width: 100%; box-sizing: border-box; }
+.benefit-card:hover { transform: translateY(-2px); border-color: rgba(34, 197, 94, 0.6); }
+.benefit-icon { flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; }
+.benefit-content h3 { color: #fff; font-size: 1.1rem; font-weight: 700; margin: 0 0 8px 0; }
+.benefit-content p { color: #a3a3a3; font-size: 0.95rem; line-height: 1.5; margin: 0; }
+
+
 /* POLICY.HTML СТИЛИ */
 .policy-card { background: rgba(20, 20, 20, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 60px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
 .policy-text { color: #ccc; line-height: 1.8; font-size: 15px; text-align: justify; }
@@ -395,6 +405,14 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     .req-value { display: block; text-align: left; }
     .req-table td { display: block; border: none; padding: 2px 0; }
     .req-table tr { border-bottom: 1px solid rgba(255,255,255,0.1); display: block; padding: 10px 0; }
+    
+    /* Delivery Benefits Mobile Fix */
+    .benefits-grid { align-items: stretch; margin-left: 0; margin-right: 0; }
+    .benefit-card { margin: 0; flex-direction: row; align-items: center; text-align: left; }
+    .benefit-icon { width: 40px; height: 40px; }
+    .benefit-icon svg { width: 28px; height: 28px; }
+    .benefit-content h3 { font-size: 1rem; }
+    .benefit-content p { font-size: 0.85rem; }
 
     /* Policy */
     .policy-card { padding: 20px; } /* Было 25, стало 20 - больше места для текста */

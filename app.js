@@ -28,7 +28,7 @@ function renderLayout() {
                 <nav class="header-nav" id="headerNav">
                     <a href="index.html" class="nav-link ${isActive('index.html')}">Каталог</a>
                     <a href="about.html" class="nav-link ${isActive('about.html')}">О компании</a>
-                    <a href="delivery.html" class="nav-link ${isActive('delivery.html')}">Доставка</a>
+                    <a href="delivery.html" class="nav-link ${isActive('delivery.html')}">Доставка и оплата</a>
                     <a href="contacts.html" class="nav-link ${isActive('contacts.html')}">Контакты</a>
                 </nav>
                 <div class="header-contacts">

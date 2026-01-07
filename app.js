@@ -5,13 +5,11 @@ let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || [];
 
 // 1. РЕНДЕРИНГ ИНТЕРФЕЙСА
 function renderLayout() {
-    // Умная подсветка активного пункта меню
     const path = window.location.pathname;
     const isActive = (page) => {
         if (page === 'index.html' && (path.endsWith('/') || path.includes('index.html'))) return 'active';
         return path.includes(page) ? 'active' : '';
     };
-
     const c = SITE_CONFIG.contacts; 
     const showIf = (link) => link ? 'flex' : 'none';
 
@@ -22,9 +20,15 @@ function renderLayout() {
         headerEl.innerHTML = `
             <div class="container header-main">
                 <button class="menu-btn" id="menuBtn">
-                    <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    <svg viewBox="0 0 24 24" stroke="white" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                 </button>
                 <a href="index.html" class="logo-text"><h1>РАССВЕТ-С</h1></a>
+                
+                <div id="cityBadge" class="geo-badge" style="display:none;">
+                    <svg class="geo-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <span id="cityName">Определяем...</span>
+                </div>
+
                 <nav class="header-nav" id="headerNav">
                     <a href="index.html" class="nav-link ${isActive('index.html')}">Каталог</a>
                     <a href="about.html" class="nav-link ${isActive('about.html')}">О компании</a>
@@ -37,7 +41,7 @@ function renderLayout() {
             </div>`;
     }
 
-    // МОДАЛКИ (КОРЗИНА, ЗАКАЗ, LIGHTBOX)
+    // МОДАЛКИ
     if (!document.getElementById('cartModal')) {
         const globalComponents = document.createElement('div');
         globalComponents.innerHTML = `
@@ -120,7 +124,40 @@ function renderLayout() {
     }
 }
 
-// 2. УНИВЕРСАЛЬНЫЙ ЗАГРУЗЧИК ДАННЫХ
+// 2. ФУНКЦИЯ ОПРЕДЕЛЕНИЯ ГОРОДА
+async function detectCity() {
+    try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        const cityBadge = document.getElementById('cityBadge');
+        const cityName = document.getElementById('cityName');
+        
+        if (cityBadge && cityName && data.city) {
+            cityName.textContent = data.city;
+            cityBadge.style.display = 'flex'; // Показываем бейдж
+        }
+    } catch (e) {
+        console.log('Не удалось определить город');
+    }
+}
+
+// 3. ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ ВИДА (GRID/LIST)
+window.switchView = function(view) {
+    const grid = document.getElementById('catalog');
+    const btns = document.querySelectorAll('.view-btn');
+    
+    if (view === 'list') {
+        grid.classList.add('list-view');
+        btns[0].classList.remove('active');
+        btns[1].classList.add('active');
+    } else {
+        grid.classList.remove('list-view');
+        btns[1].classList.remove('active');
+        btns[0].classList.add('active');
+    }
+};
+
+// 4. ЗАГРУЗКА И КАТАЛОГ
 async function getCatalogData() {
     const cacheKey = 'rassvet_v7_data'; 
     const timeKey = 'rassvet_v7_time';
@@ -292,30 +329,6 @@ window.removeCartItem = function(index) {
     window.updateCartUI();
 };
 
-function validateInput(input, type) {
-    const value = input.value.trim();
-    let isValid = true;
-    let msg = '';
-    input.classList.remove('error', 'success');
-    const parent = input.parentElement;
-    let errorDiv = parent.querySelector('.error-message');
-    if (!errorDiv) { errorDiv = document.createElement('div'); errorDiv.className = 'error-message'; parent.appendChild(errorDiv); }
-    parent.classList.remove('has-error');
-
-    if (type === 'name') {
-        if (value.length < 2) { isValid = false; msg = 'Имя слишком короткое'; }
-        else if (/[^a-zA-Zа-яА-ЯёЁ\s-]/.test(value)) { isValid = false; msg = 'Только буквы'; }
-    } else if (type === 'phone') {
-        if (value.length < 18) { isValid = false; msg = 'Введите полный номер'; }
-    } else if (type === 'email') {
-        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) { isValid = false; msg = 'Некорректный Email'; }
-    }
-
-    if (!isValid) { input.classList.add('error'); parent.classList.add('has-error'); errorDiv.textContent = msg; }
-    else if (value.length > 0) { input.classList.add('success'); }
-    return isValid;
-}
-
 function parseCSV(text) { 
     const result = []; let row = []; let inQuote = false; let cell = ''; 
     for (let i = 0; i < text.length; i++) { 
@@ -346,13 +359,66 @@ function getImageUrl(imagePath) {
     return `images/parts/${cleanName}`;
 }
 
-// 4. ИНИЦИАЛИЗАЦИЯ (DOM READY)
+// 5. ИНИЦИАЛИЗАЦИЯ (DOM READY)
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof SITE_CONFIG === 'undefined') return;
     
     renderLayout();
     window.updateCartUI();
+    detectCity(); // ЗАПУСКАЕМ ОПРЕДЕЛЕНИЕ ГОРОДА
 
+    // КУРСОР ЛОГИКА
+    const cursor = document.querySelector('.custom-cursor');
+    const follower = document.querySelector('.cursor-follower');
+    
+    if (cursor && window.innerWidth > 992) {
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            setTimeout(() => {
+                follower.style.left = e.clientX + 'px';
+                follower.style.top = e.clientY + 'px';
+            }, 50);
+        });
+
+        document.addEventListener('mouseover', (e) => {
+            if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.classList.contains('cursor-pointer') || e.target.closest('a') || e.target.closest('button')) {
+                document.body.classList.add('hovering');
+            } else {
+                document.body.classList.remove('hovering');
+            }
+        });
+    }
+
+    // КНОПКА НАВЕРХ
+    const btnUp = document.getElementById('btnUp');
+    if (btnUp) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                btnUp.classList.add('show');
+            } else {
+                btnUp.classList.remove('show');
+            }
+        });
+    }
+
+    // БЛОКИРОВКА КОПИРОВАНИЯ
+    document.addEventListener('contextmenu', event => {
+        event.preventDefault();
+        window.showNotification('Копирование контента запрещено');
+    });
+    
+    document.addEventListener('keydown', event => {
+        if (event.ctrlKey && (event.key === 'c' || event.key === 'u')) {
+            event.preventDefault();
+            window.showNotification('Копирование запрещено');
+        }
+    });
+    
+    document.body.classList.add('no-select'); // Добавляем CSS класс
+
+    // ОБРАБОТЧИКИ МЕНЮ
     const menuBtn = document.getElementById('menuBtn');
     const headerNav = document.getElementById('headerNav');
 
@@ -375,65 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const modal = document.getElementById('cartModal');
-    const widget = document.getElementById('cartWidget');
-    const close = document.getElementById('closeCart');
-    const orderBtn = document.getElementById('cartOrderBtn');
-    const orderModal = document.getElementById('orderModal');
-    const closeOrder = document.getElementById('closeOrder');
-    
-    if(widget) widget.onclick = () => { modal.style.display = 'flex'; window.updateCartUI(); };
-    if(close) close.onclick = () => { modal.style.display = 'none'; };
-    if(closeOrder) closeOrder.onclick = () => { orderModal.style.display = 'none'; };
-    if(orderBtn) {
-        orderBtn.onclick = () => {
-            if (cart.length === 0) { window.showNotification('Корзина пуста'); return; }
-            modal.style.display = 'none';
-            orderModal.style.display = 'flex';
-        };
-    }
-    window.onclick = (e) => { 
-        if(e.target == modal) modal.style.display = 'none'; 
-        if(e.target == orderModal) orderModal.style.display = 'none';
-    };
-
-    const orderForm = document.getElementById('orderForm');
-    if(orderForm) {
-        const phoneInput = document.getElementById('orderPhone');
-        const nameInput = document.getElementById('orderName');
-        const emailInput = document.getElementById('orderEmail');
-        
-        if (phoneInput && window.IMask) IMask(phoneInput, { mask: '+{7} (000) 000-00-00' });
-        if(nameInput) nameInput.addEventListener('input', () => validateInput(nameInput, 'name'));
-        if(phoneInput) phoneInput.addEventListener('input', () => validateInput(phoneInput, 'phone'));
-        if(emailInput) emailInput.addEventListener('input', () => validateInput(emailInput, 'email'));
-
-        orderForm.onsubmit = (e) => {
-            e.preventDefault();
-            if (!validateInput(nameInput, 'name') || !validateInput(phoneInput, 'phone') || !validateInput(emailInput, 'email')) return;
-            
-            const name = nameInput.value;
-            const phone = phoneInput.value;
-            const email = emailInput.value;
-
-            let message = `<b>Новый заказ с сайта!</b>\n<b>Имя:</b> ${name}\n<b>Телефон:</b> ${phone}\n`;
-            if(email) message += `<b>Email:</b> ${email}\n`;
-            message += `\n<b>Состав заказа:</b>\n`;
-            let totalMoney = 0;
-            cart.forEach(item => {
-                 const priceNum = parsePrice(item.price);
-                 totalMoney += priceNum * item.quantity;
-                 message += `- ${item.sku} ${item.name} (x${item.quantity})\n`;
-            });
-            message += `\n<b>Сумма: ${new Intl.NumberFormat('ru-RU').format(totalMoney)} ₽</b>`;
-
-            sendOrderToTelegram(message, orderForm);
-        };
-    }
-
-    // --- РОУТЕР ПО СТРАНИЦАМ ---
-
-    // КАТАЛОГ
+    // ИНИЦИАЛИЗАЦИЯ КАТАЛОГА
     const catalogGrid = document.getElementById('catalog');
     if(catalogGrid) {
         let allProducts = [];

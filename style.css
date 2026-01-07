@@ -300,6 +300,61 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
 .policy-link { color: var(--brand-green) !important; text-decoration: none; border-bottom: 1px solid rgba(37, 211, 102, 0.3); transition: 0.3s; }
 .policy-link:hover { color: #fff !important; border-color: #fff; }
 
+/* =========================================
+   ГАЛЕРЕЯ НА СТРАНИЦЕ ТОВАРА
+   ========================================= */
+.gallery-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.gallery-thumbs {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto; /* Горизонтальная прокрутка, если много фото */
+    padding-bottom: 5px;
+}
+
+.gallery-thumb {
+    width: 70px;
+    height: 70px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: 0.3s;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-thumb:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.gallery-thumb img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* Скроллбар для миниатюр */
+.gallery-thumbs::-webkit-scrollbar {
+    height: 6px;
+}
+.gallery-thumbs::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+}
+.gallery-thumbs::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+}
+
 @media (max-width: 900px) {
     .container { padding: 0 15px; }
     body { font-size: 15px; }

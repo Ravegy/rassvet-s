@@ -366,8 +366,23 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     .catalog-controls { flex-direction: column; gap: 12px; margin-bottom: 20px; }
     .search-wrapper, .sort-wrapper { width: 100%; }
 
-    .product-full-card { flex-direction: column; padding: 20px; }
-    .full-img-wrapper { width: 100%; height: auto; min-height: 250px; margin-bottom: 20px; min-width: auto; }
+    /* --- ФИКС КАРТОЧКИ ТОВАРА ДЛЯ МОБИЛЬНЫХ --- */
+    .product-full-card { 
+        flex-direction: column; 
+        padding: 15px; /* Уменьшил паддинг, чтобы влезло */
+        width: 100%; 
+        box-sizing: border-box; 
+        overflow: hidden; /* Обрезаем всё, что торчит */
+    }
+    .full-img-wrapper { 
+        width: 100%; 
+        min-width: 0; /* ВАЖНО: сбрасываем минимальную ширину */
+        height: auto; 
+        min-height: auto;
+        margin-bottom: 20px; 
+        padding: 10px; /* Меньше паддинг вокруг фото */
+        box-sizing: border-box;
+    }
     .full-title { font-size: 24px; }
     .full-actions-group { flex-direction: column; width: 100%; }
     .btn-detail, .btn-qty-grid { width: 100%; padding: 18px 0; }

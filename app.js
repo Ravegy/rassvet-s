@@ -1,4 +1,4 @@
-/* app.js — Основная логика сайта */
+/* app.js — Исправленная версия с Шапкой и Подвалом */
 
 // Глобальные переменные
 let allProducts = [];
@@ -10,112 +10,225 @@ const catalogGrid = document.getElementById('catalog');
 const searchInput = document.getElementById('searchInput');
 const sortSelect = document.getElementById('sortSelect');
 const categoryContainer = document.getElementById('categoryFilter');
-const cartCountElement = document.querySelector('.cart-widget'); // Если есть счетчик в шапке
 const loadMoreBtn = document.getElementById('loadMoreBtn');
 const loadMoreContainer = document.getElementById('loadMoreContainer');
 
 // --- 1. ИНИЦИАЛИЗАЦИЯ ---
 document.addEventListener('DOMContentLoaded', () => {
+    // Сначала рисуем шапку и подвал, чтобы они появились
+    renderHeader();
+    renderFooter();
+    
+    // Потом грузим товары
     fetchProducts();
     updateCartCounter();
     
     // Слушатели событий
-    searchInput.addEventListener('input', (e) => filterProducts(e.target.value));
-    sortSelect.addEventListener('change', () => filterProducts(searchInput.value));
+    if(searchInput) searchInput.addEventListener('input', (e) => filterProducts(e.target.value));
+    if(sortSelect) sortSelect.addEventListener('change', () => filterProducts(searchInput.value));
     
-    // Инициализация модального окна корзины (если кнопки есть в HTML)
-    document.querySelector('.cart-widget')?.addEventListener('click', openCart);
-    document.querySelector('.close-cart')?.addEventListener('click', closeCart);
+    // Инициализация модального окна корзины (вешаем события после рендера шапки)
+    setTimeout(() => {
+        const cartWidget = document.querySelector('.cart-widget');
+        if(cartWidget) cartWidget.addEventListener('click', openCart);
+        
+        const closeBtn = document.querySelector('.close-cart');
+        if(closeBtn) closeBtn.addEventListener('click', closeCart);
+        
+        // Мобильное меню
+        const menuBtn = document.querySelector('.menu-btn');
+        const nav = document.querySelector('.header-nav');
+        if(menuBtn && nav) {
+            menuBtn.addEventListener('click', () => {
+                nav.classList.toggle('active');
+            });
+        }
+    }, 500); // Небольшая задержка, чтобы элементы успели нарисоваться
 });
 
-// --- 2. ЗАГРУЗКА ДАННЫХ ---
+// --- 2. РЕНДЕР ШАПКИ (ВЕРНУЛ ЭТУ ФУНКЦИЮ) ---
+function renderHeader() {
+    const header = document.querySelector('.header');
+    if (!header) return;
+
+    header.innerHTML = `
+        <div class="container">
+            <div class="header-main">
+                <a href="index.html" class="logo-text">
+                    <h1>РАССВЕТ-С</h1>
+                </a>
+
+                <nav class="header-nav">
+                    <a href="index.html" class="nav-link active">Каталог</a>
+                    <a href="#" class="nav-link">О компании</a>
+                    <a href="#" class="nav-link">Доставка и оплата</a>
+                    <a href="#" class="nav-link">Контакты</a>
+                </nav>
+
+                <div class="header-contacts">
+                    <div class="cart-widget">КОРЗИНА: 0</div>
+                    <button class="menu-btn">
+                        <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="cart-modal">
+            <div class="cart-content">
+                <div class="cart-header">
+                    <h2>Ваш заказ</h2>
+                    <span class="close-cart">&times;</span>
+                </div>
+                <div class="cart-items"></div>
+                <div class="cart-footer">
+                    <div class="cart-total">Итого: 0 ₽</div>
+                    <form class="order-form">
+                        <div class="form-group">
+                            <input type="text" id="orderName" class="form-input" placeholder="Ваше имя" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" id="orderPhone" class="form-input" placeholder="Телефон" required>
+                        </div>
+                        <button type="submit" class="btn-cart-order">Оформить заказ в WhatsApp</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// --- 3. РЕНДЕР ПОДВАЛА (ВЕРНУЛ ЭТУ ФУНКЦИЮ) ---
+function renderFooter() {
+    const footer = document.querySelector('.footer');
+    if (!footer) return;
+
+    footer.innerHTML = `
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h4>О компании</h4>
+                    <p>ООО «РАССВЕТ-С» — надежный поставщик запчастей для лесозаготовительной техники Komatsu, Ponsse, John Deere.</p>
+                    <p>Работаем по всей России. Склад в Санкт-Петербурге.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Навигация</h4>
+                    <nav class="footer-nav">
+                        <a href="index.html">Каталог запчастей</a>
+                        <a href="#">Условия оплаты</a>
+                        <a href="#">Доставка</a>
+                        <a href="#">Контакты</a>
+                    </nav>
+                </div>
+                <div class="footer-col">
+                    <h4>Контакты</h4>
+                    <div class="footer-contacts-list">
+                        <div class="footer-contact-item">
+                            <div class="footer-icon">
+                                <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                            </div>
+                            <div class="footer-contact-info">
+                                <span class="footer-contact-label">Телефон</span>
+                                <a href="tel:+79991234567" class="footer-phone-big">+7 (999) 123-45-67</a>
+                            </div>
+                        </div>
+                        <div class="footer-socials">
+                            <a href="#" class="social-btn whatsapp"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></a>
+                            <a href="#" class="social-btn telegram"><svg viewBox="0 0 24 24"><path d="M21.1 5L2.6 12l5.8 2.1 2.3 7 1.8-4.5 7.6-6.8-6 7.4 5.3 4L21.8 5z"/></svg></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="footer-disclaimer">© 2013-2026 ООО «РАССВЕТ-С». Все права защищены. Не является публичной офертой.</p>
+            </div>
+        </div>
+    `;
+}
+
+// --- 4. ЗАГРУЗКА ДАННЫХ (КАТАЛОГ) ---
 async function fetchProducts() {
     try {
-        // Берем URL из config.js
+        // ПРОВЕРКА: Есть ли конфиг?
+        if (typeof CONFIG === 'undefined' || !CONFIG.GOOGLE_SHEET_URL) {
+            throw new Error('CONFIG не найден или нет ссылки на таблицу');
+        }
+
         const response = await fetch(CONFIG.GOOGLE_SHEET_URL);
+        if (!response.ok) throw new Error('Ошибка сети');
+        
         const data = await response.text();
         allProducts = parseCSV(data);
         
-        // Инициализируем категории и показываем товары
         renderCategories();
         renderProducts(allProducts);
         
     } catch (error) {
         console.error('Ошибка загрузки:', error);
-        catalogGrid.innerHTML = '<div class="error-text">Ошибка загрузки каталога. Попробуйте позже.</div>';
+        // Если каталог есть в HTML, пишем ошибку туда
+        if (catalogGrid) {
+            catalogGrid.innerHTML = `
+                <div class="error-text" style="grid-column: 1/-1; text-align: center; color: #ff4444;">
+                    ОШИБКА ЗАГРУЗКИ КАТАЛОГА.<br>
+                    <span style="font-size: 14px; color: #888;">Проверьте файл config.js и ссылку на таблицу.</span>
+                </div>
+            `;
+        }
     }
 }
 
-// Парсер CSV (превращает таблицу в объекты)
+// Парсер CSV
 function parseCSV(csvText) {
     const rows = csvText.split('\n').map(row => row.trim()).filter(row => row);
-    const headers = rows[0].split('\t'); // Предполагаем разделитель Tab (TSV) или ',' для CSV
-    
-    // Если разделитель запятая, замените '\t' на ',' ниже, но для Google Sheets CSV лучше использовать библиотеку или надежный парсер
-    // Простой парсер для CSV (с запятыми):
+    // Пропускаем заголовок (slice 1)
     return rows.slice(1).map(row => {
-        // Учитываем кавычки, если нужно, но для простоты берем split(',')
-        // Лучше использовать Google Sheets output=csv
-        const values = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || row.split(','); 
+        // Простой сплит по запятой (если в названиях нет запятых)
+        // Если названия содержат запятые, нужен более сложный Regex, но для начала так:
+        const values = row.split(','); 
         
-        // ВАЖНО: Подстрой индексы под свои колонки в таблице!
-        // Допустим: 0-ID, 1-Название, 2-Категория, 3-Цена, 4-Фото, 5-Описание
-        // Если используешь простой split, убедись, что в ячейках нет запятых.
-        
-        const safeSplit = row.split(','); // Упрощенно
-        
+        // ВАЖНО: Проверь порядок столбцов в твоей таблице!
+        // Здесь ожидается: ID, NAME, CATEGORY, PRICE, IMAGE
         return {
-            id: safeSplit[0],
-            name: safeSplit[1],
-            category: safeSplit[2],
-            price: parseFloat(safeSplit[3]),
-            image: safeSplit[4],
-            description: safeSplit[5] || ''
+            id: values[0] || 'ID',
+            name: values[1] || 'Без названия',
+            category: values[2] || 'Разное',
+            price: parseFloat(values[3]) || 0,
+            image: values[4] || 'https://placehold.co/400?text=NO+IMAGE',
+            description: values[5] || ''
         };
-    }).filter(p => p.id && p.name); // Убираем пустые
+    }).filter(p => p.id && p.name);
 }
 
-// --- 3. РЕНДЕРИНГ ТОВАРОВ ---
+// --- 5. РЕНДЕРИНГ ТОВАРОВ (СО СТИКЕРАМИ) ---
 function renderProducts(products) {
+    if (!catalogGrid) return;
     catalogGrid.innerHTML = '';
 
-    // 3.1. Заглушка "Ничего не найдено"
     if (products.length === 0) {
         catalogGrid.innerHTML = `
             <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #888;">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin-bottom: 20px; opacity: 0.5;">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <h3 style="font-size: 20px; margin-bottom: 10px; color: #fff;">Упс, ничего не найдено</h3>
-                <p>Попробуйте изменить запрос или поискать в другой категории.</p>
+                <h3>Упс, ничего не найдено</h3>
             </div>
         `;
-        loadMoreContainer.style.display = 'none';
+        if(loadMoreContainer) loadMoreContainer.style.display = 'none';
         return;
     }
 
-    // 3.2. Генерация карточек
     products.forEach(product => {
         const card = document.createElement('div');
         card.className = 'product-card';
-        
-        // Форматирование цены
         const priceFormatted = new Intl.NumberFormat('ru-RU').format(product.price);
 
         card.innerHTML = `
             <div class="product-badge badge-green">В НАЛИЧИИ</div>
-
             <div class="img-wrapper" onclick="openLightbox('${product.image}')">
                 <img src="${product.image}" alt="${product.name}" class="product-img" loading="lazy">
             </div>
-            
             <div class="product-sku">Артикул: ${product.id}</div>
-            <a href="#" class="product-title" onclick="openProductModal('${product.id}'); return false;">${product.name}</a>
+            <a href="#" class="product-title" onclick="return false;">${product.name}</a>
             <div class="product-price">${priceFormatted} ₽</div>
-            
             <div class="btn-group">
-                <button class="btn-card btn-blue" onclick="openProductModal('${product.id}')">Подробнее</button>
+                <button class="btn-card btn-blue">Подробнее</button>
                 <button class="btn-card btn-green" onclick="addToCart('${product.id}')">В корзину</button>
             </div>
         `;
@@ -123,33 +236,27 @@ function renderProducts(products) {
     });
 }
 
-// --- 4. ФИЛЬТРАЦИЯ И ПОИСК ---
+// --- 6. ФИЛЬТРАЦИЯ ---
 function filterProducts(searchTerm = '') {
     const term = searchTerm.toLowerCase();
-    
     let filtered = allProducts.filter(product => {
-        const matchesSearch = product.name.toLowerCase().includes(term) || 
-                              product.id.toLowerCase().includes(term);
-        const matchesCategory = currentCategory === 'Все' || product.category === currentCategory;
-        
-        return matchesSearch && matchesCategory;
+        return (product.name.toLowerCase().includes(term) || product.id.toLowerCase().includes(term)) &&
+               (currentCategory === 'Все' || product.category === currentCategory);
     });
 
-    // Сортировка
-    const sortValue = sortSelect.value;
-    if (sortValue === 'price_asc') {
-        filtered.sort((a, b) => a.price - b.price);
-    } else if (sortValue === 'price_desc') {
-        filtered.sort((a, b) => b.price - a.price);
-    } else if (sortValue === 'name_asc') {
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
+    if(sortSelect) {
+        const sortValue = sortSelect.value;
+        if (sortValue === 'price_asc') filtered.sort((a, b) => a.price - b.price);
+        else if (sortValue === 'price_desc') filtered.sort((a, b) => b.price - a.price);
+        else if (sortValue === 'name_asc') filtered.sort((a, b) => a.name.localeCompare(b.name));
     }
 
     renderProducts(filtered);
 }
 
-// --- 5. КАТЕГОРИИ ---
+// --- 7. КАТЕГОРИИ ---
 function renderCategories() {
+    if (!categoryContainer) return;
     const categories = ['Все', ...new Set(allProducts.map(p => p.category))];
     categoryContainer.innerHTML = '';
     
@@ -158,36 +265,30 @@ function renderCategories() {
         btn.className = `cat-btn ${cat === 'Все' ? 'active' : ''}`;
         btn.textContent = cat;
         btn.onclick = () => {
-            // Переключение активного класса
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
             currentCategory = cat;
-            filterProducts(searchInput.value);
+            if(searchInput) filterProducts(searchInput.value);
+            else filterProducts();
         };
         categoryContainer.appendChild(btn);
     });
 }
 
-// --- 6. КОРЗИНА ---
+// --- 8. КОРЗИНА ---
 function addToCart(productId) {
     const product = allProducts.find(p => p.id === productId);
     const existingItem = cart.find(item => item.id === productId);
-
-    if (existingItem) {
-        existingItem.qty++;
-    } else {
-        cart.push({ ...product, qty: 1 });
-    }
-
+    if (existingItem) existingItem.qty++;
+    else cart.push({ ...product, qty: 1 });
     saveCart();
-    showToast(`Товар добавлен: ${product.name}`);
+    showToast(`Добавлено: ${product.name}`);
 }
 
 function removeFromCart(productId) {
     cart = cart.filter(item => item.id !== productId);
     saveCart();
-    renderCartItems(); // Перерисовка если открыта
+    renderCartItems();
 }
 
 function changeQty(productId, change) {
@@ -211,8 +312,6 @@ function updateCartCounter() {
     if (widget) widget.textContent = `КОРЗИНА: ${totalQty}`;
 }
 
-// --- 7. МОДАЛЬНЫЕ ОКНА ---
-// Корзина
 function openCart() {
     const modal = document.querySelector('.cart-modal');
     if (modal) {
@@ -257,71 +356,58 @@ function renderCartItems() {
 }
 
 // Отправка заказа
-async function checkout(event) {
-    if(event) event.preventDefault();
-    
-    if (cart.length === 0) {
-        alert('Корзина пуста');
-        return;
-    }
-
-    const name = document.getElementById('orderName').value;
-    const phone = document.getElementById('orderPhone').value;
-    
-    // Формируем сообщение
-    let msg = `🔥 <b>НОВЫЙ ЗАКАЗ</b>\n\n`;
-    msg += `👤 <b>Клиент:</b> ${name}\n`;
-    msg += `📞 <b>Телефон:</b> ${phone}\n\n`;
-    msg += `📦 <b>Товары:</b>\n`;
-    
-    let total = 0;
-    cart.forEach((item, i) => {
-        const sum = item.price * item.qty;
-        total += sum;
-        msg += `${i+1}. ${item.name} (x${item.qty}) - ${sum}₽\n`;
-    });
-    
-    msg += `\n💰 <b>ИТОГО:</b> ${total} ₽`;
-
-    // Отправка в Telegram
-    try {
-        const url = `https://api.telegram.org/bot${CONFIG.TG_BOT_TOKEN}/sendMessage`;
-        await fetch(url, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                chat_id: CONFIG.TG_CHAT_ID,
-                text: msg,
-                parse_mode: 'HTML'
-            })
-        });
+const orderForm = document.querySelector('.order-form'); 
+// Обработчик вешается через делегирование или при рендере, но так как форма динамическая,
+// лучше повесить слушатель на документ или при открытии корзины.
+// В init я добавил слушатель на документ, но тут продублирую логику
+document.addEventListener('submit', async (e) => {
+    if (e.target.classList.contains('order-form')) {
+        e.preventDefault();
+        if (cart.length === 0) return alert('Корзина пуста');
         
-        alert('Заказ успешно оформлен! Мы свяжемся с вами.');
-        cart = [];
-        saveCart();
-        closeCart();
-    } catch (e) {
-        alert('Ошибка отправки. Позвоните нам.');
-        console.error(e);
-    }
-}
+        const name = document.getElementById('orderName').value;
+        const phone = document.getElementById('orderPhone').value;
+        
+        let msg = `🔥 <b>НОВЫЙ ЗАКАЗ</b>\n👤 ${name}\n📞 ${phone}\n\n`;
+        let total = 0;
+        cart.forEach((item, i) => {
+            const sum = item.price * item.qty;
+            total += sum;
+            msg += `${i+1}. ${item.name} x${item.qty} = ${sum}₽\n`;
+        });
+        msg += `\n💰 <b>ИТОГО: ${total} ₽</b>`;
 
-// Лайтбокс (Просмотр фото)
+        try {
+            if (typeof CONFIG === 'undefined') throw new Error('Нет конфига');
+            await fetch(`https://api.telegram.org/bot${CONFIG.TG_BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ chat_id: CONFIG.TG_CHAT_ID, text: msg, parse_mode: 'HTML' })
+            });
+            alert('Заказ отправлен!');
+            cart = [];
+            saveCart();
+            closeCart();
+        } catch (err) {
+            alert('Ошибка отправки. Свяжитесь по телефону.');
+            console.error(err);
+        }
+    }
+});
+
+
+// Лайтбокс
 function openLightbox(imgSrc) {
     const lightbox = document.createElement('div');
     lightbox.className = 'lightbox active';
-    lightbox.innerHTML = `
-        <span class="lightbox-close" onclick="this.parentElement.remove()">&times;</span>
-        <img src="${imgSrc}" class="lightbox-content">
-    `;
-    // Закрытие по клику на фон
-    lightbox.addEventListener('click', (e) => {
-        if (e.target === lightbox) lightbox.remove();
-    });
+    lightbox.innerHTML = `<span class="lightbox-close">&times;</span><img src="${imgSrc}" class="lightbox-content">`;
+    lightbox.onclick = (e) => {
+        if(e.target === lightbox || e.target.classList.contains('lightbox-close')) lightbox.remove();
+    };
     document.body.appendChild(lightbox);
 }
 
-// Уведомления (Toast)
+// Toast
 function showToast(message) {
     let container = document.getElementById('toast-container');
     if (!container) {
@@ -329,43 +415,19 @@ function showToast(message) {
         container.id = 'toast-container';
         document.body.appendChild(container);
     }
-    
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.textContent = message;
     container.appendChild(toast);
-    
     setTimeout(() => {
         toast.classList.add('hiding');
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 }
 
-/* --- ЗАЩИТА КОДА (ВАРИАНТ 2) --- */
-// Запрет контекстного меню (ПКМ)
+/* ЗАЩИТА */
 document.addEventListener('contextmenu', event => event.preventDefault());
-
-// Запрет горячих клавиш (F12, Ctrl+Shift+I и т.д.)
 document.onkeydown = function(e) {
-    if (e.keyCode == 123) { // F12
-        return false;
-    }
-    if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { // Ctrl+Shift+I
-        return false;
-    }
-    if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { // Ctrl+Shift+C
-        return false;
-    }
-    if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { // Ctrl+Shift+J
-        return false;
-    }
-    if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { // Ctrl+U
-        return false;
-    }
-}
-
-// Обработчик формы заказа
-const orderForm = document.querySelector('.order-form');
-if (orderForm) {
-    orderForm.addEventListener('submit', checkout);
+    if (e.keyCode == 123) return false;
+    if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
 }

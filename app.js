@@ -61,14 +61,14 @@ function renderLayout() {
             </div>
             <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
                 <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
-                <img class="lightbox-content" id="lightboxImg">
+                <img class="lightbox-content" id="lightboxImg" onerror="this.src='https://placehold.co/600x400?text=Нет+фото'">
             </div>
             <div id="toast-container"></div>
         `;
         document.body.appendChild(globalComponents);
     }
 
-    // ПОДВАЛ (БЕЗ ЛИШНИХ КНОПОК)
+    // ПОДВАЛ
     const footerEl = document.querySelector('footer');
     if (footerEl) {
         footerEl.className = 'footer';

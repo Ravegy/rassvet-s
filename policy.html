@@ -7,103 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="favicon.png" type="image/png">
-    
-    <style>
-        /* --- ЦВЕТОВАЯ СХЕМА --- */
-        :root {
-            --brand-green: #25D366; 
-        }
-
-        /* Карточка с текстом */
-        .policy-card {
-            background: rgba(20, 20, 20, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 60px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-
-        /* Типографика */
-        .policy-text {
-            color: #ccc;
-            line-height: 1.8;
-            font-size: 15px;
-            text-align: justify;
-        }
-        
-        .policy-text p { margin-bottom: 20px; }
-
-        /* ЗАГОЛОВКИ РАЗДЕЛОВ (ЗЕЛЕНАЯ ПОЛОСКА СЛЕВА - !important) */
-        .policy-title {
-            color: #fff;
-            font-size: 20px;
-            font-weight: 800;
-            margin-top: 50px;
-            margin-bottom: 25px;
-            padding-left: 20px;
-            /* Принудительно зеленый цвет */
-            border-left: 4px solid var(--brand-green) !important; 
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .policy-title:first-child { margin-top: 0; }
-
-        /* Подзаголовки внутри текста */
-        .policy-subtitle {
-            color: #fff;
-            font-weight: 700;
-            font-size: 16px;
-            margin-top: 30px;
-            margin-bottom: 15px;
-        }
-
-        /* Списки (МАРКЕРЫ ЗЕЛЕНЫЕ) */
-        .policy-list {
-            list-style: none;
-            padding: 0;
-            margin-bottom: 25px;
-        }
-        .policy-list li {
-            position: relative;
-            padding-left: 25px;
-            margin-bottom: 12px;
-            color: #ccc;
-            font-size: 15px;
-            line-height: 1.6;
-        }
-        .policy-list li::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 9px;
-            width: 6px;
-            height: 6px;
-            background: var(--brand-green) !important; 
-            border-radius: 50%;
-        }
-
-        /* Ссылки внутри текста (ЗЕЛЕНЫЕ) */
-        .policy-link {
-            color: var(--brand-green) !important;
-            text-decoration: none;
-            border-bottom: 1px solid rgba(37, 211, 102, 0.3);
-            transition: 0.3s;
-        }
-        .policy-link:hover {
-            color: #fff !important;
-            border-color: #fff;
-        }
-
-        /* ГЛАВНЫЙ ЗАГОЛОВОК СТРАНИЦЫ (БЕЗ ПОДЧЕРКИВАНИЯ) */
-        .page-title-wrapper {
-            /* Убрали декорации */
-        }
-
-        @media (max-width: 768px) {
-            .policy-card { padding: 30px; }
-        }
-    </style>
 </head>
 <body>
 
@@ -111,9 +14,7 @@
 
     <section class="hero" style="padding: 60px 0;">
         <div class="container">
-            <h1 style="font-size: clamp(28px, 5vw, 42px); font-weight: 800; text-transform: uppercase; margin: 0; text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                Политика конфиденциальности
-            </h1>
+            <h1 class="hero-title-large">Политика конфиденциальности</h1>
         </div>
     </section>
 

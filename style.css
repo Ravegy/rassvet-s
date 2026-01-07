@@ -43,24 +43,27 @@ body {
 .cart-widget:hover { background: var(--whatsapp); color: #fff; }
 
 /* --- СЛАЙДЕР С ТЕХНИКОЙ (БЕЗ ПРОБЕЛОВ) --- */
+
+/* Обертка в стиле каталога (Стекло) */
 .slider-interface {
     background: var(--dark-glass);
     backdrop-filter: blur(40px);
     border: 1px solid var(--border-glass);
     border-radius: 30px;
-    padding: 10px;
-    margin-top: 40px;
+    padding: 10px; /* Небольшой отступ внутри рамки */
+    margin-top: 40px; /* ОТСТУП ОТ ШАПКИ */
     margin-bottom: 40px;
     box-shadow: 0 30px 80px rgba(0,0,0,0.6);
     overflow: hidden;
 }
 
+/* Сам движущийся блок */
 .tech-slider {
     position: relative;
     width: 100%;
     height: 200px;
     overflow: hidden;
-    border-radius: 20px;
+    border-radius: 20px; /* Внутреннее закругление ОБЩЕГО блока */
 }
 
 .slider-track {
@@ -73,7 +76,7 @@ body {
     width: 300px;
     height: 200px;
     flex-shrink: 0;
-    padding: 0;
+    padding: 0; /* УБРАЛИ ОТСТУПЫ (было 0 10px) */
     box-sizing: border-box;
     display: flex;
     align-items: center;
@@ -83,10 +86,11 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 0;
+    border-radius: 0; /* УБРАЛИ ЗАКРУГЛЕНИЯ у картинок, чтобы стыковались */
     filter: brightness(0.8) grayscale(20%);
     transition: 0.3s;
-    box-shadow: none;
+    /* Убрали тень, чтобы не было линий на стыках */
+    box-shadow: none; 
 }
 
 .tech-slider:hover .slide img {
@@ -98,6 +102,7 @@ body {
     100% { transform: translateX(calc(-300px * 6)); }
 }
 
+/* Затемнения (Градиенты по краям) */
 .slider-fade-left, .slider-fade-right {
     position: absolute;
     top: 0;
@@ -106,8 +111,14 @@ body {
     z-index: 2;
     pointer-events: none;
 }
-.slider-fade-left { left: 0; background: linear-gradient(to right, rgba(20,20,20,1), transparent); }
-.slider-fade-right { right: 0; background: linear-gradient(to left, rgba(20,20,20,1), transparent); }
+.slider-fade-left { 
+    left: 0; 
+    background: linear-gradient(to right, rgba(20,20,20,1), transparent); 
+}
+.slider-fade-right { 
+    right: 0; 
+    background: linear-gradient(to left, rgba(20,20,20,1), transparent); 
+}
 
 /* --- КАТАЛОГ --- */
 .hero { padding: 20px 0 0 0; text-align: center; min-height: 0; }
@@ -300,6 +311,7 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
 }
 .lightbox.active { display: flex; opacity: 1; }
 
+/* ИСПРАВЛЕНИЕ: Убираем черный квадрат и тени */
 .lightbox-content {
     margin: auto;
     display: block;
@@ -307,10 +319,13 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     max-width: 700px;
     max-height: 80vh;
     object-fit: contain;
+    
+    /* Убираем всё, что может рисовать "квадрат" */
     background: transparent !important; 
     box-shadow: none !important; 
     border: none !important;
     border-radius: 0 !important;
+
     animation: zoomIn 0.3s ease;
 }
 
@@ -334,66 +349,31 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
 
 /* --- НОВЫЙ ЗАГОЛОВОК КАТАЛОГА (ПО ЦЕНТРУ) --- */
 .catalog-main-title {
-    text-align: center;
-    width: 100%;
+    text-align: center;         /* Центрируем текст */
+    width: 100%;                /* Растягиваем на всю ширину */
     display: block;
+    
     font-size: 36px;
     font-weight: 900;
     color: #fff;
-    margin: 0 0 35px 0;
+    margin: 0 0 35px 0;         /* Отступ снизу */
     text-transform: uppercase;
     letter-spacing: 1.5px;
     text-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-/* --- КНОПКА НАВЕРХ --- */
-.scroll-top-btn {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 50px;
-    height: 50px;
-    background: var(--accent);
-    color: #fff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    opacity: 0;
-    visibility: hidden;
-    transition: 0.3s;
-    z-index: 900;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    border: 1px solid rgba(255,255,255,0.2);
-}
-.scroll-top-btn:hover { background: var(--accent-hover); transform: translateY(-5px); }
-.scroll-top-btn.visible { opacity: 1; visibility: visible; }
-
-/* --- СТИКЕРЫ НА ТОВАРАХ --- */
-.product-badge {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    padding: 5px 12px;
-    border-radius: 6px;
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    color: #fff;
-    z-index: 10;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    backdrop-filter: blur(5px);
-}
-.badge-green { background: rgba(37, 211, 102, 0.85); border: 1px solid #25D366; }
-.badge-red { background: rgba(255, 68, 68, 0.85); border: 1px solid #ff4444; }
-.badge-blue { background: rgba(0, 86, 179, 0.85); border: 1px solid #0056b3; }
-
 /* АДАПТИВ */
 @media (max-width: 900px) {
     .container { padding: 0 15px; }
     body { font-size: 15px; }
-    .catalog-main-title { font-size: 24px; margin-bottom: 25px; line-height: 1.3; }
+    
+    .catalog-main-title {
+        font-size: 24px;
+        margin-bottom: 25px;
+        line-height: 1.3;
+    }
+
+    /* Адаптив слайдера техники */
     .slider-interface { padding: 5px; margin-top: 20px; }
     .tech-slider { height: 160px; }
     .slide { width: 220px; height: 160px; }
@@ -402,15 +382,21 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
         0% { transform: translateX(0); }
         100% { transform: translateX(calc(-220px * 6)); }
     }
+
+    /* ШАПКА МОБИЛЬНАЯ */
     .header-main { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 15px; padding-top: 5px; padding-bottom: 5px; }
     .menu-btn { display: block; }
     .logo-text h1 { font-size: 20px; text-align: center; }
     .header-contacts { display: flex; justify-content: flex-end; }
     .cart-widget { font-size: 11px; padding: 6px 10px; }
+
+    /* ВЫПАДАЮЩЕЕ МЕНЮ */
     .header-nav { display: none; position: absolute; top: 100%; left: 0; width: 100%; flex-direction: column; background: rgba(15, 15, 15, 0.98); backdrop-filter: blur(20px); padding: 20px; box-sizing: border-box; border-bottom: 1px solid rgba(255,255,255,0.1); gap: 15px; z-index: 1001; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
     .header-nav.active { display: flex; animation: slideDown 0.3s ease-out; }
     @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     .nav-link { font-size: 16px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px; text-align: center; width: 100%; box-sizing: border-box; display: block; }
+
+    /* АДАПТИВ БЛОКОВ */
     .catalog-grid { grid-template-columns: 1fr; gap: 20px; }
     .product-card { padding: 15px; }
     .product-title { font-size: 18px; min-height: auto; }
@@ -425,12 +411,16 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     .map-container { height: 300px; }
     .cart-content { width: 95%; max-height: 90vh; padding: 20px; }
     #toast-container { top: 110px; right: 10px; }
+
+    /* --- ПОДВАЛ МОБИЛЬНЫЙ --- */
     .footer-content { grid-template-columns: 1fr; gap: 30px; text-align: left; }
     .footer-contacts-list { align-items: flex-start; }
     .footer-contact-item { justify-content: flex-start; }
     .footer-socials { justify-content: flex-start; }
     .footer-nav a { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: block; }
     .contact-page-title { font-size: 24px; word-break: break-word; }
+
+    /* --- АДАПТИВ ПАНЕЛИ УПРАВЛЕНИЯ --- */
     .catalog-controls { flex-direction: column; gap: 12px; margin-bottom: 20px; }
     .search-wrapper, .sort-wrapper { width: 100%; }
 }

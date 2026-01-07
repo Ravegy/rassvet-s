@@ -133,29 +133,10 @@
     </div>
 
     <footer class="footer"></footer>
-    
-    <div id="scrollTopBtn" class="scroll-top-btn" onclick="scrollToTop()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
-    </div>
 
     <script src="https://unpkg.com/imask"></script>
     <script src="config.js"></script>
     <script src="app.js"></script>
-
-    <script>
-        // Скрипт для кнопки "Наверх"
-        const scrollBtn = document.getElementById('scrollTopBtn');
-        window.onscroll = function() {
-            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-                scrollBtn.classList.add('visible');
-            } else {
-                scrollBtn.classList.remove('visible');
-            }
-        };
-        function scrollToTop() {
-            window.scrollTo({top: 0, behavior: 'smooth'});
-        }
-    </script>
 
     <script type="text/javascript">
         (function(m,e,t,r,i,k,a){

@@ -43,9 +43,12 @@ body {
 .cart-widget:hover { background: var(--whatsapp); color: #fff; }
 
 /* --- HERO & CATALOG --- */
-.hero { padding: 40px 0 30px; text-align: center; }
+/* Обновленный Hero - убраны лишние отступы, так как текст переехал */
+.hero { padding: 20px 0 0 0; text-align: center; min-height: 0; }
+/* Старые стили Hero оставляем на всякий случай, но они не используются если HTML чист */
 .hero-badge { background: rgba(255,255,255,0.1); border: 1px solid var(--border-glass); display: inline-block; padding: 8px 18px; font-size: 12px; font-weight: 700; margin-bottom: 20px; border-radius: 30px; color: #ddd; text-transform: uppercase; letter-spacing: 1px; }
 .hero h2 { font-size: 42px; font-weight: 900; margin: 0; letter-spacing: 1px; text-transform: uppercase; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+
 .catalog-interface { background: var(--dark-glass); backdrop-filter: blur(40px); border: 1px solid var(--border-glass); border-radius: 30px; padding: 40px; margin-bottom: 80px; box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
 .interface-header { border-bottom: 1px solid var(--border-glass); padding-bottom: 40px; margin-bottom: 40px; }
 
@@ -232,7 +235,7 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
 }
 .lightbox.active { display: flex; opacity: 1; }
 
-/* --- ИСПРАВЛЕНИЕ: Убираем черный квадрат и тени --- */
+/* ИСПРАВЛЕНИЕ: Убираем черный квадрат и тени */
 .lightbox-content {
     margin: auto;
     display: block;
@@ -268,10 +271,31 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
 }
 .lightbox-close:hover { color: #ff4444; transform: scale(1.1); }
 
+/* --- НОВЫЙ ЗАГОЛОВОК КАТАЛОГА (ПО ЦЕНТРУ) --- */
+.catalog-main-title {
+    text-align: center;         /* Центрируем текст */
+    width: 100%;                /* Растягиваем на всю ширину */
+    display: block;
+    
+    font-size: 36px;
+    font-weight: 900;
+    color: #fff;
+    margin: 0 0 35px 0;         /* Отступ снизу */
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    text-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
 /* АДАПТИВ */
 @media (max-width: 900px) {
     .container { padding: 0 15px; }
     body { font-size: 15px; }
+    
+    .catalog-main-title {
+        font-size: 24px;
+        margin-bottom: 25px;
+        line-height: 1.3;
+    }
 
     /* ШАПКА МОБИЛЬНАЯ */
     .header-main { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 15px; padding-top: 5px; padding-bottom: 5px; }

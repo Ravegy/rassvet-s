@@ -13,7 +13,7 @@ function renderLayout() {
     const c = SITE_CONFIG.contacts; 
     const showIf = (link) => link ? 'flex' : 'none';
 
-    // ШАПКА (БЕЗ ГОРОДА)
+    // ШАПКА
     const headerEl = document.querySelector('header');
     if (headerEl) {
         headerEl.className = 'header';
@@ -30,7 +30,7 @@ function renderLayout() {
                     <a href="contacts.html" class="nav-link ${isActive('contacts.html')}">Контакты</a>
                 </nav>
                 <div class="header-contacts">
-                    <div id="cartWidget" class="cart-widget">Корзина: 0</div>
+                    <div id="cartWidget" class="cart-widget" onclick="openCart()">Корзина: 0</div>
                 </div>
             </div>`;
     }
@@ -96,19 +96,12 @@ function renderLayout() {
     }
 }
 
-// 2. ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ ВИДА (GRID/LIST)
-window.switchView = function(view) {
-    const grid = document.getElementById('catalog');
-    const btns = document.querySelectorAll('.view-btn');
-    
-    if (view === 'list') {
-        grid.classList.add('list-view');
-        btns[0].classList.remove('active');
-        btns[1].classList.add('active');
-    } else {
-        grid.classList.remove('list-view');
-        btns[1].classList.remove('active');
-        btns[0].classList.add('active');
+// 2. ОТКРЫТИЕ КОРЗИНЫ (ИСПРАВЛЕНО)
+window.openCart = function() {
+    const modal = document.getElementById('cartModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        window.updateCartUI();
     }
 };
 
@@ -200,22 +193,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderLayout();
     window.updateCartUI();
 
-    // КУРСОР
-    const cursor = document.querySelector('.custom-cursor');
-    if (cursor && window.innerWidth > 992) {
-        document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-        });
-        document.addEventListener('mouseover', (e) => {
-            if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.classList.contains('cursor-pointer') || e.target.closest('a') || e.target.closest('button')) {
-                document.body.classList.add('hovering');
-            } else {
-                document.body.classList.remove('hovering');
-            }
-        });
-    }
-
     // КНОПКА НАВЕРХ
     const btnUp = document.getElementById('btnUp');
     window.addEventListener('scroll', () => {
@@ -229,19 +206,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.body.classList.add('no-select');
 
-    // ОБРАБОТЧИКИ
+    // ОБРАБОТЧИКИ МЕНЮ И МОДАЛОК
     const menuBtn = document.getElementById('menuBtn');
     const headerNav = document.getElementById('headerNav');
     if(menuBtn) { menuBtn.onclick = (e) => { e.stopPropagation(); headerNav.classList.toggle('active'); }; }
     
-    // ФОРМЫ (КОПИРУЕМ СТАРУЮ ЛОГИКУ, ОНА РАБОТАЛА)
+    // ЗАКРЫТИЕ КОРЗИНЫ
+    const closeCart = document.getElementById('closeCart');
+    const modal = document.getElementById('cartModal');
+    if(closeCart) closeCart.onclick = () => { modal.style.display = 'none'; };
+    const closeOrder = document.getElementById('closeOrder');
+    const orderModal = document.getElementById('orderModal');
+    if(closeOrder) closeOrder.onclick = () => { orderModal.style.display = 'none'; };
+    window.onclick = (e) => { if(e.target == modal) modal.style.display = 'none'; if(e.target == orderModal) orderModal.style.display = 'none'; };
+
+    // ЗАКАЗ
+    const cartOrderBtn = document.getElementById('cartOrderBtn');
+    if(cartOrderBtn) {
+        cartOrderBtn.onclick = () => {
+            if (cart.length === 0) { window.showNotification('Корзина пуста'); return; }
+            modal.style.display = 'none';
+            orderModal.style.display = 'flex';
+        };
+    }
+
+    // ФОРМЫ
     const orderForm = document.getElementById('orderForm');
     if(orderForm) {
         const phoneInput = document.getElementById('orderPhone'); const nameInput = document.getElementById('orderName'); const emailInput = document.getElementById('orderEmail');
         if (phoneInput && window.IMask) IMask(phoneInput, { mask: '+{7} (000) 000-00-00' });
-        if(nameInput) nameInput.addEventListener('input', () => validateInput(nameInput, 'name'));
-        if(phoneInput) phoneInput.addEventListener('input', () => validateInput(phoneInput, 'phone'));
-        if(emailInput) emailInput.addEventListener('input', () => validateInput(emailInput, 'email'));
         orderForm.onsubmit = (e) => {
             e.preventDefault(); if (!validateInput(nameInput, 'name') || !validateInput(phoneInput, 'phone') || !validateInput(emailInput, 'email')) return;
             let msg = `<b>Заказ!</b>\nИмя: ${nameInput.value}\nТел: ${phoneInput.value}\nEmail: ${emailInput.value}\n`;
@@ -310,17 +303,11 @@ document.addEventListener('DOMContentLoaded', () => {
         function createCard(p) {
             const imgUrl = getImageUrl(p.image); const priceFmt = formatPrice(p.price); const nameClean = p.name.replace(/'/g, "");
             const card = document.createElement('div'); card.className = 'product-card'; card.setAttribute('data-product-id', p.id);
-            // ОБНОВЛЕННАЯ СТРУКТУРА КАРТОЧКИ (ДЛЯ СПИСКА)
             card.innerHTML = `
                 <div class="img-wrapper" onclick="openLightbox('${imgUrl}')"><img src="${imgUrl}" alt="${p.name}" class="product-img" loading="lazy" onerror="this.src='${SITE_CONFIG.placeholderImage}'"></div>
-                
-                <div class="card-info-wrap">
-                    <div class="product-sku">АРТ: ${p.sku}</div>
-                    <a href="product.html?id=${p.id}" class="product-title">${p.name}</a>
-                </div>
-
+                <div class="product-sku">АРТ: ${p.sku}</div>
+                <a href="product.html?id=${p.id}" class="product-title">${p.name}</a>
                 <div class="product-price">${priceFmt}</div>
-                
                 <div class="btn-group">
                     <a href="product.html?id=${p.id}" class="btn-card btn-blue">Подробнее</a>
                     <button id="btn-add-${p.id}" onclick="addToCart('${p.id}', '${p.sku}', '${nameClean}', '${priceFmt}')" class="btn-card btn-green">В КОРЗИНУ</button>

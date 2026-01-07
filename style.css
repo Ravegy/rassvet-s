@@ -231,6 +231,8 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     transition: opacity 0.3s ease;
 }
 .lightbox.active { display: flex; opacity: 1; }
+
+/* --- ИСПРАВЛЕНИЕ: Убираем черный квадрат и тени --- */
 .lightbox-content {
     margin: auto;
     display: block;
@@ -238,11 +240,16 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     max-width: 700px;
     max-height: 80vh;
     object-fit: contain;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(255,255,255,0.1);
+    
+    /* Убираем всё, что может рисовать "квадрат" */
+    background: transparent !important; 
+    box-shadow: none !important; 
+    border: none !important;
+    border-radius: 0 !important;
+
     animation: zoomIn 0.3s ease;
-    background: none;
 }
+
 @keyframes zoomIn {
   from {transform:scale(0)} 
   to {transform:scale(1)}

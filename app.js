@@ -1,3 +1,7 @@
+// ==========================================
+// app.js - С поддержкой нескольких фото
+// ==========================================
+
 let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || [];
 
 function renderLayout() {
@@ -54,7 +58,7 @@ function renderLayout() {
             </div>
             <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
                 <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
-                <img class="lightbox-content" id="lightboxImg" onerror="this.src='https://placehold.co/600x400?text=Нет+фото'">
+                <img class="lightbox-content" id="lightboxImg" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
             </div>
             <div id="toast-container"></div>
         `;
@@ -71,10 +75,10 @@ function renderLayout() {
                         <h4>О компании</h4>
                         <p>ООО «РАССВЕТ-С» — надежный поставщик запчастей и комплектующих для лесозаготовительной техники Komatsu.</p>
                         <div class="footer-socials">
-                            <a href="${c.telegram}" target="_blank" class="social-btn telegram" style="display: ${showIf(c.telegram)}" aria-label="Telegram"><svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></a>
-                            <a href="${c.whatsapp}" target="_blank" class="social-btn whatsapp" style="display: ${showIf(c.whatsapp)}" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></a>
-                            <a href="${c.vk}" target="_blank" class="social-btn vk" style="display: ${showIf(c.vk)}" aria-label="VK"><svg viewBox="0 0 24 24"><path d="M13.162 18.994c.609 0 .858-.406.851-1.512-.006-1.72.784-2.527 1.522-2.527.676 0 1.568.658 1.948 2.378.109.493.502.593.74.593h2.324c.787 0 1.101-.392 1.135-.857.073-1.021-.924-2.527-2.384-3.527-.608-.415-.589-.728.061-1.391.821-.837 2.18-2.618 2.364-3.593.033-.175.039-.481-.225-.481h-2.338c-.732 0-.989.336-1.229.832-1.006 2.072-2.41 3.251-3.216 3.251-.274 0-.463-.158-.463-.889V8.407c0-1.211-.284-1.407-1.022-1.407h-2.18c-.378 0-.698.192-.698.593 0 .428.632.535.698 1.76v3.131c0 .693-.214.97-.681.97-.97 0-3.329-3.593-4.329-7.234-.163-.585-.438-.813-1.022-.813H2.887c-.773 0-.937.336-.937.679 0 .684.974 4.116 4.382 8.781C8.627 17.5 11.237 18.994 13.162 18.994z"/></svg></a>
-                            <a href="${c.avito}" target="_blank" class="social-btn avito" style="display: ${showIf(c.avito)}" aria-label="Avito"><svg viewBox="0 0 24 24"><circle cx="7" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><circle cx="7" cy="17" r="3"/><circle cx="17" cy="17" r="3"/></svg></a>
+                            <a href="${c.telegram}" target="_blank" class="social-btn telegram" style="display: ${showIf(c.telegram)}"><svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></a>
+                            <a href="${c.whatsapp}" target="_blank" class="social-btn whatsapp" style="display: ${showIf(c.whatsapp)}"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></a>
+                            <a href="${c.vk}" target="_blank" class="social-btn vk" style="display: ${showIf(c.vk)}"><svg viewBox="0 0 24 24"><path d="M13.162 18.994c.609 0 .858-.406.851-1.512-.006-1.72.784-2.527 1.522-2.527.676 0 1.568.658 1.948 2.378.109.493.502.593.74.593h2.324c.787 0 1.101-.392 1.135-.857.073-1.021-.924-2.527-2.384-3.527-.608-.415-.589-.728.061-1.391.821-.837 2.18-2.618 2.364-3.593.033-.175.039-.481-.225-.481h-2.338c-.732 0-.989.336-1.229.832-1.006 2.072-2.41 3.251-3.216 3.251-.274 0-.463-.158-.463-.889V8.407c0-1.211-.284-1.407-1.022-1.407h-2.18c-.378 0-.698.192-.698.593 0 .428.632.535.698 1.76v3.131c0 .693-.214.97-.681.97-.97 0-3.329-3.593-4.329-7.234-.163-.585-.438-.813-1.022-.813H2.887c-.773 0-.937.336-.937.679 0 .684.974 4.116 4.382 8.781C8.627 17.5 11.237 18.994 13.162 18.994z"/></svg></a>
+                            <a href="${c.avito}" target="_blank" class="social-btn avito" style="display: ${showIf(c.avito)}"><svg viewBox="0 0 24 24"><circle cx="7" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><circle cx="7" cy="17" r="3"/><circle cx="17" cy="17" r="3"/></svg></a>
                         </div>
                     </div>
                     <div class="footer-col">
@@ -112,6 +116,7 @@ function renderLayout() {
     }
 }
 
+// 2. ЗАГРУЗКА И ОБРАБОТКА ДАННЫХ
 async function getCatalogData() {
     const cacheKey = 'rassvet_v7_data'; 
     const timeKey = 'rassvet_v7_time';
@@ -135,13 +140,22 @@ async function getCatalogData() {
         
         const products = rows.map(row => {
             if (!row[0]) return null;
+            
+            // --- НОВАЯ ЛОГИКА ДЛЯ ФОТО ---
+            // Разбиваем строку по запятой, если там несколько фото
+            let images = [];
+            if (row[5]) {
+                images = row[5].split(',').map(s => s.trim()).filter(s => s);
+            }
+            if (images.length === 0) images = ['']; // Если пусто, массив с пустой строкой
+
             return { 
                 id: row[0], 
                 sku: row[1] ? row[1].trim() : '', 
                 name: row[2], 
                 price: row[3], 
                 category: row[4] ? row[4].trim() : 'Другое', 
-                image: row[5], 
+                images: images, // Массив картинок
                 desc: row[6] 
             };
         }).filter(p => p !== null && p.name);
@@ -156,6 +170,7 @@ async function getCatalogData() {
     }
 }
 
+// Утилиты
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -203,6 +218,7 @@ window.closeLightbox = function(e) {
     }
 };
 
+// 3. КОРЗИНА
 window.updateCartUI = function() {
     const widget = document.getElementById('cartWidget');
     const cartItems = document.getElementById('cartItems');
@@ -334,12 +350,14 @@ function getImageUrl(imagePath) {
     return `images/parts/${cleanName}`;
 }
 
+// 4. ИНИЦИАЛИЗАЦИЯ СТРАНИЦ
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof SITE_CONFIG === 'undefined') return;
     
     renderLayout();
     window.updateCartUI();
 
+    // Меню мобильное
     const menuBtn = document.getElementById('menuBtn');
     const headerNav = document.getElementById('headerNav');
 
@@ -362,6 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Модальные окна
     const modal = document.getElementById('cartModal');
     const widget = document.getElementById('cartWidget');
     const close = document.getElementById('closeCart');
@@ -384,6 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(e.target == orderModal) orderModal.style.display = 'none';
     };
 
+    // Форма заказа (корзина)
     const orderForm = document.getElementById('orderForm');
     if(orderForm) {
         const phoneInput = document.getElementById('orderPhone');
@@ -418,6 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    // Каталог (index.html)
     const catalogGrid = document.getElementById('catalog');
     if(catalogGrid) {
         let allProducts = [];
@@ -496,14 +517,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if(searchInput) searchInput.addEventListener('input', debounce(() => renderBatch(true), 300));
 
         function createCard(product) {
-            const imgUrl = getImageUrl(product.image);
+            // Для карточки берем первую картинку
+            const imgUrl = getImageUrl(product.images[0]);
             const priceFmt = formatPrice(product.price);
             const nameClean = product.name.replace(/'/g, "");
             const card = document.createElement('div');
             card.className = 'product-card';
             card.setAttribute('data-product-id', product.id);
             card.innerHTML = `
-                <div class="img-wrapper" onclick="openLightbox('${imgUrl}')"><img src="${imgUrl}" alt="${product.name}" class="product-img" loading="lazy" onerror="this.src='${SITE_CONFIG.placeholderImage}'"></div>
+                <div class="img-wrapper" onclick="location.href='product.html?id=${product.id}'"><img src="${imgUrl}" alt="${product.name}" class="product-img" loading="lazy" onerror="this.src='${SITE_CONFIG.placeholderImage}'"></div>
                 <div class="product-sku">АРТ: ${product.sku}</div>
                 <a href="product.html?id=${product.id}" class="product-title">${product.name}</a>
                 <div class="product-price">${priceFmt}</div>
@@ -517,6 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Страница товара (product.html)
     const productDetail = document.getElementById('productDetail');
     if(productDetail) {
         const params = new URLSearchParams(window.location.search);
@@ -538,12 +561,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function renderProduct(p) { 
-            const imgUrl = getImageUrl(p.image);
+            // Главная картинка
+            const mainImgUrl = getImageUrl(p.images[0]);
             const priceFmt = formatPrice(p.price);
             const nameClean = p.name.replace(/'/g, "");
+
+            // Генерация миниатюр
+            let thumbsHtml = '';
+            if (p.images.length > 1) {
+                thumbsHtml = '<div class="gallery-thumbs">';
+                p.images.forEach(img => {
+                    const thumbUrl = getImageUrl(img);
+                    thumbsHtml += `<div class="gallery-thumb" onclick="changeMainImage('${thumbUrl}')"><img src="${thumbUrl}"></div>`;
+                });
+                thumbsHtml += '</div>';
+            }
+
             const html = `
                 <div class="product-full-card" data-product-id="${p.id}">
-                    <div class="full-img-wrapper" onclick="openLightbox('${imgUrl}')"><img src="${imgUrl}" alt="${p.name}" onerror="this.src='${SITE_CONFIG.placeholderImage}'"></div>
+                    <div class="gallery-container" style="flex: 1; min-width: 300px;">
+                        <div class="full-img-wrapper" id="mainImgWrapper" onclick="openLightbox(document.getElementById('productMainImg').src)">
+                            <img id="productMainImg" src="${mainImgUrl}" alt="${p.name}" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
+                        </div>
+                        ${thumbsHtml}
+                    </div>
+                    
                     <div class="full-info">
                         <div class="full-sku">АРТИКУЛ: ${p.sku}</div>
                         <h1 class="full-title">${p.name}</h1>
@@ -561,6 +603,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Форма контактов
     const contactForm = document.getElementById('contactPageForm');
     if(contactForm) {
         const nameInput = document.getElementById('contactName');
@@ -586,6 +629,14 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 });
+
+// Новая функция переключения фото
+window.changeMainImage = function(src) {
+    const mainImg = document.getElementById('productMainImg');
+    if (mainImg) {
+        mainImg.src = src;
+    }
+}
 
 function sendOrderToTelegram(text, form) {
     const url = `https://api.telegram.org/bot${SITE_CONFIG.tgBotToken}/sendMessage`;

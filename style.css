@@ -461,3 +461,49 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     .policy-text { text-align: left; }
     .policy-title { font-size: 18px; padding-left: 15px; margin-top: 30px; }
 }
+
+/* --- СТИЛИ ДЛЯ ЛИСТАНИЯ ФОТО (LIGHTBOX) --- */
+.lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: none;
+    padding: 15px;
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 50%;
+    transition: 0.3s;
+    user-select: none;
+    z-index: 3002;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+}
+
+.lightbox-nav:hover {
+    background: var(--accent);
+    color: #fff;
+}
+
+.lightbox-prev { left: 20px; }
+.lightbox-next { right: 20px; }
+
+/* Скрываем стрелки, если фото одно */
+.lightbox.single .lightbox-nav { display: none; }
+
+/* Адаптив для стрелок на мобильном */
+@media (max-width: 900px) {
+    .lightbox-nav {
+        padding: 10px;
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+    .lightbox-prev { left: 10px; }
+    .lightbox-next { right: 10px; }
+}

@@ -34,17 +34,45 @@ html, body {
 .menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 5px; z-index: 1002; }
 .menu-btn svg { width: 28px; height: 28px; stroke: #fff; stroke-width: 2; stroke-linecap: round; }
 
-.logo-text { text-decoration: none; z-index: 1002; }
-.logo-text h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 2px; color: #fff; text-transform: uppercase; }
+/* СТИЛИ ЛОГОТИПА (Обновленные) */
+.logo-text { 
+    text-decoration: none; 
+    z-index: 1002; 
+    display: flex; 
+    align-items: center; 
+    height: 40px; /* Фикс высоты для выравнивания */
+}
+.logo-text h1 { 
+    margin: 0; 
+    font-size: 24px; 
+    font-weight: 800; 
+    letter-spacing: 2px; 
+    color: #fff; 
+    text-transform: uppercase; 
+    transition: 0.3s ease; /* Плавная смена цвета */
+    line-height: 1;
+}
+/* Эффект при наведении на логотип (как у иконок) */
+.logo-text:hover h1 {
+    color: var(--whatsapp);
+    text-shadow: 0 0 20px rgba(37, 211, 102, 0.4);
+}
+
 .header-nav { display: flex; gap: 40px; }
 .nav-link { text-decoration: none; color: rgba(255,255,255,0.8); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; position: relative; padding-bottom: 5px; transition: 0.3s; }
 .nav-link:hover, .nav-link.active { color: #fff; }
 .nav-link::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: var(--accent); transition: 0.3s ease; }
 .nav-link:hover::after, .nav-link.active::after { width: 100%; }
 
-.header-contacts { display: flex; align-items: center; z-index: 1002; }
-.cart-widget { font-size: 12px; font-weight: 700; color: var(--whatsapp); cursor: pointer; text-transform: uppercase; background: rgba(37, 211, 102, 0.1); padding: 6px 14px; border-radius: 20px; transition: 0.3s; border: 1px solid rgba(37, 211, 102, 0.2); }
-.cart-widget:hover { background: var(--whatsapp); color: #fff; }
+.header-contacts { display: flex; align-items: center; z-index: 1002; gap: 15px; }
+
+/* Стили для иконок в шапке (Корзина и Избранное) */
+.header-icon-btn { position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; transition: 0.3s; }
+.header-icon-btn svg { width: 26px; height: 26px; stroke: #fff; fill: none; stroke-width: 2; transition: 0.3s; }
+.header-icon-btn:hover svg { stroke: var(--whatsapp); filter: drop-shadow(0 0 5px rgba(37, 211, 102, 0.5)); }
+.icon-count { position: absolute; top: 0px; right: -2px; background: #ff4444; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 10px; min-width: 14px; text-align: center; border: 2px solid #1a1a1a; }
+
+.cart-widget { display: none !important; }
 
 /* --- SLIDER --- */
 .slider-interface {
@@ -129,7 +157,7 @@ html, body {
 .cat-skeleton { width: 100px; height: 42px; background: rgba(255,255,255,0.05); border-radius: 50px; }
 .error-text { color: #ff4444; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 20px rgba(255, 68, 68, 0.5); }
 
-/* --- FOOTER (DESKTOP) --- */
+/* --- FOOTER --- */
 .footer { background: #080808; border-top: 1px solid #222; padding: 60px 0 20px; margin-top: auto; font-size: 14px; }
 .footer-content { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
 .footer-col h4 { color: #fff; font-size: 16px; font-weight: 800; text-transform: uppercase; margin-top: 0; margin-bottom: 20px; letter-spacing: 1px; }
@@ -361,37 +389,17 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
         flex-shrink: 0;
     }
 
+    /* ЛОГОТИП НА МОБИЛЬНОМ - чуть меньше, чтобы сочетался с иконками */
     .logo-text h1 { 
-        font-size: 18px; 
+        font-size: 20px; 
         white-space: nowrap; 
         letter-spacing: 1px;
     }
 
     .header-contacts { gap: 8px; }
 
-    /* Виджет корзины */
-    .cart-widget {
-        font-size: 0;
-        padding: 8px;
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-    }
-    .cart-widget::before {
-        content: '';
-        width: 18px;
-        height: 18px;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2325D366' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='21' r='1'%3E%3C/circle%3E%3Ccircle cx='20' cy='21' r='1'%3E%3C/circle%3E%3Cpath d='M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6'%3E%3C/path%3E%3C/svg%3E");
-        background-size: cover;
-    }
-    .cart-widget:hover { background: var(--whatsapp); }
-    .cart-widget:hover::before { filter: brightness(0) invert(1); }
-    
-    .header-fav { margin-right: 5px; }
-    .header-fav svg { width: 22px; height: 22px; }
+    /* Виджет корзины (скрываем текст, показываем иконку) */
+    .cart-widget { display: none; } 
 
     /* МЕНЮ - Стеклянная шторка, компактная */
     .header-nav {
@@ -399,40 +407,64 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
         top: 0;
         left: 0;
         width: 100%;
-        height: auto; /* АВТОМАТИЧЕСКАЯ ВЫСОТА вместо 100vh */
-        max-height: 80vh; /* Ограничиваем высоту */
+        height: auto; /* АВТОМАТИЧЕСКАЯ ВЫСОТА */
+        max-height: 80vh; 
         overflow-y: auto;
-        background: rgba(15, 15, 15, 0.95); /* Полупрозрачный фон */
-        backdrop-filter: blur(20px); /* Размытие (Стекло) */
+        background: rgba(15, 15, 15, 0.95);
+        backdrop-filter: blur(20px);
         flex-direction: column;
-        padding: 80px 20px 30px; /* Отступ сверху под шапку */
-        gap: 10px; /* Меньше расстояние между ссылками */
+        padding: 80px 20px 15px; /* УМЕНЬШИЛ НИЖНИЙ ОТСТУП */
+        gap: 15px; 
         transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 999;
         transform: translateY(-100%);
-        border-bottom: 1px solid rgba(255,255,255,0.15); /* Бордер снизу */
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5); /* Тень снизу */
+        border-bottom: 1px solid rgba(255,255,255,0.15);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     }
     .header-nav.active { 
-        transform: translateY(0); /* Выезжает вниз */
+        transform: translateY(0); 
     }
 
+    /* СТИЛЬНЫЕ ССЫЛКИ МЕНЮ */
     .nav-link { 
-        font-size: 14px; 
+        font-size: 16px; 
         width: 100%; 
-        border-bottom: 1px solid rgba(255,255,255,0.05); 
-        padding: 15px 0; 
+        border-bottom: none; /* Убрал серые полоски */
+        padding: 10px 15px; 
         font-weight: 800;
         letter-spacing: 1px;
+        text-transform: uppercase;
+        border-radius: 8px;
+        transition: 0.2s;
+        position: relative;
     }
-    .nav-link:last-child { border-bottom: none; }
-    .nav-link::after { display: none; }
+    
+    /* Активный пункт: Зеленая полоска слева */
+    .nav-link.active {
+        background: rgba(37, 211, 102, 0.1); /* Легкий зеленый фон */
+        color: var(--whatsapp);
+        padding-left: 20px;
+    }
+    
+    .nav-link.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 70%;
+        background: var(--whatsapp);
+        border-radius: 0 4px 4px 0;
+    }
+
+    .nav-link::after { display: none; } /* Убираем нижнее подчеркивание ПК версии */
 
     /* 3. Исправление переполнения текста и блоков */
     .content-padding, 
     .contact-card, 
     .policy-card, 
-    .product-full-card,
+    .product-full-card, 
     .catalog-interface { 
         padding: 20px !important; 
         width: 100%;
@@ -453,8 +485,7 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
         width: 100% !important;
     }
 
-    /* ВАЖНОЕ ИСПРАВЛЕНИЕ ДЛЯ КОНТАКТОВ:
-       Перебиваем встроенный style="grid-template-columns: 1fr 1fr" в HTML */
+    /* ВАЖНОЕ ИСПРАВЛЕНИЕ ДЛЯ КОНТАКТОВ */
     .contact-card {
         display: flex !important;
         flex-direction: column !important;
@@ -482,13 +513,13 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     .map-container { height: 250px; width: 100%; }
     
     /* 5. Подвал (Левое выравнивание) */
-    .footer { padding: 40px 0 60px; /* Больше отступа снизу */ }
+    .footer { padding: 40px 0 60px; }
     
     .footer-content { 
         display: flex; 
         flex-direction: column; 
         gap: 40px; 
-        text-align: left; /* Главное: текст по левому краю */
+        text-align: left; 
     }
 
     .footer-col h4 {
@@ -497,13 +528,13 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     }
 
     .footer-contacts-list { 
-        align-items: flex-start; /* Список тоже прижат влево */
+        align-items: flex-start; 
     }
     
     /* Блок контакта: иконка + текст */
     .footer-contact-item { 
         display: flex;
-        justify-content: flex-start; /* Выравнивание по началу строки (слева) */
+        justify-content: flex-start; 
         width: 100%;
         margin: 0;
         gap: 15px;
@@ -514,20 +545,20 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
         text-align: left;
     }
 
-    /* Убираем отступ сверху у иконки на мобильном для идеального центра с первой строкой */
+    /* Убираем отступ сверху у иконки на мобильном */
     .footer-icon svg {
         margin-top: 0; 
     }
     
     .footer-socials { 
-        justify-content: flex-start; /* Соцсети выравниваем влево */
+        justify-content: flex-start; 
     }
     
     .footer-nav {
         align-items: flex-start;
     }
     
-    /* Ссылки в футере: на всю ширину с тонким разделителем (удобно для пальца) */
+    /* Ссылки в футере */
     .footer-nav a { 
         padding: 12px 0; 
         display: block; 
@@ -536,7 +567,7 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     }
 
     .footer-disclaimer { 
-        text-align: left; /* Дисклеймер тоже влево */
+        text-align: left; 
         padding: 0 5px; 
         opacity: 0.6;
     }

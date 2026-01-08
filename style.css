@@ -583,3 +583,113 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     .lightbox-prev { left: 10px; }
     .lightbox-next { right: 10px; }
 }
+
+/* --- НОВЫЕ ФУНКЦИИ (WIDGET, BREADCRUMBS, ETC) --- */
+
+/* 1. Плавающий виджет */
+.floating-widget {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 15px;
+}
+.widget-toggle {
+    width: 60px;
+    height: 60px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0, 86, 179, 0.4);
+    cursor: pointer;
+    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid rgba(255,255,255,0.2);
+}
+.widget-toggle:hover { transform: scale(1.1); background: var(--accent-hover); }
+.widget-toggle svg { width: 30px; height: 30px; stroke: #fff; fill: none; stroke-width: 2; transition: 0.3s; }
+.widget-toggle.active svg { transform: rotate(45deg); }
+.widget-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: 0.3s;
+}
+.widget-menu.active { opacity: 1; visibility: visible; transform: translateY(0); }
+.widget-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--dark-glass);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-glass);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transition: 0.3s;
+    text-decoration: none;
+}
+.widget-btn:hover { transform: translateY(-3px); }
+.widget-btn.wa:hover { background: var(--whatsapp); border-color: transparent; }
+.widget-btn.tg:hover { background: var(--telegram); border-color: transparent; }
+.widget-btn.ph:hover { background: #fff; }
+.widget-btn.ph:hover svg { stroke: #000; }
+
+/* 2. Копирование артикула */
+.copy-sku {
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+    transition: 0.2s;
+    border-bottom: 1px dashed rgba(255,255,255,0.3);
+}
+.copy-sku:hover { color: #fff; border-bottom-color: #fff; }
+.copy-sku:active { color: var(--accent); }
+
+/* 3. Блок "Не нашли?" */
+.not-found-block {
+    grid-column: 1 / -1;
+    background: rgba(255, 152, 0, 0.1);
+    border: 1px solid rgba(255, 152, 0, 0.3);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    margin-top: 20px;
+    backdrop-filter: blur(10px);
+}
+.not-found-title { color: #fff; font-size: 22px; font-weight: 800; margin: 0 0 15px; text-transform: uppercase; }
+.not-found-text { color: #ccc; margin-bottom: 25px; font-size: 15px; }
+
+/* 6. Хлебные крошки */
+.breadcrumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #888;
+}
+.breadcrumbs a {
+    color: #aaa;
+    text-decoration: none;
+    transition: 0.2s;
+    font-weight: 600;
+}
+.breadcrumbs a:hover { color: var(--accent); }
+.breadcrumbs span { color: #666; }
+.breadcrumbs .current { color: #fff; }
+
+/* Адаптив виджета для мобильных */
+@media (max-width: 900px) {
+    .floating-widget { bottom: 20px; right: 20px; }
+    .widget-toggle { width: 50px; height: 50px; }
+    .widget-btn { width: 45px; height: 45px; }
+}

@@ -341,16 +341,60 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
 .btn-fav-cart { background: rgba(37, 211, 102, 0.2); color: #25D366; border: 1px solid rgba(37, 211, 102, 0.3); padding: 6px 10px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 11px; transition: 0.3s; white-space: nowrap; }
 .btn-fav-cart:hover { background: #25D366; color: #fff; }
 
-/* --- МОБИЛЬНАЯ АДАПТАЦИЯ --- */
+/* --- МОБИЛЬНАЯ АДАПТАЦИЯ (ИСПРАВЛЕННАЯ) --- */
 @media (max-width: 900px) {
-    /* 1. Настройка контейнеров */
-    .container { padding: 0 15px; }
-    .hero h2 { font-size: 28px; }
-    .hero-title-large { font-size: 32px; }
+    /* 1. Глобальные настройки контейнеров */
+    .container { padding: 0 15px; overflow-x: hidden; } /* Скрываем гориз. скролл */
+    body { overflow-x: hidden; width: 100%; }
 
-    /* 2. Шапка и мобильное меню */
-    .menu-btn { display: block; z-index: 1002; }
+    /* 2. Исправление Шапки */
+    .header-main {
+        flex-wrap: nowrap; /* Запрещаем перенос блоков шапки */
+        gap: 10px;
+    }
     
+    .menu-btn { 
+        display: block; 
+        z-index: 1002; 
+        flex-shrink: 0; /* Чтобы кнопка не сжималась */
+    }
+
+    .logo-text h1 { 
+        font-size: 18px; /* Уменьшаем шрифт логотипа */
+        white-space: nowrap; /* Запрещаем перенос названия */
+        letter-spacing: 1px;
+    }
+
+    .header-contacts {
+        gap: 8px;
+    }
+
+    /* Уменьшаем виджет корзины */
+    .cart-widget {
+        font-size: 0; /* Скрываем текст "Корзина:" */
+        padding: 8px;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+    /* Добавляем иконку корзины через CSS */
+    .cart-widget::before {
+        content: '';
+        width: 18px;
+        height: 18px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2325D366' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='21' r='1'%3E%3C/circle%3E%3Ccircle cx='20' cy='21' r='1'%3E%3C/circle%3E%3Cpath d='M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6'%3E%3C/path%3E%3C/svg%3E");
+        background-size: cover;
+    }
+    .cart-widget:hover { background: var(--whatsapp); }
+    .cart-widget:hover::before { filter: brightness(0) invert(1); }
+    
+    .header-fav { margin-right: 5px; }
+    .header-fav svg { width: 22px; height: 22px; }
+
+    /* Меню (выезжающее справа) */
     .header-nav {
         position: fixed;
         top: 0;
@@ -358,50 +402,65 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
         width: 80%;
         max-width: 300px;
         height: 100vh;
-        background: rgba(10, 10, 10, 0.95);
-        backdrop-filter: blur(20px);
+        background: #0a0a0a;
         flex-direction: column;
         padding: 80px 30px;
         gap: 20px;
         transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         border-left: 1px solid var(--border-glass);
-        box-shadow: -10px 0 30px rgba(0,0,0,0.8);
+        box-shadow: -10px 0 50px rgba(0,0,0,0.9);
         z-index: 1001;
     }
-    
     .header-nav.active { right: 0; }
 
     .nav-link { font-size: 16px; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; }
     .nav-link::after { display: none; }
 
-    /* 3. Управление каталогом (Поиск и сортировка) */
-    .catalog-controls { flex-direction: column; align-items: stretch; gap: 15px; }
-    .search-wrapper, .sort-wrapper { width: 100%; margin: 0; }
-    .catalog-interface { padding: 20px; }
+    /* 3. Исправление переполнения текста */
+    .content-padding, 
+    .contact-card, 
+    .policy-card,
+    .product-full-card,
+    .catalog-interface { 
+        padding: 20px !important; /* Уменьшаем отступы с 40-60px до 20px */
+        width: 100%;
+        box-sizing: border-box; /* Чтобы padding не увеличивал ширину */
+        overflow-wrap: break-word; /* Перенос длинных слов */
+        word-wrap: break-word;
+    }
 
-    /* 4. Карточка товара (Полная) */
-    .product-full-card { flex-direction: column; padding: 20px; gap: 30px; }
-    .full-img-wrapper { min-height: 250px; }
-    .full-title { font-size: 24px; }
-    .full-price { font-size: 32px; }
-    .full-actions-group { flex-direction: column; }
-    .btn-detail { width: 100%; }
+    /* Специально для длинных заголовков */
+    .section-header, 
+    .hero-title-large, 
+    .contact-page-title,
+    .policy-title {
+        font-size: 22px !important; /* Уменьшаем размер заголовков */
+        word-break: break-word; /* Принудительный перенос */
+        hyphens: auto;
+    }
 
-    /* 5. Подвал (Футер) */
-    .footer-content { grid-template-columns: 1fr; gap: 40px; }
-    .footer-col { text-align: center; }
+    /* 4. Исправление страницы Контакты и Форм */
+    .contacts-wrapper { grid-template-columns: 1fr !important; gap: 20px; }
+    .form-input { width: 100%; box-sizing: border-box; } /* Чтобы инпуты не вылезали */
+    .map-container { height: 250px; width: 100%; }
+    
+    /* 5. Подвал */
+    .footer { padding: 40px 0 20px; }
+    .footer-content { grid-template-columns: 1fr; gap: 30px; text-align: center; }
     .footer-contacts-list { align-items: center; }
     .footer-socials { justify-content: center; }
+    .footer-nav a { padding: 10px 0; display: block; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-    /* 6. Страница контактов и О компании */
-    .contacts-wrapper { grid-template-columns: 1fr !important; }
-    .contact-card { padding: 25px !important; }
+    /* 6. Остальные элементы */
+    .catalog-controls { flex-direction: column; }
+    .product-full-card { flex-direction: column; gap: 20px; }
+    .full-img-wrapper { min-height: 250px; }
     .delivery-grid { grid-template-columns: 1fr; }
     .about-grid-2 { grid-template-columns: 1fr; }
     .service-card-layout { grid-template-columns: 1fr; }
-    .img-service-wrapper { height: 250px; border-left: none; border-top: 1px solid rgba(255,255,255,0.1); }
+    .img-service-wrapper { height: 200px; border-left: none; border-top: 1px solid rgba(255,255,255,0.1); }
     
-    /* 7. Лайтбокс */
+    /* Лайтбокс */
     .lightbox-nav { padding: 10px; width: 40px; height: 40px; font-size: 18px; }
     .lightbox-prev { left: 10px; }
     .lightbox-next { right: 10px; }

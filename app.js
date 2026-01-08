@@ -1,6 +1,6 @@
 let cart = JSON.parse(localStorage.getItem('rassvet_cart')) || [];
 
-// Глобальные переменные для галереи
+// Глобальные переменные для галереи (лайтбокс)
 let currentLightboxImages = [];
 let currentLightboxIndex = 0;
 
@@ -549,6 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const priceFmt = formatPrice(product.price);
             const nameClean = product.name.replace(/'/g, "");
             
+            // Сборка массива картинок для лайтбокса (чтобы клик работал корректно)
             const allImages = product.images.map(img => getImageUrl(img));
             const imagesJson = JSON.stringify(allImages).replace(/"/g, "&quot;");
 
@@ -556,6 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card.className = 'product-card';
             card.setAttribute('data-product-id', product.id);
             
+            // ВАЖНО: onclick на img-wrapper теперь вызывает openLightbox с массивом всех картинок
             card.innerHTML = `
                 <div class="img-wrapper" onclick="openLightbox(${imagesJson}, 0)">
                     <img src="${imgUrl}" alt="${product.name}" class="product-img" loading="lazy" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
@@ -588,9 +590,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (product) { 
                     renderProduct(product); 
                     
-                    // --- НОВОЕ: ВЫЗЫВАЕМ ФУНКЦИЮ ПОХОЖИХ ТОВАРОВ ---
+                    // --- ВЫЗЫВАЕМ ФУНКЦИЮ ПОХОЖИХ ТОВАРОВ ---
                     renderRelated(products, product); 
-                    // -----------------------------------------------
+                    // ----------------------------------------
 
                     document.title = `${product.name} | РАССВЕТ-С`;
                 } 
@@ -603,13 +605,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const priceFmt = formatPrice(p.price);
             const nameClean = p.name.replace(/'/g, "");
 
+            // Массив картинок
             const allImages = p.images.map(img => getImageUrl(img));
             const imagesJson = JSON.stringify(allImages).replace(/"/g, "&quot;");
 
             let thumbsHtml = '';
             if (p.images.length > 1) {
                 thumbsHtml = '<div class="gallery-thumbs">';
-                p.images.forEach((img) => {
+                p.images.forEach((img, idx) => {
                     const thumbUrl = getImageUrl(img);
                     thumbsHtml += `<div class="gallery-thumb" onclick="changeMainImage('${thumbUrl}');"><img src="${thumbUrl}"></div>`;
                 });
@@ -641,7 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.updateCartUI();
         }
 
-        // --- ФУНКЦИЯ ДЛЯ ПОХОЖИХ ТОВАРОВ ---
+        // --- ФУНКЦИЯ ДЛЯ ПОХОЖИХ ТОВАРОВ (ТОЧНАЯ КОПИЯ КАРТОЧЕК) ---
         function renderRelated(allProducts, currentProduct) {
             const relatedContainer = document.getElementById('relatedProducts');
             const containerWrapper = document.getElementById('relatedContainer');
@@ -661,28 +664,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Показываем блок
             containerWrapper.style.display = 'block';
+            relatedContainer.innerHTML = ''; // Очистка перед вставкой
 
-            // Генерируем карточки (упрощенная версия createCard)
             toShow.forEach(p => {
                 const imgUrl = getImageUrl(p.images[0]);
                 const priceFmt = formatPrice(p.price);
                 const nameClean = p.name.replace(/'/g, "");
                 
+                // Массив картинок для лайтбокса
+                const allImages = p.images.map(img => getImageUrl(img));
+                const imagesJson = JSON.stringify(allImages).replace(/"/g, "&quot;");
+
                 const card = document.createElement('div');
-                card.className = 'product-card';
+                card.className = 'product-card'; // Стили такие же как в каталоге
+                card.setAttribute('data-product-id', p.id); 
+                
+                // HTML полностью совпадает с createCard
                 card.innerHTML = `
-                    <div class="img-wrapper" onclick="location.href='product.html?id=${p.id}'">
+                    <div class="img-wrapper" onclick="openLightbox(${imagesJson}, 0)">
                         <img src="${imgUrl}" alt="${p.name}" class="product-img" loading="lazy" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
                     </div>
                     <div class="product-sku">АРТ: ${p.sku}</div>
-                    <a href="product.html?id=${p.id}" class="product-title" style="font-size: 14px;">${p.name}</a>
-                    <div class="product-price" style="font-size: 18px;">${priceFmt}</div>
+                    <a href="product.html?id=${p.id}" class="product-title">${p.name}</a>
+                    <div class="product-price">${priceFmt}</div>
                     <div class="btn-group">
                         <a href="product.html?id=${p.id}" class="btn-card btn-blue">Подробнее</a>
+                        <button id="btn-add-${p.id}" onclick="addToCart('${p.id}', '${p.sku}', '${nameClean}', '${priceFmt}')" class="btn-card btn-green">В КОРЗИНУ</button>
+                        <div id="btn-qty-${p.id}" class="btn-qty-grid hidden"><button onclick="updateItemQty('${p.id}', -1)">-</button><span id="qty-val-${p.id}">1</span><button onclick="updateItemQty('${p.id}', 1)">+</button></div>
                     </div>
                 `;
                 relatedContainer.appendChild(card);
             });
+            
+            // Синхронизируем кнопки
+            if (typeof window.syncButtonsWithCart === 'function') {
+                window.syncButtonsWithCart();
+            }
         }
     }
 
@@ -712,6 +729,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Смена картинки при клике на миниатюру
 window.changeMainImage = function(src) {
     const mainImg = document.getElementById('productMainImg');
     if (mainImg) {

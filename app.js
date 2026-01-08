@@ -36,7 +36,7 @@ async function getCatalogData() {
     }catch(e){console.error(e);return[];}
 }
 
-function parseCSV(t){const r=[];let row=[],q=false,c='';for(let i=0;i<t.length;i++){const ch=t[i];if(ch==='"')q=!q;else if(ch===','&&!q){row.push(c);c='';}else if((char==='\r'||char==='\n')&&!q){if(c||row.length>0)row.push(c);if(row.length>0)r.push(row);row=[];c='';if(ch==='\r'&&t[i+1]==='\n')i++;}else c+=ch;}if(c||row.length>0){row.push(c);r.push(row);}return r;}
+function parseCSV(t){const r=[];let row=[],q=false,c='';for(let i=0;i<t.length;i++){const ch=t[i];if(ch==='"')q=!q;else if(ch===','&&!q){row.push(c);c='';}else if((ch==='\r'||char==='\n')&&!q){if(c||row.length>0)row.push(c);if(row.length>0)r.push(row);row=[];c='';if(ch==='\r'&&t[i+1]==='\n')i++;}else c+=ch;}if(c||row.length>0){row.push(c);r.push(row);}return r;}
 function debounce(f,w){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>f(...a),w);};}
 function validateInput(i,t){const v=i.value.trim();let ok=true,m='';i.classList.remove('error','success');const p=i.parentElement;let e=p.querySelector('.error-message');if(!e){e=document.createElement('div');e.className='error-message';p.appendChild(e);}p.classList.remove('has-error');if(t==='name'){if(v.length<2){ok=false;m='Имя короткое';}}else if(t==='phone'){if(v.length<18){ok=false;m='Номер не полный';}}else if(t==='email'){if(v&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){ok=false;m='Неверный Email';}}if(!ok){i.classList.add('error');p.classList.add('has-error');e.textContent=m;}else if(v.length>0)i.classList.add('success');return ok;}
 
@@ -53,7 +53,7 @@ window.changeQuantity=function(i,d){const x=cart[i];x.quantity+=d;if(x.quantity<
 window.removeCartItem=function(i){cart.splice(i,1);window.updateCartUI();};
 window.changeMainImage=function(s,x=0){const m=document.getElementById('productMainImg'),w=document.getElementById('mainImgWrapper');if(m)m.src=s;if(w){let c=w.getAttribute('onclick'),n=c.replace(/,\s*\d+\s*\)$/,`,${x})`);w.setAttribute('onclick',n);}};
 
-// --- ФУНКЦИИ ИЗБРАННОГО ---
+// --- ФУНКЦИЯ ИЗБРАННОГО ---
 window.toggleFav=function(id,e){e?.stopPropagation();const idx=favorites.indexOf(id);if(idx>-1){favorites.splice(idx,1);window.showNotification('Удалено из избранного');}else{favorites.push(id);window.showNotification('Добавлено в избранное');}localStorage.setItem('rassvet_fav',JSON.stringify(favorites));updateFavUI();};
 function updateFavUI(){const fc=document.getElementById('favCount');if(fc)fc.textContent=favorites.length;document.querySelectorAll('.card-fav-btn, .btn-fav-full').forEach(b=>{const id=b.getAttribute('data-fav-id');if(favorites.includes(id))b.classList.add('active');else b.classList.remove('active');});}
 async function renderFavorites(){
@@ -86,14 +86,48 @@ document.addEventListener('DOMContentLoaded',()=>{
     const of=document.getElementById('orderForm');
     if(of){const op=document.getElementById('orderPhone'),on=document.getElementById('orderName'),oe=document.getElementById('orderEmail');if(op&&window.IMask)IMask(op,{mask:'+{7} (000) 000-00-00'});if(on)on.addEventListener('input',()=>validateInput(on,'name'));if(op)op.addEventListener('input',()=>validateInput(op,'phone'));if(oe)oe.addEventListener('input',()=>validateInput(oe,'email'));of.onsubmit=e=>{e.preventDefault();if(!validateInput(on,'name')||!validateInput(op,'phone')||!validateInput(oe,'email'))return;let m=`<b>Новый заказ!</b>\n<b>Имя:</b> ${on.value}\n<b>Тел:</b> ${op.value}\n`;if(oe.value)m+=`<b>Email:</b> ${oe.value}\n`;m+=`\n<b>Заказ:</b>\n`;let tm=0;cart.forEach(i=>{tm+=parsePrice(i.price)*i.quantity;m+=`- ${i.sku} ${i.name} (x${i.quantity})\n`;});m+=`\n<b>Сумма: ${new Intl.NumberFormat('ru-RU').format(tm)} ₽</b>`;sendOrderToTelegram(m,of);};}
     
+    // --- ПОИСК (LIVE SEARCH) ---
+    const si=document.getElementById('searchInput');
+    if(si){
+        const sug=document.createElement('div');sug.className='search-suggestions';si.parentNode.appendChild(sug);
+        let allProds=[];
+        // Загружаем данные заранее для поиска
+        getCatalogData().then(d=>allProds=d);
+
+        si.addEventListener('input',debounce(()=>{
+            const v=si.value.toLowerCase().trim();
+            if(!v){sug.style.display='none';return;}
+            const res=allProds.filter(p=>p.name.toLowerCase().includes(v)||p.sku.toLowerCase().includes(v)).slice(0,5);
+            if(res.length===0){sug.style.display='none';return;}
+            sug.innerHTML=res.map(p=>`
+                <div class="search-suggestion-item" onclick="window.location.href='product.html?id=${p.id}'">
+                    <img src="${getImageUrl(p.images[0])}" alt="${p.name}">
+                    <div class="suggestion-info">
+                        <div class="suggestion-name">${p.name}</div>
+                        <div class="suggestion-sku">Арт: ${p.sku}</div>
+                        <div class="suggestion-price">${formatPrice(p.price)}</div>
+                    </div>
+                </div>
+            `).join('');
+            sug.style.display='block';
+        },300));
+        document.addEventListener('click',e=>{if(!si.contains(e.target)&&!sug.contains(e.target))sug.style.display='none';});
+        si.addEventListener('keydown',e=>{if(e.key==='Escape')sug.style.display='none';});
+    }
+
     const cg=document.getElementById('catalog');
     if(cg){
         let all=[],cnt=0,cat='all';
-        const lmb=document.getElementById('loadMoreBtn'),lmc=document.getElementById('loadMoreContainer'),si=document.getElementById('searchInput'),cf=document.getElementById('categoryFilter'),ss=document.getElementById('sortSelect');
+        const lmb=document.getElementById('loadMoreBtn'),lmc=document.getElementById('loadMoreContainer'),cf=document.getElementById('categoryFilter'),ss=document.getElementById('sortSelect');
         async function init(){try{all=await getCatalogData();if(all.length===0){cg.innerHTML='<div class="loader-container"><p class="error-text">Нет данных</p></div>';return;}initCats(all);batch(true);if(ss)ss.addEventListener('change',()=>{const v=ss.value;if(v==='default')all.sort((a,b)=>a.id-b.id);else if(v==='price_asc')all.sort((a,b)=>parsePrice(a.price)-parsePrice(b.price));else if(v==='price_desc')all.sort((a,b)=>parsePrice(b.price)-parsePrice(a.price));else if(v==='name_asc')all.sort((a,b)=>a.name.localeCompare(b.name));batch(true);});}catch(e){console.error(e);cg.innerHTML='<div class="loader-container"><p class="error-text">Ошибка сети</p></div>';}}
         function initCats(p){if(!cf)return;const c=['Все',...new Set(p.map(x=>x.category).filter(x=>x))];cf.innerHTML='';c.forEach(x=>{const b=document.createElement('button');b.className=x==='Все'?'cat-btn active':'cat-btn';b.textContent=x;b.onclick=()=>{document.querySelectorAll('.cat-btn').forEach(z=>z.classList.remove('active'));b.classList.add('active');cat=x==='Все'?'all':x;batch(true);};cf.appendChild(b);});}
         function batch(r=false){if(r){cg.innerHTML='';cnt=0;lmc.style.display='none';}const s=si?si.value.toLowerCase():'';const f=all.filter(p=>(cat==='all'||p.category===cat)&&(!s||p.name.toLowerCase().includes(s)||p.sku.toLowerCase().includes(s)));if(f.length===0){cg.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:#ccc;">Пусто</div>';return;}const n=f.slice(cnt,cnt+SITE_CONFIG.itemsPerPage);n.forEach(p=>{const d=document.createElement('div');d.className='product-card';d.setAttribute('data-product-id',p.id);d.innerHTML=createCardHtml(p);cg.appendChild(d);});cnt+=n.length;if(lmc)lmc.style.display=(cnt<f.length)?'block':'none';window.updateCartUI();updateFavUI();}
-        if(lmb)lmb.addEventListener('click',()=>batch());if(si)si.addEventListener('input',debounce(()=>batch(true),300));init();
+        if(lmb)lmb.addEventListener('click',()=>batch());
+        // Live search уже обрабатывает input, но если нужен фильтр сетки - можно оставить, но лучше разделить.
+        // Сейчас Live Search - это выпадающий список. Фильтрация сетки - это отдельная логика.
+        // Если вы хотите, чтобы при вводе фильтровалась И сетка, раскомментируйте ниже:
+        // if(si)si.addEventListener('input',debounce(()=>batch(true),300));
+        init();
     }
 
     const pd=document.getElementById('productDetail');

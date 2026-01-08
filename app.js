@@ -16,6 +16,7 @@ function renderLayout(){
     const c=SITE_CONFIG.contacts,showIf=l=>l?'flex':'none';
     const h=document.querySelector('header');
     
+    // ХЕДЕР С НОВЫМ ЛОГОТИПОМ И ИКОНКАМИ
     if(h){h.className='header';h.innerHTML=`<div class="container header-main"><button class="menu-btn" id="menuBtn"><svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button><a href="index.html" class="logo-text"><h1>РАССВЕТ-С</h1></a><nav class="header-nav" id="headerNav"><a href="index.html" class="nav-link ${isActive('index.html')}">Каталог</a><a href="about.html" class="nav-link ${isActive('about.html')}">О компании</a><a href="delivery.html" class="nav-link ${isActive('delivery.html')}">Доставка и оплата</a><a href="contacts.html" class="nav-link ${isActive('contacts.html')}">Контакты</a></nav><div class="header-contacts"><div class="header-icon-btn" id="favBtn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><span class="icon-count" id="favCount">0</span></div><div class="header-icon-btn" id="cartBtn"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg><span class="icon-count" id="cartCount">0</span></div></div></div>`;}
     
     if(!document.getElementById('cartModal')){
@@ -38,14 +39,15 @@ async function getCatalogData() {
     }catch(e){console.error(e);return[];}
 }
 
+// ИСПРАВЛЕННАЯ ФУНКЦИЯ ПАРСИНГА CSV
 function parseCSV(t){
     const r=[];
     let row=[],q=false,c='';
     for(let i=0;i<t.length;i++){
-        const ch=t[i]; // Исправлено: используем переменную ch вместо char
+        const ch=t[i];
         if(ch==='"')q=!q;
         else if(ch===','&&!q){row.push(c);c='';}
-        else if((ch==='\r'||ch==='\n')&&!q){
+        else if((ch==='\r'||ch==='\n')&&!q){ // ЗДЕСЬ БЫЛА ОШИБКА (char -> ch)
             if(c||row.length>0)row.push(c);
             if(row.length>0)r.push(row);
             row=[];
@@ -135,7 +137,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         function renderProd(p){
             const m=getImageUrl(p.images[0]),pr=formatPrice(p.price),n=p.name.replace(/'/g,""),aj=JSON.stringify(p.images.map(x=>getImageUrl(x))).replace(/"/g,"&quot;");let th='';if(p.images.length>1){th='<div class="gallery-thumbs">';p.images.forEach((x,i)=>{const u=getImageUrl(x);th+=`<div class="gallery-thumb" onclick="changeMainImage('${u}',${i})"><img src="${u}"></div>`;});th+='</div>';}
             const isF=favorites.includes(p.id)?'active':'';
-            pd.innerHTML=`<div class="product-full-card" data-product-id="${p.id}"><div class="gallery-container" id="mainImgWrapper" onclick="openLightbox(${aj},0)"><div class="full-img-wrapper"><img id="productMainImg" src="${m}" alt="${p.name}" onerror="this.src='${SITE_CONFIG.placeholderImage}'"></div>${th}</div><div class="full-info"><div class="full-sku">АРТИКУЛ: ${p.sku}</div><h1 class="full-title">${p.name}</h1><div class="full-price">${pr}</div><div class="full-actions-group"><a href="index.html" class="btn-detail blue">В КАТАЛОГ</a><button id="btn-add-${p.id}" onclick="addToCart('${p.id}','${p.sku}','${n}','${pr}')" class="btn-detail green">В КОРЗИНУ</button><button class="btn-fav-full ${isF}" onclick="toggleFav('${p.id}',event)" data-fav-id="${p.id}"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button><div id="btn-qty-${p.id}" class="btn-qty-grid hidden"><button onclick="updateItemQty('${p.id}',-1)">-</button><span id="qty-val-${p.id}">1</span><button onclick="updateItemQty('${p.id}',1)">+</button></div></div><div class="full-desc"><strong>Описание:</strong><br>${p.desc||'Нет описания'}<br><br><strong>Категория:</strong> ${p.category||'-'}</div></div></div>`;
+            pd.innerHTML=`<div class="product-full-card" data-product-id="${p.id}"><div class="gallery-container" style="flex:1;min-width:300px;"><div class="full-img-wrapper" id="mainImgWrapper" onclick="openLightbox(${aj},0)"><img id="productMainImg" src="${m}" alt="${p.name}" onerror="this.src='${SITE_CONFIG.placeholderImage}'"></div>${th}</div><div class="full-info"><div class="full-sku">АРТИКУЛ: ${p.sku}</div><h1 class="full-title">${p.name}</h1><div class="full-price">${pr}</div><div class="full-actions-group"><a href="index.html" class="btn-detail blue">В КАТАЛОГ</a><button id="btn-add-${p.id}" onclick="addToCart('${p.id}','${p.sku}','${n}','${pr}')" class="btn-detail green">В КОРЗИНУ</button><button class="btn-fav-full ${isF}" onclick="toggleFav('${p.id}',event)" data-fav-id="${p.id}"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button><div id="btn-qty-${p.id}" class="btn-qty-grid hidden"><button onclick="updateItemQty('${p.id}',-1)">-</button><span id="qty-val-${p.id}">1</span><button onclick="updateItemQty('${p.id}',1)">+</button></div></div><div class="full-desc"><strong>Описание:</strong><br>${p.desc||'Нет описания'}<br><br><strong>Категория:</strong> ${p.category||'-'}</div></div></div>`;
             window.updateCartUI();updateFavUI();
         }
         function renderRel(all,curr){

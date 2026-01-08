@@ -37,7 +37,6 @@ function renderLayout() {
 
     if (!document.getElementById('cartModal')) {
         const globalComponents = document.createElement('div');
-        // Добавлены кнопки prev/next в структуру lightbox
         globalComponents.innerHTML = `
             <div id="cartModal" class="cart-modal">
                 <div class="cart-content">
@@ -201,11 +200,8 @@ window.showNotification = function(message) {
     }, 3000);
 };
 
-// --- НОВАЯ ЛОГИКА ЛАЙТБОКСА ---
-
-// Открытие лайтбокса с массивом или одной картинкой
+// --- ЛОГИКА ЛАЙТБОКСА ---
 window.openLightbox = function(images, index = 0) {
-    // Если передали одну строку, превращаем в массив
     if (typeof images === 'string') {
         currentLightboxImages = [images];
     } else {
@@ -218,7 +214,6 @@ window.openLightbox = function(images, index = 0) {
     const lightbox = document.getElementById('lightbox');
     if (lightbox) {
         lightbox.classList.add('active');
-        // Добавляем класс single если картинка одна (чтобы скрыть стрелки в CSS)
         if (currentLightboxImages.length <= 1) {
             lightbox.classList.add('single');
         } else {
@@ -227,7 +222,6 @@ window.openLightbox = function(images, index = 0) {
     }
 };
 
-// Обновление картинки внутри лайтбокса
 function updateLightboxContent() {
     const img = document.getElementById('lightboxImg');
     if (img && currentLightboxImages.length > 0) {
@@ -235,14 +229,12 @@ function updateLightboxContent() {
     }
 }
 
-// Переключение стрелками
 window.navigateLightbox = function(e, direction) {
-    e.stopPropagation(); // Чтобы не закрыть лайтбокс при клике на стрелку
+    e.stopPropagation();
     if (currentLightboxImages.length <= 1) return;
 
     currentLightboxIndex += direction;
 
-    // Зацикливание (с последнего на первый и наоборот)
     if (currentLightboxIndex < 0) {
         currentLightboxIndex = currentLightboxImages.length - 1;
     } else if (currentLightboxIndex >= currentLightboxImages.length) {
@@ -253,7 +245,6 @@ window.navigateLightbox = function(e, direction) {
 };
 
 window.closeLightbox = function(e) {
-    // Закрываем если клик по фону или крестику
     const lightbox = document.getElementById('lightbox');
     if (lightbox && (e.target.id === 'lightbox' || e.target.classList.contains('lightbox-close'))) {
         lightbox.classList.remove('active');
@@ -558,16 +549,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const priceFmt = formatPrice(product.price);
             const nameClean = product.name.replace(/'/g, "");
             
-            // Подготавливаем список всех картинок для этого товара для передачи в onclick
             const allImages = product.images.map(img => getImageUrl(img));
-            // Экранируем кавычки, чтобы не сломать HTML атрибут
             const imagesJson = JSON.stringify(allImages).replace(/"/g, "&quot;");
 
             const card = document.createElement('div');
             card.className = 'product-card';
             card.setAttribute('data-product-id', product.id);
             
-            // ВАЖНО: onclick на img-wrapper теперь вызывает openLightbox с массивом всех картинок
             card.innerHTML = `
                 <div class="img-wrapper" onclick="openLightbox(${imagesJson}, 0)">
                     <img src="${imgUrl}" alt="${product.name}" class="product-img" loading="lazy" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
@@ -599,6 +587,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const product = products.find(p => p.id === id);
                 if (product) { 
                     renderProduct(product); 
+                    
+                    // --- НОВОЕ: ВЫЗЫВАЕМ ФУНКЦИЮ ПОХОЖИХ ТОВАРОВ ---
+                    renderRelated(products, product); 
+                    // -----------------------------------------------
+
                     document.title = `${product.name} | РАССВЕТ-С`;
                 } 
                 else { productDetail.innerHTML = `<h2 style="text-align:center; color:#fff;">Товар с ID ${id} не найден в базе</h2>`; }
@@ -610,14 +603,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const priceFmt = formatPrice(p.price);
             const nameClean = p.name.replace(/'/g, "");
 
-            // Подготавливаем массив всех картинок для лайтбокса
             const allImages = p.images.map(img => getImageUrl(img));
             const imagesJson = JSON.stringify(allImages).replace(/"/g, "&quot;");
 
             let thumbsHtml = '';
             if (p.images.length > 1) {
                 thumbsHtml = '<div class="gallery-thumbs">';
-                p.images.forEach((img, idx) => {
+                p.images.forEach((img) => {
                     const thumbUrl = getImageUrl(img);
                     thumbsHtml += `<div class="gallery-thumb" onclick="changeMainImage('${thumbUrl}');"><img src="${thumbUrl}"></div>`;
                 });
@@ -648,6 +640,50 @@ document.addEventListener('DOMContentLoaded', () => {
             productDetail.innerHTML = html;
             window.updateCartUI();
         }
+
+        // --- ФУНКЦИЯ ДЛЯ ПОХОЖИХ ТОВАРОВ ---
+        function renderRelated(allProducts, currentProduct) {
+            const relatedContainer = document.getElementById('relatedProducts');
+            const containerWrapper = document.getElementById('relatedContainer');
+            
+            if (!relatedContainer || !containerWrapper) return;
+
+            // Логика: та же категория, исключая текущий товар
+            const related = allProducts.filter(p => p.category === currentProduct.category && p.id !== currentProduct.id);
+            
+            // Берем первые 4
+            const toShow = related.slice(0, 4);
+
+            if (toShow.length === 0) {
+                containerWrapper.style.display = 'none';
+                return;
+            }
+
+            // Показываем блок
+            containerWrapper.style.display = 'block';
+
+            // Генерируем карточки (упрощенная версия createCard)
+            toShow.forEach(p => {
+                const imgUrl = getImageUrl(p.images[0]);
+                const priceFmt = formatPrice(p.price);
+                const nameClean = p.name.replace(/'/g, "");
+                
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="img-wrapper" onclick="location.href='product.html?id=${p.id}'">
+                        <img src="${imgUrl}" alt="${p.name}" class="product-img" loading="lazy" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
+                    </div>
+                    <div class="product-sku">АРТ: ${p.sku}</div>
+                    <a href="product.html?id=${p.id}" class="product-title" style="font-size: 14px;">${p.name}</a>
+                    <div class="product-price" style="font-size: 18px;">${priceFmt}</div>
+                    <div class="btn-group">
+                        <a href="product.html?id=${p.id}" class="btn-card btn-blue">Подробнее</a>
+                    </div>
+                `;
+                relatedContainer.appendChild(card);
+            });
+        }
     }
 
     const contactForm = document.getElementById('contactPageForm');
@@ -676,17 +712,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Смена картинки при клике на миниатюру
 window.changeMainImage = function(src) {
     const mainImg = document.getElementById('productMainImg');
     if (mainImg) {
         mainImg.src = src;
     }
-    // При клике на лайтбокс нужно будет открыть именно эту картинку, 
-    // но сейчас мы передаем массив в openLightbox, поэтому индекс может сбиться.
-    // Для простоты, в лайтбоксе всегда открываем с 0-го индекса, 
-    // либо можно усложнить логику поиска индекса по src.
-    // Пока оставим простое переключение.
 }
 
 function sendOrderToTelegram(text, form) {

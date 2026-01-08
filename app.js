@@ -16,8 +16,7 @@ function renderLayout(){
     const c=SITE_CONFIG.contacts,showIf=l=>l?'flex':'none';
     const h=document.querySelector('header');
     
-    // --- ОБНОВЛЕННАЯ HTML СТРУКТУРА ШАПКИ ---
-    // ИЗМЕНЕНО: Cart Widget теперь использует ту же структуру иконок, что и Fav
+    // ХЕДЕР С НОВЫМ ЛОГОТИПОМ И ИКОНКАМИ
     if(h){h.className='header';h.innerHTML=`<div class="container header-main"><button class="menu-btn" id="menuBtn"><svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button><a href="index.html" class="logo-text"><h1>РАССВЕТ-С</h1></a><nav class="header-nav" id="headerNav"><a href="index.html" class="nav-link ${isActive('index.html')}">Каталог</a><a href="about.html" class="nav-link ${isActive('about.html')}">О компании</a><a href="delivery.html" class="nav-link ${isActive('delivery.html')}">Доставка и оплата</a><a href="contacts.html" class="nav-link ${isActive('contacts.html')}">Контакты</a></nav><div class="header-contacts"><div class="header-icon-btn" id="favBtn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><span class="icon-count" id="favCount">0</span></div><div class="header-icon-btn" id="cartBtn"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg><span class="icon-count" id="cartCount">0</span></div></div></div>`;}
     
     if(!document.getElementById('cartModal')){
@@ -40,7 +39,27 @@ async function getCatalogData() {
     }catch(e){console.error(e);return[];}
 }
 
-function parseCSV(t){const r=[];let row=[],q=false,c='';for(let i=0;i<t.length;i++){const ch=t[i];if(ch==='"')q=!q;else if(ch===','&&!q){row.push(c);c='';}else if((char==='\r'||char==='\n')&&!q){if(c||row.length>0)row.push(c);if(row.length>0)r.push(row);row=[];c='';if(ch==='\r'&&t[i+1]==='\n')i++;}else c+=ch;}if(c||row.length>0){row.push(c);r.push(row);}return r;}
+// ИСПРАВЛЕННАЯ ФУНКЦИЯ ПАРСИНГА CSV
+function parseCSV(t){
+    const r=[];
+    let row=[],q=false,c='';
+    for(let i=0;i<t.length;i++){
+        const ch=t[i];
+        if(ch==='"')q=!q;
+        else if(ch===','&&!q){row.push(c);c='';}
+        else if((ch==='\r'||ch==='\n')&&!q){ // ЗДЕСЬ БЫЛА ОШИБКА (char -> ch)
+            if(c||row.length>0)row.push(c);
+            if(row.length>0)r.push(row);
+            row=[];
+            c='';
+            if(ch==='\r'&&t[i+1]==='\n')i++;
+        }
+        else c+=ch;
+    }
+    if(c||row.length>0){row.push(c);r.push(row);}
+    return r;
+}
+
 function debounce(f,w){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>f(...a),w);};}
 function validateInput(i,t){const v=i.value.trim();let ok=true,m='';i.classList.remove('error','success');const p=i.parentElement;let e=p.querySelector('.error-message');if(!e){e=document.createElement('div');e.className='error-message';p.appendChild(e);}p.classList.remove('has-error');if(t==='name'){if(v.length<2){ok=false;m='Имя короткое';}}else if(t==='phone'){if(v.length<18){ok=false;m='Номер не полный';}}else if(t==='email'){if(v&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){ok=false;m='Неверный Email';}}if(!ok){i.classList.add('error');p.classList.add('has-error');e.textContent=m;}else if(v.length>0)i.classList.add('success');return ok;}
 
@@ -50,10 +69,9 @@ function updateLightboxContent(){const i=document.getElementById('lightboxImg');
 window.navigateLightbox=function(e,d){e.stopPropagation();if(currentLightboxImages.length<=1)return;currentLightboxIndex+=d;if(currentLightboxIndex<0)currentLightboxIndex=currentLightboxImages.length-1;else if(currentLightboxIndex>=currentLightboxImages.length)currentLightboxIndex=0;updateLightboxContent();};
 window.closeLightbox=function(e){const l=document.getElementById('lightbox');if(l&&(e.target.id==='lightbox'||e.target.classList.contains('lightbox-close'))){l.classList.remove('active');setTimeout(()=>{document.getElementById('lightboxImg').src='';},300);}};
 
-// ИЗМЕНЕНО: Обновление счетчика корзины (вместо текста "Корзина: X")
 window.updateCartUI=function(){
     const cc=document.getElementById('cartCount'),ci=document.getElementById('cartItems'),ct=document.getElementById('cartTotal'),t=cart.reduce((s,i)=>s+i.quantity,0);
-    if(cc){cc.textContent=t; cc.style.display=t>0?'block':'none';} // Скрываем кружок, если 0
+    if(cc){cc.textContent=t; cc.style.display=t>0?'block':'none';}
     if(ci){ci.innerHTML='';let tm=0;cart.forEach((x,i)=>{const p=parsePrice(x.price);tm+=p*x.quantity;const d=document.createElement('div');d.className='cart-item';d.innerHTML=`<div class="cart-item-info"><span class="cart-item-title">${x.sku} - ${x.name}</span><span class="cart-item-price">${x.price}</span></div><div class="qty-controls"><button class="qty-btn" onclick="changeQuantity(${i},-1)">-</button><span class="qty-count">${x.quantity}</span><button class="qty-btn" onclick="changeQuantity(${i},1)">+</button></div><button class="btn-remove" onclick="removeCartItem(${i})">&times;</button>`;ci.appendChild(d);});if(ct)ct.textContent=`Итого: ${new Intl.NumberFormat('ru-RU').format(tm)} ₽`;}
     localStorage.setItem('rassvet_cart',JSON.stringify(cart));
     if(window.syncButtonsWithCart)window.syncButtonsWithCart();
@@ -91,7 +109,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     const mb=document.getElementById('menuBtn'),hn=document.getElementById('headerNav');
     if(mb&&hn){mb.addEventListener('click',e=>{e.stopPropagation();hn.classList.toggle('active');mb.innerHTML=hn.classList.contains('active')?'<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>':'<svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';});document.addEventListener('click',e=>{if(!hn.contains(e.target)&&!mb.contains(e.target)&&hn.classList.contains('active')){hn.classList.remove('active');mb.innerHTML='<svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';}});}
     
-    // ИЗМЕНЕНО: Обработчик для новой иконки корзины (cartBtn)
     const cm=document.getElementById('cartModal'),cw=document.getElementById('cartBtn'),cc=document.getElementById('closeCart'),cob=document.getElementById('cartOrderBtn'),om=document.getElementById('orderModal'),co=document.getElementById('closeOrder');
     const fm=document.getElementById('favModal'),fw=document.getElementById('favBtn'),fc=document.getElementById('closeFav');
     

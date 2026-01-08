@@ -14,24 +14,27 @@
 
 html { scroll-behavior: smooth; }
 
-body { 
-    font-family: 'Manrope', sans-serif; margin: 0; 
+/* Глобальный запрет на горизонтальный скролл */
+html, body { 
+    font-family: 'Manrope', sans-serif; margin: 0; padding: 0;
     background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/bg.webp');
     background-size: cover; background-position: center; background-attachment: fixed; 
     color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column;
-    overflow-x: hidden;
+    overflow-x: hidden; 
+    width: 100%;
+    position: relative;
 }
 
 .container { max-width: 1480px; margin: 0 auto; padding: 0 20px; box-sizing: border-box; width: 100%; }
 
 /* --- HEADER --- */
-.header { background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-glass); position: sticky; top: 0; z-index: 1000; padding: 10px 0; transition: 0.3s; }
-.header-main { display: flex; justify-content: space-between; align-items: center; position: relative; }
+.header { background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-glass); position: sticky; top: 0; z-index: 1000; padding: 10px 0; transition: 0.3s; }
+.header-main { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1001; background: transparent; }
 
-.menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 5px; }
+.menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 5px; z-index: 1002; }
 .menu-btn svg { width: 28px; height: 28px; stroke: #fff; stroke-width: 2; stroke-linecap: round; }
 
-.logo-text { text-decoration: none; }
+.logo-text { text-decoration: none; z-index: 1002; }
 .logo-text h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 2px; color: #fff; text-transform: uppercase; }
 .header-nav { display: flex; gap: 40px; }
 .nav-link { text-decoration: none; color: rgba(255,255,255,0.8); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; position: relative; padding-bottom: 5px; transition: 0.3s; }
@@ -39,7 +42,7 @@ body {
 .nav-link::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: var(--accent); transition: 0.3s ease; }
 .nav-link:hover::after, .nav-link.active::after { width: 100%; }
 
-.header-contacts { display: flex; align-items: center; }
+.header-contacts { display: flex; align-items: center; z-index: 1002; }
 .cart-widget { font-size: 12px; font-weight: 700; color: var(--whatsapp); cursor: pointer; text-transform: uppercase; background: rgba(37, 211, 102, 0.1); padding: 6px 14px; border-radius: 20px; transition: 0.3s; border: 1px solid rgba(37, 211, 102, 0.2); }
 .cart-widget:hover { background: var(--whatsapp); color: #fff; }
 
@@ -126,7 +129,7 @@ body {
 .cat-skeleton { width: 100px; height: 42px; background: rgba(255,255,255,0.05); border-radius: 50px; }
 .error-text { color: #ff4444; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 20px rgba(255, 68, 68, 0.5); }
 
-/* --- FOOTER --- */
+/* --- FOOTER (DESKTOP) --- */
 .footer { background: #080808; border-top: 1px solid #222; padding: 60px 0 20px; margin-top: auto; font-size: 14px; }
 .footer-content { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
 .footer-col h4 { color: #fff; font-size: 16px; font-weight: 800; text-transform: uppercase; margin-top: 0; margin-bottom: 20px; letter-spacing: 1px; }
@@ -343,35 +346,32 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
 
 /* --- МОБИЛЬНАЯ АДАПТАЦИЯ (ИСПРАВЛЕННАЯ) --- */
 @media (max-width: 900px) {
-    /* 1. Глобальные настройки контейнеров */
-    .container { padding: 0 15px; overflow-x: hidden; } /* Скрываем гориз. скролл */
-    body { overflow-x: hidden; width: 100%; }
+    /* 1. Глобальные настройки */
+    .container { padding: 0 15px; }
 
-    /* 2. Исправление Шапки */
+    /* 2. Шапка */
     .header-main {
-        flex-wrap: nowrap; /* Запрещаем перенос блоков шапки */
+        flex-wrap: nowrap;
         gap: 10px;
     }
     
     .menu-btn { 
         display: block; 
         z-index: 1002; 
-        flex-shrink: 0; /* Чтобы кнопка не сжималась */
+        flex-shrink: 0;
     }
 
     .logo-text h1 { 
-        font-size: 18px; /* Уменьшаем шрифт логотипа */
-        white-space: nowrap; /* Запрещаем перенос названия */
+        font-size: 18px; 
+        white-space: nowrap; 
         letter-spacing: 1px;
     }
 
-    .header-contacts {
-        gap: 8px;
-    }
+    .header-contacts { gap: 8px; }
 
-    /* Уменьшаем виджет корзины */
+    /* Виджет корзины */
     .cart-widget {
-        font-size: 0; /* Скрываем текст "Корзина:" */
+        font-size: 0;
         padding: 8px;
         width: 36px;
         height: 36px;
@@ -380,7 +380,6 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
         justify-content: center;
         border-radius: 50%;
     }
-    /* Добавляем иконку корзины через CSS */
     .cart-widget::before {
         content: '';
         width: 18px;
@@ -394,70 +393,158 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
     .header-fav { margin-right: 5px; }
     .header-fav svg { width: 22px; height: 22px; }
 
-    /* Меню (выезжающее справа) */
+    /* МЕНЮ - Стеклянная шторка, компактная */
     .header-nav {
         position: fixed;
         top: 0;
-        right: -100%;
-        width: 80%;
-        max-width: 300px;
-        height: 100vh;
-        background: #0a0a0a;
+        left: 0;
+        width: 100%;
+        height: auto; /* АВТОМАТИЧЕСКАЯ ВЫСОТА вместо 100vh */
+        max-height: 80vh; /* Ограничиваем высоту */
+        overflow-y: auto;
+        background: rgba(15, 15, 15, 0.95); /* Полупрозрачный фон */
+        backdrop-filter: blur(20px); /* Размытие (Стекло) */
         flex-direction: column;
-        padding: 80px 30px;
-        gap: 20px;
+        padding: 80px 20px 30px; /* Отступ сверху под шапку */
+        gap: 10px; /* Меньше расстояние между ссылками */
         transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border-left: 1px solid var(--border-glass);
-        box-shadow: -10px 0 50px rgba(0,0,0,0.9);
-        z-index: 1001;
+        z-index: 999;
+        transform: translateY(-100%);
+        border-bottom: 1px solid rgba(255,255,255,0.15); /* Бордер снизу */
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5); /* Тень снизу */
     }
-    .header-nav.active { right: 0; }
+    .header-nav.active { 
+        transform: translateY(0); /* Выезжает вниз */
+    }
 
-    .nav-link { font-size: 16px; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; }
+    .nav-link { 
+        font-size: 14px; 
+        width: 100%; 
+        border-bottom: 1px solid rgba(255,255,255,0.05); 
+        padding: 15px 0; 
+        font-weight: 800;
+        letter-spacing: 1px;
+    }
+    .nav-link:last-child { border-bottom: none; }
     .nav-link::after { display: none; }
 
-    /* 3. Исправление переполнения текста */
+    /* 3. Исправление переполнения текста и блоков */
     .content-padding, 
     .contact-card, 
-    .policy-card,
+    .policy-card, 
     .product-full-card,
     .catalog-interface { 
-        padding: 20px !important; /* Уменьшаем отступы с 40-60px до 20px */
+        padding: 20px !important; 
         width: 100%;
-        box-sizing: border-box; /* Чтобы padding не увеличивал ширину */
-        overflow-wrap: break-word; /* Перенос длинных слов */
+        box-sizing: border-box;
+        overflow-wrap: break-word; 
         word-wrap: break-word;
     }
 
-    /* Специально для длинных заголовков */
+    /* Исправление сеток на Flex Column */
+    .contacts-wrapper,
+    .delivery-grid,
+    .about-grid-2,
+    .service-card-layout { 
+        display: flex !important;
+        flex-direction: column !important;
+        grid-template-columns: 100% !important;
+        gap: 20px;
+        width: 100% !important;
+    }
+
+    /* ВАЖНОЕ ИСПРАВЛЕНИЕ ДЛЯ КОНТАКТОВ:
+       Перебиваем встроенный style="grid-template-columns: 1fr 1fr" в HTML */
+    .contact-card {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        grid-template-columns: 1fr !important;
+        gap: 30px !important;
+    }
+
+    .form-input { 
+        width: 100% !important;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box; 
+    }
+
     .section-header, 
     .hero-title-large, 
     .contact-page-title,
     .policy-title {
-        font-size: 22px !important; /* Уменьшаем размер заголовков */
-        word-break: break-word; /* Принудительный перенос */
+        font-size: 22px !important;
+        word-break: break-word;
         hyphens: auto;
     }
 
-    /* 4. Исправление страницы Контакты и Форм */
-    .contacts-wrapper { grid-template-columns: 1fr !important; gap: 20px; }
-    .form-input { width: 100%; box-sizing: border-box; } /* Чтобы инпуты не вылезали */
     .map-container { height: 250px; width: 100%; }
     
-    /* 5. Подвал */
-    .footer { padding: 40px 0 20px; }
-    .footer-content { grid-template-columns: 1fr; gap: 30px; text-align: center; }
-    .footer-contacts-list { align-items: center; }
-    .footer-socials { justify-content: center; }
-    .footer-nav a { padding: 10px 0; display: block; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    /* 5. Подвал (Левое выравнивание) */
+    .footer { padding: 40px 0 60px; /* Больше отступа снизу */ }
+    
+    .footer-content { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 40px; 
+        text-align: left; /* Главное: текст по левому краю */
+    }
+
+    .footer-col h4 {
+        text-align: left;
+        margin-bottom: 25px;
+    }
+
+    .footer-contacts-list { 
+        align-items: flex-start; /* Список тоже прижат влево */
+    }
+    
+    /* Блок контакта: иконка + текст */
+    .footer-contact-item { 
+        display: flex;
+        justify-content: flex-start; /* Выравнивание по началу строки (слева) */
+        width: 100%;
+        margin: 0;
+        gap: 15px;
+    }
+    
+    .footer-contact-info {
+        align-items: flex-start; 
+        text-align: left;
+    }
+
+    /* Убираем отступ сверху у иконки на мобильном для идеального центра с первой строкой */
+    .footer-icon svg {
+        margin-top: 0; 
+    }
+    
+    .footer-socials { 
+        justify-content: flex-start; /* Соцсети выравниваем влево */
+    }
+    
+    .footer-nav {
+        align-items: flex-start;
+    }
+    
+    /* Ссылки в футере: на всю ширину с тонким разделителем (удобно для пальца) */
+    .footer-nav a { 
+        padding: 12px 0; 
+        display: block; 
+        width: 100%;
+        border-bottom: 1px solid rgba(255,255,255,0.05); 
+    }
+
+    .footer-disclaimer { 
+        text-align: left; /* Дисклеймер тоже влево */
+        padding: 0 5px; 
+        opacity: 0.6;
+    }
 
     /* 6. Остальные элементы */
     .catalog-controls { flex-direction: column; }
     .product-full-card { flex-direction: column; gap: 20px; }
     .full-img-wrapper { min-height: 250px; }
-    .delivery-grid { grid-template-columns: 1fr; }
-    .about-grid-2 { grid-template-columns: 1fr; }
-    .service-card-layout { grid-template-columns: 1fr; }
     .img-service-wrapper { height: 200px; border-left: none; border-top: 1px solid rgba(255,255,255,0.1); }
     
     /* Лайтбокс */

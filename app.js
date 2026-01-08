@@ -11,6 +11,12 @@ function renderLayout() {
         return path.includes(page) ? 'active' : '';
     };
 
+    // Проверка наличия конфига во избежание ошибок
+    if (typeof SITE_CONFIG === 'undefined') {
+        console.error('Config not loaded!');
+        return;
+    }
+
     const c = SITE_CONFIG.contacts; 
     const showIf = (link) => link ? 'flex' : 'none';
 
@@ -119,6 +125,7 @@ function renderLayout() {
 }
 
 async function getCatalogData() {
+    // ВАЖНО: Тут мы полагаемся на SITE_CONFIG из config.js
     const cacheKey = 'rassvet_v7_data'; 
     const timeKey = 'rassvet_v7_time';
     const maxAge = (SITE_CONFIG.cacheTime || 1) * 60 * 60 * 1000;
@@ -384,7 +391,10 @@ function getImageUrl(imagePath) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof SITE_CONFIG === 'undefined') return;
+    if (typeof SITE_CONFIG === 'undefined') {
+        console.error("Config missing");
+        return; 
+    }
     
     renderLayout();
     window.updateCartUI();
@@ -465,6 +475,114 @@ document.addEventListener('DOMContentLoaded', () => {
 
             sendOrderToTelegram(message, orderForm);
         };
+    }
+
+    const catalogGrid = document.getElementById('catalog');
+    if(catalogGrid) {
+        let allProducts = [];
+        let displayedCount = 0;
+        let currentCategory = 'all';
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const loadMoreContainer = document.getElementById('loadMoreContainer');
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const sortSelect = document.getElementById('sortSelect'); 
+
+        initCatalog();
+
+        async function initCatalog() {
+            try {
+                allProducts = await getCatalogData();
+                if (allProducts.length === 0) {
+                    catalogGrid.innerHTML = '<div class="loader-container"><p class="error-text">Ошибка загрузки данных</p></div>';
+                    return;
+                }
+                initCategories(allProducts);
+                renderBatch(true);
+
+                if (sortSelect) {
+                    sortSelect.addEventListener('change', () => {
+                        const sortType = sortSelect.value;
+                        if (sortType === 'default') { allProducts.sort((a, b) => a.id - b.id); } 
+                        else if (sortType === 'price_asc') { allProducts.sort((a, b) => parsePrice(a.price) - parsePrice(b.price)); } 
+                        else if (sortType === 'price_desc') { allProducts.sort((a, b) => parsePrice(b.price) - parsePrice(a.price)); } 
+                        else if (sortType === 'name_asc') { allProducts.sort((a, b) => a.name.localeCompare(b.name)); }
+                        renderBatch(true);
+                    });
+                }
+
+            } catch (err) {
+                console.error(err);
+                catalogGrid.innerHTML = '<div class="loader-container"><p class="error-text">Ошибка сети</p></div>';
+            }
+        }
+
+        function initCategories(products) {
+            if(!categoryFilter) return;
+            const cats = ['Все', ...new Set(products.map(p => p.category).filter(c => c))];
+            categoryFilter.innerHTML = '';
+            cats.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = cat === 'Все' ? 'cat-btn active' : 'cat-btn';
+                btn.textContent = cat;
+                btn.onclick = () => {
+                    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCategory = cat === 'Все' ? 'all' : cat;
+                    renderBatch(true);
+                };
+                categoryFilter.appendChild(btn);
+            });
+        }
+
+        function renderBatch(reset = false) {
+            if (reset) { catalogGrid.innerHTML = ''; displayedCount = 0; loadMoreContainer.style.display = 'none'; }
+            const searchVal = searchInput ? searchInput.value.toLowerCase() : '';
+            const filtered = allProducts.filter(p => {
+                const matchesCat = currentCategory === 'all' || p.category === currentCategory;
+                const matchesSearch = !searchVal || p.name.toLowerCase().includes(searchVal) || p.sku.toLowerCase().includes(searchVal);
+                return matchesCat && matchesSearch;
+            });
+            if (filtered.length === 0) { catalogGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px; color:#ccc;">Товары не найдены</div>'; return; }
+            const nextBatch = filtered.slice(displayedCount, displayedCount + SITE_CONFIG.itemsPerPage);
+            nextBatch.forEach(product => { catalogGrid.appendChild(createCard(product)); });
+            displayedCount += nextBatch.length;
+            if(loadMoreContainer) loadMoreContainer.style.display = (displayedCount < filtered.length) ? 'block' : 'none';
+            window.updateCartUI(); 
+        }
+
+        if(loadMoreBtn) loadMoreBtn.addEventListener('click', () => renderBatch());
+        if(searchInput) searchInput.addEventListener('input', debounce(() => renderBatch(true), 300));
+
+        function createCard(product) {
+            const imgUrl = getImageUrl(product.images[0]);
+            const priceFmt = formatPrice(product.price);
+            const nameClean = product.name.replace(/'/g, "");
+            
+            // Сборка массива картинок для лайтбокса (чтобы клик работал корректно)
+            const allImages = product.images.map(img => getImageUrl(img));
+            const imagesJson = JSON.stringify(allImages).replace(/"/g, "&quot;");
+
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.setAttribute('data-product-id', product.id);
+            
+            // ВАЖНО: onclick на img-wrapper теперь вызывает openLightbox с массивом всех картинок
+            card.innerHTML = `
+                <div class="img-wrapper" onclick="openLightbox(${imagesJson}, 0)">
+                    <img src="${imgUrl}" alt="${product.name}" class="product-img" loading="lazy" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
+                </div>
+                <div class="product-sku">АРТ: ${product.sku}</div>
+                <a href="product.html?id=${product.id}" class="product-title">${product.name}</a>
+                <div class="product-price">${priceFmt}</div>
+                <div class="btn-group">
+                    <a href="product.html?id=${product.id}" class="btn-card btn-blue">Подробнее</a>
+                    <button id="btn-add-${product.id}" onclick="addToCart('${product.id}', '${product.sku}', '${nameClean}', '${priceFmt}')" class="btn-card btn-green">В КОРЗИНУ</button>
+                    <div id="btn-qty-${product.id}" class="btn-qty-grid hidden"><button onclick="updateItemQty('${product.id}', -1)">-</button><span id="qty-val-${product.id}">1</span><button onclick="updateItemQty('${product.id}', 1)">+</button></div>
+                </div>
+            `;
+            return card;
+        }
     }
 
     const productDetail = document.getElementById('productDetail');

@@ -301,114 +301,32 @@ input[type="file"]::file-selector-button:hover { background: var(--accent); bord
 .policy-link:hover { color: #fff !important; border-color: #fff; }
 
 /* =========================================
-   ГАЛЕРЕЯ НА СТРАНИЦЕ ТОВАРА
+   ГАЛЕРЕЯ И ЛАЙТБОКС
    ========================================= */
-.gallery-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
+.gallery-container { display: flex; flex-direction: column; gap: 15px; }
+.gallery-thumbs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
+.gallery-thumb { width: 70px; height: 70px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; overflow: hidden; cursor: pointer; flex-shrink: 0; transition: 0.3s; background: #fff; display: flex; align-items: center; justify-content: center; }
+.gallery-thumb:hover { border-color: var(--accent); transform: translateY(-2px); }
+.gallery-thumb img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.gallery-thumbs::-webkit-scrollbar { height: 6px; }
+.gallery-thumbs::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 3px; }
+.gallery-thumbs::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
 
-.gallery-thumbs {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto; /* Горизонтальная прокрутка, если много фото */
-    padding-bottom: 5px;
-}
-
-.gallery-thumb {
-    width: 70px;
-    height: 70px;
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: 0.3s;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.gallery-thumb:hover {
-    border-color: var(--accent);
-    transform: translateY(-2px);
-}
-
-.gallery-thumb img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-}
-
-/* Скроллбар для миниатюр */
-.gallery-thumbs::-webkit-scrollbar {
-    height: 6px;
-}
-.gallery-thumbs::-webkit-scrollbar-track {
-    background: rgba(255,255,255,0.05);
-    border-radius: 3px;
-}
-.gallery-thumbs::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.2);
-    border-radius: 3px;
-}
-
-/* --- СТИЛИ ДЛЯ ЛИСТАНИЯ ФОТО (LIGHTBOX) --- */
-.lightbox-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border: none;
-    padding: 15px;
-    cursor: pointer;
-    font-size: 24px;
-    font-weight: bold;
-    border-radius: 50%;
-    transition: 0.3s;
-    user-select: none;
-    z-index: 3002;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 50px;
-    height: 50px;
-}
-
-.lightbox-nav:hover {
-    background: var(--accent);
-    color: #fff;
-}
-
+/* Стрелки лайтбокса */
+.lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.1); color: #fff; border: none; padding: 15px; cursor: pointer; font-size: 24px; font-weight: bold; border-radius: 50%; transition: 0.3s; user-select: none; z-index: 3002; display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; }
+.lightbox-nav:hover { background: var(--accent); color: #fff; }
 .lightbox-prev { left: 20px; }
 .lightbox-next { right: 20px; }
-
-/* Скрываем стрелки, если фото одно */
 .lightbox.single .lightbox-nav { display: none; }
-
-/* Адаптив для стрелок на мобильном */
-@media (max-width: 900px) {
-    .lightbox-nav {
-        padding: 10px;
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
-    }
-    .lightbox-prev { left: 10px; }
-    .lightbox-next { right: 10px; }
-}
+@media (max-width: 900px) { .lightbox-nav { padding: 10px; width: 40px; height: 40px; font-size: 18px; } .lightbox-prev { left: 10px; } .lightbox-next { right: 10px; } }
 
 /* --- СТИЛИ ДЛЯ ПОХОЖИХ ТОВАРОВ (НЕПРОЗРАЧНЫЕ) --- */
 #relatedProducts .product-card {
-    background: #111111; /* Солидный черный/темно-серый цвет */
-    backdrop-filter: none; /* Убираем размытие фона */
+    background: #111111; /* Солидный цвет, чтобы не просвечивал фон */
+    backdrop-filter: none; /* Убираем эффект стекла */
     border: 1px solid rgba(255, 255, 255, 0.15);
 }
-
 #relatedProducts .product-card:hover {
-    background: #1a1a1a; /* Чуть светлее при наведении */
+    background: #1a1a1a;
     border-color: var(--accent);
 }

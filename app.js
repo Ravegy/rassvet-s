@@ -6,166 +6,53 @@ function getImageUrl(p){if(!p||!p.trim())return SITE_CONFIG.placeholderImage;if(
 function formatPrice(p){if(!p)return'По запросу';const c=parseFloat(p.replace(/\s/g,'').replace(',','.'));return isNaN(c)?p:new Intl.NumberFormat('ru-RU').format(c)+' ₽'}
 function parsePrice(s){if(!s)return 0;return parseFloat(s.replace(/\s/g,'').replace('₽','').replace(',','.'))||0}
 
-function createProductCardHTML(product) {
-    const imgUrl = getImageUrl(product.images[0]);
-    const priceFmt = formatPrice(product.price);
-    const nameClean = product.name.replace(/'/g, "");
-    const allImages = product.images.map(img => getImageUrl(img));
-    const imagesJson = JSON.stringify(allImages).replace(/"/g, "&quot;");
-    return `
-        <div class="img-wrapper" onclick="openLightbox(${imagesJson}, 0)">
-            <img src="${imgUrl}" alt="${product.name}" class="product-img" loading="lazy" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
-        </div>
-        <div class="product-sku">АРТ: ${product.sku}</div>
-        <a href="product.html?id=${product.id}" class="product-title">${product.name}</a>
-        <div class="product-price">${priceFmt}</div>
-        <div class="btn-group">
-            <a href="product.html?id=${product.id}" class="btn-card btn-blue">Подробнее</a>
-            <button id="btn-add-${product.id}" onclick="addToCart('${product.id}', '${product.sku}', '${nameClean}', '${priceFmt}')" class="btn-card btn-green">В КОРЗИНУ</button>
-            <div id="btn-qty-${product.id}" class="btn-qty-grid hidden"><button onclick="updateItemQty('${product.id}', -1)">-</button><span id="qty-val-${product.id}">1</span><button onclick="updateItemQty('${product.id}', 1)">+</button></div>
-        </div>
-    `;
+function createCardHtml(p){
+    const i=getImageUrl(p.images[0]),pr=formatPrice(p.price),n=p.name.replace(/'/g,""),aj=JSON.stringify(p.images.map(x=>getImageUrl(x))).replace(/"/g,"&quot;");
+    return `<div class="img-wrapper" onclick="openLightbox(${aj},0)"><img src="${i}" alt="${p.name}" class="product-img" loading="lazy" onerror="this.src='${SITE_CONFIG.placeholderImage}'"></div><div class="product-sku">АРТ: ${p.sku}</div><a href="product.html?id=${p.id}" class="product-title">${p.name}</a><div class="product-price">${pr}</div><div class="btn-group"><a href="product.html?id=${p.id}" class="btn-card btn-blue">Подробнее</a><button id="btn-add-${p.id}" onclick="addToCart('${p.id}','${p.sku}','${n}','${pr}')" class="btn-card btn-green">В КОРЗИНУ</button><div id="btn-qty-${p.id}" class="btn-qty-grid hidden"><button onclick="updateItemQty('${p.id}',-1)">-</button><span id="qty-val-${p.id}">1</span><button onclick="updateItemQty('${p.id}',1)">+</button></div></div>`;
 }
 
-function renderLayout() {
-    if (typeof SITE_CONFIG === 'undefined') { console.error('Config missing'); return; }
-    const path = window.location.pathname;
-    const isActive = (p) => (p === 'index.html' && (path.endsWith('/') || path.includes('index.html'))) ? 'active' : (path.includes(p) ? 'active' : '');
-    const c = SITE_CONFIG.contacts;
-    const showIf = (l) => l ? 'flex' : 'none';
-
-    const h = document.querySelector('header');
-    if (h) {
-        h.className = 'header';
-        h.innerHTML = `
-            <div class="container header-main">
-                <button class="menu-btn" id="menuBtn"><svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
-                <a href="index.html" class="logo-text"><h1>РАССВЕТ-С</h1></a>
-                <nav class="header-nav" id="headerNav">
-                    <a href="index.html" class="nav-link ${isActive('index.html')}">Каталог</a>
-                    <a href="about.html" class="nav-link ${isActive('about.html')}">О компании</a>
-                    <a href="delivery.html" class="nav-link ${isActive('delivery.html')}">Доставка и оплата</a>
-                    <a href="contacts.html" class="nav-link ${isActive('contacts.html')}">Контакты</a>
-                </nav>
-                <div class="header-contacts"><div id="cartWidget" class="cart-widget">Корзина: 0</div></div>
-            </div>`;
-    }
-
-    if (!document.getElementById('cartModal')) {
-        const d = document.createElement('div');
-        d.innerHTML = `
-            <div id="cartModal" class="cart-modal">
-                <div class="cart-content">
-                    <div class="cart-header"><h2>Ваша корзина</h2><span class="close-cart" id="closeCart">&times;</span></div>
-                    <div class="cart-items" id="cartItems"></div>
-                    <div class="cart-footer"><span id="cartTotal" class="cart-total">Итого: 0 ₽</span><button id="cartOrderBtn" class="btn-cart-order">Отправить запрос</button></div>
-                </div>
-            </div>
-            <div id="orderModal" class="cart-modal" style="z-index: 2100;">
-                <div class="cart-content">
-                    <div class="cart-header"><h2>Оформление заказа</h2><span class="close-cart" id="closeOrder">&times;</span></div>
-                    <form id="orderForm" class="order-form">
-                        <div class="form-group"><input type="text" id="orderName" class="form-input" placeholder="Ваше Имя" required></div>
-                        <div class="form-group"><input type="tel" id="orderPhone" class="form-input" placeholder="Номер телефона" required></div>
-                        <div class="form-group"><input type="email" id="orderEmail" class="form-input" placeholder="Email (необязательно)"></div>
-                        <button type="submit" class="btn-cart-order">Подтвердить заказ</button>
-                    </form>
-                </div>
-            </div>
-            <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
-                <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(event, -1)">&#10094;</button>
-                <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
-                <img class="lightbox-content" id="lightboxImg" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
-                <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(event, 1)">&#10095;</button>
-            </div>
-            <div id="toast-container"></div>`;
+function renderLayout(){
+    if(typeof SITE_CONFIG==='undefined'){console.error('Config missing');return;}
+    const path=window.location.pathname,isActive=p=>(p==='index.html'&&(path.endsWith('/')||path.includes('index.html')))?'active':(path.includes(p)?'active':'');
+    const c=SITE_CONFIG.contacts,showIf=l=>l?'flex':'none';
+    const h=document.querySelector('header');
+    if(h){h.className='header';h.innerHTML=`<div class="container header-main"><button class="menu-btn" id="menuBtn"><svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button><a href="index.html" class="logo-text"><h1>РАССВЕТ-С</h1></a><nav class="header-nav" id="headerNav"><a href="index.html" class="nav-link ${isActive('index.html')}">Каталог</a><a href="about.html" class="nav-link ${isActive('about.html')}">О компании</a><a href="delivery.html" class="nav-link ${isActive('delivery.html')}">Доставка и оплата</a><a href="contacts.html" class="nav-link ${isActive('contacts.html')}">Контакты</a></nav><div class="header-contacts"><div id="cartWidget" class="cart-widget">Корзина: 0</div></div></div>`;}
+    if(!document.getElementById('cartModal')){
+        const d=document.createElement('div');
+        d.innerHTML=`<div id="cartModal" class="cart-modal"><div class="cart-content"><div class="cart-header"><h2>Ваша корзина</h2><span class="close-cart" id="closeCart">&times;</span></div><div class="cart-items" id="cartItems"></div><div class="cart-footer"><span id="cartTotal" class="cart-total">Итого: 0 ₽</span><button id="cartOrderBtn" class="btn-cart-order">Отправить запрос</button></div></div></div><div id="orderModal" class="cart-modal" style="z-index: 2100;"><div class="cart-content"><div class="cart-header"><h2>Оформление заказа</h2><span class="close-cart" id="closeOrder">&times;</span></div><form id="orderForm" class="order-form"><div class="form-group"><input type="text" id="orderName" class="form-input" placeholder="Ваше Имя" required></div><div class="form-group"><input type="tel" id="orderPhone" class="form-input" placeholder="Номер телефона" required></div><div class="form-group"><input type="email" id="orderEmail" class="form-input" placeholder="Email (необязательно)"></div><button type="submit" class="btn-cart-order">Подтвердить заказ</button></form></div></div><div id="lightbox" class="lightbox" onclick="closeLightbox(event)"><button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(event,-1)">&#10094;</button><span class="lightbox-close" onclick="closeLightbox(event)">&times;</span><img class="lightbox-content" id="lightboxImg" onerror="this.src='${SITE_CONFIG.placeholderImage}'"><button class="lightbox-nav lightbox-next" onclick="navigateLightbox(event,1)">&#10095;</button></div><div id="toast-container"></div>`;
         document.body.appendChild(d);
     }
-
-    const f = document.querySelector('footer');
-    if (f) {
-        f.className = 'footer';
-        f.innerHTML = `
-            <div class="container">
-                <div class="footer-content">
-                    <div class="footer-col">
-                        <h4>О компании</h4>
-                        <p>ООО «РАССВЕТ-С» — надежный поставщик запчастей и комплектующих для лесозаготовительной техники Komatsu.</p>
-                        <div class="footer-socials">
-                            <a href="${c.telegram}" target="_blank" class="social-btn telegram" style="display: ${showIf(c.telegram)}"><svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></a>
-                            <a href="${c.whatsapp}" target="_blank" class="social-btn whatsapp" style="display: ${showIf(c.whatsapp)}"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></a>
-                            <a href="${c.vk}" target="_blank" class="social-btn vk" style="display: ${showIf(c.vk)}"><svg viewBox="0 0 24 24"><path d="M13.162 18.994c.609 0 .858-.406.851-1.512-.006-1.72.784-2.527 1.522-2.527.676 0 1.568.658 1.948 2.378.109.493.502.593.74.593h2.324c.787 0 1.101-.392 1.135-.857.073-1.021-.924-2.527-2.384-3.527-.608-.415-.589-.728.061-1.391.821-.837 2.18-2.618 2.364-3.593.033-.175.039-.481-.225-.481h-2.338c-.732 0-.989.336-1.229.832-1.006 2.072-2.41 3.251-3.216 3.251-.274 0-.463-.158-.463-.889V8.407c0-1.211-.284-1.407-1.022-1.407h-2.18c-.378 0-.698.192-.698.593 0 .428.632.535.698 1.76v3.131c0 .693-.214.97-.681.97-.97 0-3.329-3.593-4.329-7.234-.163-.585-.438-.813-1.022-.813H2.887c-.773 0-.937.336-.937.679 0 .684.974 4.116 4.382 8.781C8.627 17.5 11.237 18.994 13.162 18.994z"/></svg></a>
-                            <a href="${c.avito}" target="_blank" class="social-btn avito" style="display: ${showIf(c.avito)}"><svg viewBox="0 0 24 24"><circle cx="7" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><circle cx="7" cy="17" r="3"/><circle cx="17" cy="17" r="3"/></svg></a>
-                        </div>
-                    </div>
-                    <div class="footer-col">
-                        <h4>Навигация</h4>
-                        <nav class="footer-nav">
-                            <a href="index.html">Каталог</a>
-                            <a href="about.html">О компании</a>
-                            <a href="delivery.html">Доставка и оплата</a>
-                            <a href="contacts.html">Контакты</a>
-                            <a href="policy.html">Политика конфиденциальности</a>
-                        </nav>
-                    </div>
-                    <div class="footer-col">
-                        <h4>Контакты</h4>
-                        <div class="footer-contacts-list">
-                            <div class="footer-contact-item">
-                                <div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></div>
-                                <div class="footer-contact-info"><span class="footer-contact-label">Телефон</span><a href="tel:${c.phoneLink}" class="footer-phone-big">${c.phoneDisplay}</a></div>
-                            </div>
-                            <div class="footer-contact-item">
-                                <div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></div>
-                                <div class="footer-contact-info"><span class="footer-contact-label">Email</span><a href="mailto:${c.email}" class="footer-link">${c.email}</a></div>
-                            </div>
-                            <div class="footer-contact-item">
-                                <div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div>
-                                <div class="footer-contact-info"><span class="footer-contact-label">Адрес склада</span><span style="color: #ccc; line-height: 1.4;">${c.address}</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="footer-bottom">
-                    <p class="footer-disclaimer">Данный сайт носит исключительно информационный характер и ни при каких условиях информационные материалы и цены, размещенные на сайте, не являются публичной офертой, определяемой положениями Статьи 437 Гражданского кодекса РФ.</p>
-                </div>
-            </div>`;
-    }
+    const f=document.querySelector('footer');
+    if(f){f.className='footer';f.innerHTML=`<div class="container"><div class="footer-content"><div class="footer-col"><h4>О компании</h4><p>ООО «РАССВЕТ-С» — надежный поставщик запчастей и комплектующих для лесозаготовительной техники Komatsu.</p><div class="footer-socials"><a href="${c.telegram}" target="_blank" class="social-btn telegram" style="display:${showIf(c.telegram)}" aria-label="Telegram"><svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></a><a href="${c.whatsapp}" target="_blank" class="social-btn whatsapp" style="display:${showIf(c.whatsapp)}" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></a><a href="${c.vk}" target="_blank" class="social-btn vk" style="display:${showIf(c.vk)}" aria-label="VK"><svg viewBox="0 0 24 24"><path d="M13.162 18.994c.609 0 .858-.406.851-1.512-.006-1.72.784-2.527 1.522-2.527.676 0 1.568.658 1.948 2.378.109.493.502.593.74.593h2.324c.787 0 1.101-.392 1.135-.857.073-1.021-.924-2.527-2.384-3.527-.608-.415-.589-.728.061-1.391.821-.837 2.18-2.618 2.364-3.593.033-.175.039-.481-.225-.481h-2.338c-.732 0-.989.336-1.229.832-1.006 2.072-2.41 3.251-3.216 3.251-.274 0-.463-.158-.463-.889V8.407c0-1.211-.284-1.407-1.022-1.407h-2.18c-.378 0-.698.192-.698.593 0 .428.632.535.698 1.76v3.131c0 .693-.214.97-.681.97-.97 0-3.329-3.593-4.329-7.234-.163-.585-.438-.813-1.022-.813H2.887c-.773 0-.937.336-.937.679 0 .684.974 4.116 4.382 8.781C8.627 17.5 11.237 18.994 13.162 18.994z"/></svg></a><a href="${c.avito}" target="_blank" class="social-btn avito" style="display:${showIf(c.avito)}" aria-label="Avito"><svg viewBox="0 0 24 24"><circle cx="7" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><circle cx="7" cy="17" r="3"/><circle cx="17" cy="17" r="3"/></svg></a></div></div><div class="footer-col"><h4>Навигация</h4><nav class="footer-nav"><a href="index.html">Каталог</a><a href="about.html">О компании</a><a href="delivery.html">Доставка и оплата</a><a href="contacts.html">Контакты</a><a href="policy.html">Политика конфиденциальности</a></nav></div><div class="footer-col"><h4>Контакты</h4><div class="footer-contacts-list"><div class="footer-contact-item"><div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></div><div class="footer-contact-info"><span class="footer-contact-label">Телефон</span><a href="tel:${c.phoneLink}" class="footer-phone-big">${c.phoneDisplay}</a></div></div><div class="footer-contact-item"><div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></div><div class="footer-contact-info"><span class="footer-contact-label">Email</span><a href="mailto:${c.email}" class="footer-link">${c.email}</a></div></div><div class="footer-contact-item"><div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div><div class="footer-contact-info"><span class="footer-contact-label">Адрес склада</span><span style="color: #ccc; line-height: 1.4;">${c.address}</span></div></div></div></div></div><div class="footer-bottom"><p class="footer-disclaimer">Данный сайт носит исключительно информационный характер и ни при каких условиях информационные материалы и цены, размещенные на сайте, не являются публичной офертой, определяемой положениями Статьи 437 Гражданского кодекса РФ.</p></div></div>`;}
 }
 
 async function getCatalogData() {
-    const cacheKey='rassvet_v7_data',timeKey='rassvet_v7_time',maxAge=(SITE_CONFIG.cacheTime||1)*60*60*1000;
-    const cd=localStorage.getItem(cacheKey),ct=localStorage.getItem(timeKey),now=Date.now();
-    if(cd&&ct&&(now-ct<maxAge))return JSON.parse(cd);
+    const k='rassvet_v7_data',t='rassvet_v7_time',m=(SITE_CONFIG.cacheTime||1)*60*60*1000,cd=localStorage.getItem(k),ct=localStorage.getItem(t),n=Date.now();
+    if(cd&&ct&&(n-ct<m))return JSON.parse(cd);
     try{
         const r=await fetch(SITE_CONFIG.sheetUrl);if(!r.ok)throw new Error('Err');
-        const t=await r.text(),rows=parseCSV(t);rows.shift();
-        const p=rows.map(row=>{
-            if(!row[0])return null;
-            let i=row[5]?row[5].split(',').map(s=>s.trim()).filter(s=>s):[''];
-            return{id:row[0],sku:row[1]?row[1].trim():'',name:row[2],price:row[3],category:row[4]?row[4].trim():'Другое',images:i,desc:row[6]};
-        }).filter(p=>p!==null&&p.name);
-        localStorage.setItem(cacheKey,JSON.stringify(p));localStorage.setItem(timeKey,now);
-        return p;
+        const txt=await r.text(),rows=parseCSV(txt);rows.shift();
+        const p=rows.map(r=>{if(!r[0])return null;let i=r[5]?r[5].split(',').map(s=>s.trim()).filter(s=>s):[''];return{id:r[0],sku:r[1]?r[1].trim():'',name:r[2],price:r[3],category:r[4]?r[4].trim():'Другое',images:i,desc:r[6]};}).filter(x=>x!==null&&x.name);
+        localStorage.setItem(k,JSON.stringify(p));localStorage.setItem(t,n);return p;
     }catch(e){console.error(e);return[];}
 }
 
-function parseCSV(t){const r=[];let row=[],q=false,c='';for(let i=0;i<t.length;i++){const char=t[i];if(char==='"')q=!q;else if(char===','&&!q){row.push(c);c='';}else if((char==='\r'||char==='\n')&&!q){if(c||row.length>0)row.push(c);if(row.length>0)r.push(row);row=[];c='';if(char==='\r'&&t[i+1]==='\n')i++;}else c+=char;}if(c||row.length>0){row.push(c);r.push(row);}return r;}
+function parseCSV(t){const r=[];let row=[],q=false,c='';for(let i=0;i<t.length;i++){const ch=t[i];if(ch==='"')q=!q;else if(ch===','&&!q){row.push(c);c='';}else if((ch==='\r'||ch==='\n')&&!q){if(c||row.length>0)row.push(c);if(row.length>0)r.push(row);row=[];c='';if(ch==='\r'&&t[i+1]==='\n')i++;}else c+=ch;}if(c||row.length>0){row.push(c);r.push(row);}return r;}
 function debounce(f,w){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>f(...a),w);};}
-function validateInput(i,t){const v=i.value.trim();let ok=true,m='';i.classList.remove('error','success');const p=i.parentElement;let e=p.querySelector('.error-message');if(!e){e=document.createElement('div');e.className='error-message';p.appendChild(e);}p.classList.remove('has-error');if(t==='name'){if(v.length<2){ok=false;m='Короткое имя';}}else if(t==='phone'){if(v.length<18){ok=false;m='Неполный номер';}}else if(t==='email'){if(v&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){ok=false;m='Неверный Email';}}if(!ok){i.classList.add('error');p.classList.add('has-error');e.textContent=m;}else if(v.length>0)i.classList.add('success');return ok;}
+function validateInput(i,t){const v=i.value.trim();let ok=true,m='';i.classList.remove('error','success');const p=i.parentElement;let e=p.querySelector('.error-message');if(!e){e=document.createElement('div');e.className='error-message';p.appendChild(e);}p.classList.remove('has-error');if(t==='name'){if(v.length<2){ok=false;m='Имя короткое';}}else if(t==='phone'){if(v.length<18){ok=false;m='Номер не полный';}}else if(t==='email'){if(v&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){ok=false;m='Неверный Email';}}if(!ok){i.classList.add('error');p.classList.add('has-error');e.textContent=m;}else if(v.length>0)i.classList.add('success');return ok;}
 
 window.showNotification=function(m){const c=document.getElementById('toast-container');if(!c)return;const t=document.createElement('div');t.className='toast';t.textContent=m;c.appendChild(t);setTimeout(()=>{t.classList.add('hiding');t.addEventListener('animationend',()=>t.remove());},3000);};
-window.openLightbox=function(imgs,idx=0){if(typeof imgs==='string')currentLightboxImages=[imgs];else currentLightboxImages=imgs;currentLightboxIndex=idx;updateLightboxContent();const l=document.getElementById('lightbox');if(l){l.classList.add('active');if(currentLightboxImages.length<=1)l.classList.add('single');else l.classList.remove('single');}};
+window.openLightbox=function(i,x=0){if(typeof i==='string')currentLightboxImages=[i];else currentLightboxImages=i;currentLightboxIndex=x;updateLightboxContent();const l=document.getElementById('lightbox');if(l){l.classList.add('active');if(currentLightboxImages.length<=1)l.classList.add('single');else l.classList.remove('single');}};
 function updateLightboxContent(){const i=document.getElementById('lightboxImg');if(i&&currentLightboxImages.length>0)i.src=currentLightboxImages[currentLightboxIndex];}
 window.navigateLightbox=function(e,d){e.stopPropagation();if(currentLightboxImages.length<=1)return;currentLightboxIndex+=d;if(currentLightboxIndex<0)currentLightboxIndex=currentLightboxImages.length-1;else if(currentLightboxIndex>=currentLightboxImages.length)currentLightboxIndex=0;updateLightboxContent();};
 window.closeLightbox=function(e){const l=document.getElementById('lightbox');if(l&&(e.target.id==='lightbox'||e.target.classList.contains('lightbox-close'))){l.classList.remove('active');setTimeout(()=>{document.getElementById('lightboxImg').src='';},300);}};
-window.updateCartUI=function(){const w=document.getElementById('cartWidget'),ci=document.getElementById('cartItems'),ct=document.getElementById('cartTotal');const total=cart.reduce((s,i)=>s+i.quantity,0);if(w)w.textContent=`Корзина: ${total}`;if(ci){ci.innerHTML='';let tm=0;cart.forEach((item,i)=>{const p=parsePrice(item.price);tm+=p*item.quantity;const d=document.createElement('div');d.className='cart-item';d.innerHTML=`<div class="cart-item-info"><span class="cart-item-title">${item.sku} - ${item.name}</span><span class="cart-item-price">${item.price}</span></div><div class="qty-controls"><button class="qty-btn" onclick="changeQuantity(${i},-1)">-</button><span class="qty-count">${item.quantity}</span><button class="qty-btn" onclick="changeQuantity(${i},1)">+</button></div><button class="btn-remove" onclick="removeCartItem(${i})">&times;</button>`;ci.appendChild(d);});if(ct)ct.textContent=`Итого: ${new Intl.NumberFormat('ru-RU').format(tm)} ₽`;}localStorage.setItem('rassvet_cart',JSON.stringify(cart));if(window.syncButtonsWithCart)window.syncButtonsWithCart();};
-window.syncButtonsWithCart=function(){document.querySelectorAll('[data-product-id]').forEach(c=>{const id=c.getAttribute('data-product-id'),item=cart.find(i=>i.id===id),ba=document.getElementById(`btn-add-${id}`),bq=document.getElementById(`btn-qty-${id}`),qv=document.getElementById(`qty-val-${id}`);if(ba&&bq&&qv){if(item){ba.classList.add('hidden');bq.classList.remove('hidden');qv.textContent=item.quantity;}else{ba.classList.remove('hidden');bq.classList.add('hidden');}}});};
-window.addToCart=function(id,sku,name,price){const i=cart.find(x=>x.id===id);if(i)i.quantity++;else{cart.push({id,sku,name,price,quantity:1});window.showNotification('Добавлено в корзину');}window.updateCartUI();};
+window.updateCartUI=function(){const w=document.getElementById('cartWidget'),ci=document.getElementById('cartItems'),ct=document.getElementById('cartTotal'),t=cart.reduce((s,i)=>s+i.quantity,0);if(w)w.textContent=`Корзина: ${t}`;if(ci){ci.innerHTML='';let tm=0;cart.forEach((x,i)=>{const p=parsePrice(x.price);tm+=p*x.quantity;const d=document.createElement('div');d.className='cart-item';d.innerHTML=`<div class="cart-item-info"><span class="cart-item-title">${x.sku} - ${x.name}</span><span class="cart-item-price">${x.price}</span></div><div class="qty-controls"><button class="qty-btn" onclick="changeQuantity(${i},-1)">-</button><span class="qty-count">${x.quantity}</span><button class="qty-btn" onclick="changeQuantity(${i},1)">+</button></div><button class="btn-remove" onclick="removeCartItem(${i})">&times;</button>`;ci.appendChild(d);});if(ct)ct.textContent=`Итого: ${new Intl.NumberFormat('ru-RU').format(tm)} ₽`;}localStorage.setItem('rassvet_cart',JSON.stringify(cart));if(window.syncButtonsWithCart)window.syncButtonsWithCart();};
+window.syncButtonsWithCart=function(){document.querySelectorAll('[data-product-id]').forEach(c=>{const id=c.getAttribute('data-product-id'),x=cart.find(i=>i.id===id),ba=document.getElementById(`btn-add-${id}`),bq=document.getElementById(`btn-qty-${id}`),qv=document.getElementById(`qty-val-${id}`);if(ba&&bq&&qv){if(x){ba.classList.add('hidden');bq.classList.remove('hidden');qv.textContent=x.quantity;}else{ba.classList.remove('hidden');bq.classList.add('hidden');}}});};
+window.addToCart=function(id,sku,name,price){const i=cart.find(x=>x.id===id);if(i)i.quantity++;else{cart.push({id,sku,name,price,quantity:1});window.showNotification('Добавлено');}window.updateCartUI();};
 window.updateItemQty=function(id,d){const i=cart.find(p=>p.id===id);if(i){i.quantity+=d;if(i.quantity<=0)cart=cart.filter(p=>p.id!==id);window.updateCartUI();}};
-window.changeQuantity=function(i,d){const item=cart[i];item.quantity+=d;if(item.quantity<=0)item.quantity=1;window.updateCartUI();};
+window.changeQuantity=function(i,d){const x=cart[i];x.quantity+=d;if(x.quantity<=0)x.quantity=1;window.updateCartUI();};
 window.removeCartItem=function(i){cart.splice(i,1);window.updateCartUI();};
-window.changeMainImage=function(s){const m=document.getElementById('productMainImg');if(m)m.src=s;};
+window.changeMainImage=function(s,x=0){const m=document.getElementById('productMainImg'),w=document.getElementById('mainImgWrapper');if(m)m.src=s;if(w){let c=w.getAttribute('onclick'),n=c.replace(/,\s*\d+\s*\)$/,`,${x})`);w.setAttribute('onclick',n);}};
 
 document.addEventListener('DOMContentLoaded',()=>{
     if(typeof SITE_CONFIG==='undefined')return;
@@ -173,7 +60,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     const mb=document.getElementById('menuBtn'),hn=document.getElementById('headerNav');
     if(mb&&hn){mb.addEventListener('click',e=>{e.stopPropagation();hn.classList.toggle('active');mb.innerHTML=hn.classList.contains('active')?'<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>':'<svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';});document.addEventListener('click',e=>{if(!hn.contains(e.target)&&!mb.contains(e.target)&&hn.classList.contains('active')){hn.classList.remove('active');mb.innerHTML='<svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';}});}
     const cm=document.getElementById('cartModal'),cw=document.getElementById('cartWidget'),cc=document.getElementById('closeCart'),cob=document.getElementById('cartOrderBtn'),om=document.getElementById('orderModal'),co=document.getElementById('closeOrder');
-    if(cw)cw.onclick=()=>{cm.style.display='flex';window.updateCartUI();};if(cc)cc.onclick=()=>{cm.style.display='none';};if(co)co.onclick=()=>{om.style.display='none';};if(cob)cob.onclick=()=>{if(cart.length===0){window.showNotification('Корзина пуста');return;}cm.style.display='none';om.style.display='flex';};
+    if(cw)cw.onclick=()=>{cm.style.display='flex';window.updateCartUI();};if(cc)cc.onclick=()=>{cm.style.display='none';};if(co)co.onclick=()=>{om.style.display='none';};if(cob)cob.onclick=()=>{if(cart.length===0){window.showNotification('Пустая корзина');return;}cm.style.display='none';om.style.display='flex';};
     window.onclick=e=>{if(e.target==cm)cm.style.display='none';if(e.target==om)om.style.display='none';};
     const of=document.getElementById('orderForm');
     if(of){const op=document.getElementById('orderPhone'),on=document.getElementById('orderName'),oe=document.getElementById('orderEmail');if(op&&window.IMask)IMask(op,{mask:'+{7} (000) 000-00-00'});if(on)on.addEventListener('input',()=>validateInput(on,'name'));if(op)op.addEventListener('input',()=>validateInput(op,'phone'));if(oe)oe.addEventListener('input',()=>validateInput(oe,'email'));of.onsubmit=e=>{e.preventDefault();if(!validateInput(on,'name')||!validateInput(op,'phone')||!validateInput(oe,'email'))return;let m=`<b>Новый заказ!</b>\n<b>Имя:</b> ${on.value}\n<b>Тел:</b> ${op.value}\n`;if(oe.value)m+=`<b>Email:</b> ${oe.value}\n`;m+=`\n<b>Заказ:</b>\n`;let tm=0;cart.forEach(i=>{tm+=parsePrice(i.price)*i.quantity;m+=`- ${i.sku} ${i.name} (x${i.quantity})\n`;});m+=`\n<b>Сумма: ${new Intl.NumberFormat('ru-RU').format(tm)} ₽</b>`;sendOrderToTelegram(m,of);};}
@@ -184,7 +71,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         const lmb=document.getElementById('loadMoreBtn'),lmc=document.getElementById('loadMoreContainer'),si=document.getElementById('searchInput'),cf=document.getElementById('categoryFilter'),ss=document.getElementById('sortSelect');
         async function init(){try{all=await getCatalogData();if(all.length===0){cg.innerHTML='<div class="loader-container"><p class="error-text">Нет данных</p></div>';return;}initCats(all);batch(true);if(ss)ss.addEventListener('change',()=>{const v=ss.value;if(v==='default')all.sort((a,b)=>a.id-b.id);else if(v==='price_asc')all.sort((a,b)=>parsePrice(a.price)-parsePrice(b.price));else if(v==='price_desc')all.sort((a,b)=>parsePrice(b.price)-parsePrice(a.price));else if(v==='name_asc')all.sort((a,b)=>a.name.localeCompare(b.name));batch(true);});}catch(e){console.error(e);cg.innerHTML='<div class="loader-container"><p class="error-text">Ошибка сети</p></div>';}}
         function initCats(p){if(!cf)return;const c=['Все',...new Set(p.map(x=>x.category).filter(x=>x))];cf.innerHTML='';c.forEach(x=>{const b=document.createElement('button');b.className=x==='Все'?'cat-btn active':'cat-btn';b.textContent=x;b.onclick=()=>{document.querySelectorAll('.cat-btn').forEach(z=>z.classList.remove('active'));b.classList.add('active');cat=x==='Все'?'all':x;batch(true);};cf.appendChild(b);});}
-        function batch(r=false){if(r){cg.innerHTML='';cnt=0;lmc.style.display='none';}const s=si?si.value.toLowerCase():'';const f=all.filter(p=>(cat==='all'||p.category===cat)&&(!s||p.name.toLowerCase().includes(s)||p.sku.toLowerCase().includes(s)));if(f.length===0){cg.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:#ccc;">Пусто</div>';return;}const n=f.slice(cnt,cnt+SITE_CONFIG.itemsPerPage);n.forEach(p=>{const d=document.createElement('div');d.className='product-card';d.setAttribute('data-product-id',p.id);d.innerHTML=createProductCardHTML(p);cg.appendChild(d);});cnt+=n.length;if(lmc)lmc.style.display=(cnt<f.length)?'block':'none';window.updateCartUI();}
+        function batch(r=false){if(r){cg.innerHTML='';cnt=0;lmc.style.display='none';}const s=si?si.value.toLowerCase():'';const f=all.filter(p=>(cat==='all'||p.category===cat)&&(!s||p.name.toLowerCase().includes(s)||p.sku.toLowerCase().includes(s)));if(f.length===0){cg.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:#ccc;">Пусто</div>';return;}const n=f.slice(cnt,cnt+SITE_CONFIG.itemsPerPage);n.forEach(p=>{const d=document.createElement('div');d.className='product-card';d.setAttribute('data-product-id',p.id);d.innerHTML=createCardHtml(p);cg.appendChild(d);});cnt+=n.length;if(lmc)lmc.style.display=(cnt<f.length)?'block':'none';window.updateCartUI();}
         if(lmb)lmb.addEventListener('click',()=>batch());if(si)si.addEventListener('input',debounce(()=>batch(true),300));init();
     }
 
@@ -192,17 +79,9 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(pd){
         const id=new URLSearchParams(window.location.search).get('id');
         if(!id){pd.innerHTML='<h2 style="text-align:center;color:#fff;">Товар не найден</h2>';return;}
-        (async function(){
-            try{
-                const all=await getCatalogData(),p=all.find(x=>x.id===id);
-                if(p){
-                    renderProd(p);renderRel(all,p);document.title=`${p.name} | РАССВЕТ-С`;
-                }else pd.innerHTML=`<h2 style="text-align:center;color:#fff;">Товар ${id} не найден</h2>`;
-            }catch(e){console.error(e);pd.innerHTML='<h2 style="text-align:center;color:#fff;">Ошибка</h2>';}
-        })();
+        (async function(){try{const all=await getCatalogData(),p=all.find(x=>x.id===id);if(p){renderProd(p);renderRel(all,p);document.title=`${p.name} | РАССВЕТ-С`;}else pd.innerHTML=`<h2 style="text-align:center;color:#fff;">Товар ${id} не найден</h2>`;}catch(e){console.error(e);pd.innerHTML='<h2 style="text-align:center;color:#fff;">Ошибка</h2>';}})();
         function renderProd(p){
-            const m=getImageUrl(p.images[0]),pr=formatPrice(p.price),n=p.name.replace(/'/g,""),aj=JSON.stringify(p.images.map(x=>getImageUrl(x))).replace(/"/g,"&quot;");
-            let th='';if(p.images.length>1){th='<div class="gallery-thumbs">';p.images.forEach(x=>{const u=getImageUrl(x);th+=`<div class="gallery-thumb" onclick="changeMainImage('${u}')"><img src="${u}"></div>`;});th+='</div>';}
+            const m=getImageUrl(p.images[0]),pr=formatPrice(p.price),n=p.name.replace(/'/g,""),aj=JSON.stringify(p.images.map(x=>getImageUrl(x))).replace(/"/g,"&quot;");let th='';if(p.images.length>1){th='<div class="gallery-thumbs">';p.images.forEach((x,i)=>{const u=getImageUrl(x);th+=`<div class="gallery-thumb" onclick="changeMainImage('${u}',${i})"><img src="${u}"></div>`;});th+='</div>';}
             pd.innerHTML=`<div class="product-full-card" data-product-id="${p.id}"><div class="gallery-container" style="flex:1;min-width:300px;"><div class="full-img-wrapper" id="mainImgWrapper" onclick="openLightbox(${aj},0)"><img id="productMainImg" src="${m}" alt="${p.name}" onerror="this.src='${SITE_CONFIG.placeholderImage}'"></div>${th}</div><div class="full-info"><div class="full-sku">АРТИКУЛ: ${p.sku}</div><h1 class="full-title">${p.name}</h1><div class="full-price">${pr}</div><div class="full-actions-group"><a href="index.html" class="btn-detail blue">В КАТАЛОГ</a><button id="btn-add-${p.id}" onclick="addToCart('${p.id}','${p.sku}','${n}','${pr}')" class="btn-detail green">В КОРЗИНУ</button><div id="btn-qty-${p.id}" class="btn-qty-grid hidden"><button onclick="updateItemQty('${p.id}',-1)">-</button><span id="qty-val-${p.id}">1</span><button onclick="updateItemQty('${p.id}',1)">+</button></div></div><div class="full-desc"><strong>Описание:</strong><br>${p.desc||'Нет описания'}<br><br><strong>Категория:</strong> ${p.category||'-'}</div></div></div>`;
             window.updateCartUI();
         }
@@ -212,7 +91,7 @@ document.addEventListener('DOMContentLoaded',()=>{
             const rel=all.filter(x=>x.category===curr.category&&x.id!==curr.id).slice(0,5);
             if(rel.length===0){cw.style.display='none';return;}
             cw.style.display='block';rc.innerHTML='';
-            rel.forEach(p=>{const d=document.createElement('div');d.className='product-card';d.setAttribute('data-product-id',p.id);d.innerHTML=createProductCardHTML(p);rc.appendChild(d);});
+            rel.forEach(p=>{const d=document.createElement('div');d.className='product-card';d.setAttribute('data-product-id',p.id);d.innerHTML=createCardHtml(p);rc.appendChild(d);});
             if(window.syncButtonsWithCart)window.syncButtonsWithCart();
         }
     }
@@ -222,11 +101,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         const cn=document.getElementById('contactName'),cp=document.getElementById('contactPhone');
         if(window.IMask)IMask(cp,{mask:'+{7} (000) 000-00-00'});
         cn.addEventListener('input',()=>validateInput(cn,'name'));cp.addEventListener('input',()=>validateInput(cp,'phone'));
-        cpf.onsubmit=e=>{
-            e.preventDefault();if(!validateInput(cn,'name')||!validateInput(cp,'phone'))return;
-            const msg=document.getElementById('contactMessage').value,file=document.getElementById('contactFile').files[0];
-            sendContactToTelegram(`<b>📩 Контакт!</b>\n\n<b>Имя:</b> ${cn.value}\n<b>Тел:</b> ${cp.value}\n<b>Сообщение:</b>\n${msg}`,file,cpf);
-        };
+        cpf.onsubmit=e=>{e.preventDefault();if(!validateInput(cn,'name')||!validateInput(cp,'phone'))return;const msg=document.getElementById('contactMessage').value,file=document.getElementById('contactFile').files[0];sendContactToTelegram(`<b>📩 Контакт!</b>\n\n<b>Имя:</b> ${cn.value}\n<b>Тел:</b> ${cp.value}\n<b>Сообщение:</b>\n${msg}`,file,cpf);};
     }
 });
 

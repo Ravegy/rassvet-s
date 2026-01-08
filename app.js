@@ -53,7 +53,7 @@ window.changeQuantity=function(i,d){const x=cart[i];x.quantity+=d;if(x.quantity<
 window.removeCartItem=function(i){cart.splice(i,1);window.updateCartUI();};
 window.changeMainImage=function(s,x=0){const m=document.getElementById('productMainImg'),w=document.getElementById('mainImgWrapper');if(m)m.src=s;if(w){let c=w.getAttribute('onclick'),n=c.replace(/,\s*\d+\s*\)$/,`,${x})`);w.setAttribute('onclick',n);}};
 
-// --- ФУНКЦИЯ ИЗБРАННОГО ---
+// --- ФУНКЦИИ ИЗБРАННОГО ---
 window.toggleFav=function(id,e){e?.stopPropagation();const idx=favorites.indexOf(id);if(idx>-1){favorites.splice(idx,1);window.showNotification('Удалено из избранного');}else{favorites.push(id);window.showNotification('Добавлено в избранное');}localStorage.setItem('rassvet_fav',JSON.stringify(favorites));updateFavUI();};
 function updateFavUI(){const fc=document.getElementById('favCount');if(fc)fc.textContent=favorites.length;document.querySelectorAll('.card-fav-btn, .btn-fav-full').forEach(b=>{const id=b.getAttribute('data-fav-id');if(favorites.includes(id))b.classList.add('active');else b.classList.remove('active');});}
 async function renderFavorites(){
@@ -67,17 +67,8 @@ async function renderFavorites(){
     favs.forEach(p=>{
         const d=document.createElement('div');
         d.className='fav-item-grid';
-        
-        // --- ЗДЕСЬ ИЗМЕНЕНИЯ: ДОБАВЛЕНЫ ССЫЛКИ И КУРСОР ---
-        d.innerHTML=`
-            <img src="${getImageUrl(p.images[0])}" class="fav-item-img" style="cursor:pointer" onclick="window.location.href='product.html?id=${p.id}'">
-            <div style="overflow:hidden; cursor:pointer" onclick="window.location.href='product.html?id=${p.id}'">
-                <div style="font-weight:bold;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div>
-                <div style="color:#aaa;font-size:12px;">${p.sku}</div>
-                <div style="color:var(--accent);font-weight:bold;font-size:13px;">${formatPrice(p.price)}</div>
-            </div>
-            <button class="btn-remove" onclick="toggleFav('${p.id}');renderFavorites();">&times;</button>
-        `;
+        const pr=formatPrice(p.price),n=p.name.replace(/'/g,"");
+        d.innerHTML=`<img src="${getImageUrl(p.images[0])}" class="fav-item-img" style="cursor:pointer" onclick="window.location.href='product.html?id=${p.id}'"><div style="overflow:hidden;cursor:pointer" onclick="window.location.href='product.html?id=${p.id}'"><div style="font-weight:bold;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div><div style="color:#aaa;font-size:12px;">${p.sku}</div><div style="color:var(--accent);font-weight:bold;font-size:13px;">${pr}</div></div><button class="btn-fav-cart" onclick="addToCart('${p.id}','${p.sku}','${n}','${pr}')">В КОРЗИНУ</button><button class="btn-remove" onclick="toggleFav('${p.id}');renderFavorites();">&times;</button>`;
         c.appendChild(d);
     });
 }

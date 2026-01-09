@@ -1,10 +1,28 @@
-let cart=JSON.parse(localStorage.getItem('rassvet_cart'))||[],favorites=JSON.parse(localStorage.getItem('rassvet_fav'))||[],currentLightboxImages=[],currentLightboxIndex=0;
+let cart=JSON.parse(localStorage.getItem('rassvet_cart'))||[],favorites=JSON.parse(localStorage.getItem('rassvet_fav'))||[],recentlyViewed=JSON.parse(localStorage.getItem('rassvet_recent'))||[],currentLightboxImages=[],currentLightboxIndex=0;
+
+// === УТИЛИТЫ ===
+
+// Умный поиск: удаляет спецсимволы для сравнения
+function normalizeStr(str) {
+    if (!str) return '';
+    return str.toString().toLowerCase().replace(/[^a-zа-я0-9]/g, '');
+}
+
+// Защита от XSS
+function escapeHtml(text) {
+    if (!text) return text;
+    return text.toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
 function getImageUrl(p){if(!p||!p.trim())return SITE_CONFIG.placeholderImage;if(p.startsWith('http'))return p;return 'images/parts/'+p.trim().replace(/^images\/parts\//,'').replace(/^parts\//,'').replace(/^\//,'')}
 function formatPrice(p){if(!p)return'По запросу';const c=parseFloat(p.replace(/\s/g,'').replace(',','.'));return isNaN(c)?p:new Intl.NumberFormat('ru-RU').format(c)+' ₽'}
 function parsePrice(s){if(!s)return 0;return parseFloat(s.replace(/\s/g,'').replace('₽','').replace(',','.'))||0}
 
-// НОВАЯ ФУНКЦИЯ: Копирование в буфер обмена
 window.copyToClipboard=function(text){
     if(navigator.clipboard){
         navigator.clipboard.writeText(text).then(()=>{window.showNotification('Артикул скопирован: '+text);});
@@ -16,9 +34,46 @@ window.copyToClipboard=function(text){
 };
 
 function createCardHtml(p){
-    const i=getImageUrl(p.images[0]),pr=formatPrice(p.price),n=p.name.replace(/'/g,""),aj=JSON.stringify(p.images.map(x=>getImageUrl(x))).replace(/"/g,"&quot;");
+    const safeName = escapeHtml(p.name);
+    const safeSku = escapeHtml(p.sku);
+    const n = safeName.replace(/'/g,"");
+    
+    const i=getImageUrl(p.images[0]),pr=formatPrice(p.price),aj=JSON.stringify(p.images.map(x=>getImageUrl(x))).replace(/"/g,"&quot;");
     const isF=favorites.includes(p.id)?'active':'';
-    return `<div class="img-wrapper" onclick="openLightbox(${aj},0)"><button class="card-fav-btn ${isF}" onclick="toggleFav('${p.id}',event)" data-fav-id="${p.id}"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button><img src="${i}" alt="${p.name}" class="product-img" loading="lazy" onerror="this.src='${SITE_CONFIG.placeholderImage}'"></div><div class="product-sku copy-sku" onclick="copyToClipboard('${p.sku}')" title="Копировать артикул">АРТ: ${p.sku}</div><a href="product.html?id=${p.id}" class="product-title">${p.name}</a><div class="product-price">${pr}</div><div class="btn-group"><a href="product.html?id=${p.id}" class="btn-card btn-blue">Подробнее</a><button id="btn-add-${p.id}" onclick="addToCart('${p.id}','${p.sku}','${n}','${pr}')" class="btn-card btn-green">В КОРЗИНУ</button><div id="btn-qty-${p.id}" class="btn-qty-grid hidden"><button onclick="updateItemQty('${p.id}',-1)">-</button><span id="qty-val-${p.id}">1</span><button onclick="updateItemQty('${p.id}',1)">+</button></div></div>`;
+    
+    // Логика кнопки цены: если цена есть - "В корзину", если нет - "Уточнить"
+    const priceVal = parsePrice(p.price);
+    let btnHtml = '';
+    
+    if(priceVal > 0) {
+        btnHtml = `<button id="btn-add-${p.id}" onclick="addToCart('${p.id}','${safeSku}','${n}','${pr}')" class="btn-card btn-green">В КОРЗИНУ</button>
+                   <div id="btn-qty-${p.id}" class="btn-qty-grid hidden"><button onclick="updateItemQty('${p.id}',-1)">-</button><span id="qty-val-${p.id}">1</span><button onclick="updateItemQty('${p.id}',1)">+</button></div>`;
+    } else {
+        btnHtml = `<button onclick="openRequestModal('${safeSku}','${n}')" class="btn-card" style="background:#555; color:#fff;">УТОЧНИТЬ</button>`;
+    }
+
+    return `
+    <div class="img-wrapper" onclick="openLightbox(${aj},0)">
+        <button class="card-fav-btn ${isF}" onclick="toggleFav('${p.id}',event)" data-fav-id="${p.id}"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+        <img src="${i}" alt="${safeName}" class="product-img" loading="lazy" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
+    </div>
+    <div class="product-sku copy-sku" onclick="copyToClipboard('${safeSku}')" title="Копировать артикул">АРТ: ${safeSku}</div>
+    <a href="product.html?id=${p.id}" class="product-title">${safeName}</a>
+    <div class="product-price">${pr}</div>
+    <div class="btn-group">
+        <a href="product.html?id=${p.id}" class="btn-card btn-blue">Подробнее</a>
+        ${btnHtml}
+    </div>`;
+}
+
+// НОВОЕ: Функция открытия модалки запроса с предзаполнением
+window.openRequestModal = function(sku, name) {
+    const m = document.getElementById('notFoundModal');
+    const d = document.getElementById('nfDesc');
+    if(m && d) {
+        d.value = `Здравствуйте, интересует наличие и цена: ${sku} - ${name}`;
+        m.style.display = 'flex';
+    }
 }
 
 function renderLayout(){
@@ -30,7 +85,7 @@ function renderLayout(){
     // ХЕДЕР
     if(h){h.className='header';h.innerHTML=`<div class="container header-main"><button class="menu-btn" id="menuBtn"><svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button><a href="index.html" class="logo-text"><h1>РАССВЕТ-С</h1></a><nav class="header-nav" id="headerNav"><a href="index.html" class="nav-link ${isActive('index.html')}">Каталог</a><a href="about.html" class="nav-link ${isActive('about.html')}">О компании</a><a href="delivery.html" class="nav-link ${isActive('delivery.html')}">Доставка и оплата</a><a href="contacts.html" class="nav-link ${isActive('contacts.html')}">Контакты</a></nav><div class="header-contacts"><div class="header-icon-btn" id="favBtn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><span class="icon-count" id="favCount">0</span></div><div class="header-icon-btn" id="cartBtn"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg><span class="icon-count" id="cartCount">0</span></div></div></div>`;}
     
-    // МОДАЛКИ И ВИДЖЕТЫ
+    // МОДАЛКИ
     if(!document.getElementById('cartModal')){
         const d=document.createElement('div');
         d.innerHTML=`
@@ -38,7 +93,7 @@ function renderLayout(){
         <div id="favModal" class="cart-modal"><div class="cart-content"><div class="cart-header"><h2>Избранное</h2><span class="close-cart" id="closeFav">&times;</span></div><div class="cart-items" id="favItems"></div></div></div>
         <div id="orderModal" class="cart-modal" style="z-index: 2100;"><div class="cart-content"><div class="cart-header"><h2>Оформление заказа</h2><span class="close-cart" id="closeOrder">&times;</span></div><form id="orderForm" class="order-form"><div class="form-group"><input type="text" id="orderName" class="form-input" placeholder="Ваше Имя" required></div><div class="form-group"><input type="tel" id="orderPhone" class="form-input" placeholder="Номер телефона" required></div><div class="form-group"><input type="email" id="orderEmail" class="form-input" placeholder="Email (необязательно)"></div><button type="submit" class="btn-cart-order">Подтвердить заказ</button></form></div></div>
         
-        <div id="notFoundModal" class="cart-modal" style="z-index: 2200;"><div class="cart-content"><div class="cart-header"><h2>Запрос детали</h2><span class="close-cart" onclick="document.getElementById('notFoundModal').style.display='none'">&times;</span></div><form id="notFoundForm" class="order-form"><div class="form-group"><input type="text" id="nfName" class="form-input" placeholder="Ваше Имя" required></div><div class="form-group"><input type="tel" id="nfPhone" class="form-input" placeholder="Номер телефона" required></div><div class="form-group"><textarea id="nfDesc" class="form-input" placeholder="Какую деталь ищете? (Артикул, модель техники)" rows="4" required></textarea></div><button type="submit" class="btn-cart-order">Найти деталь</button></form></div></div>
+        <div id="notFoundModal" class="cart-modal" style="z-index: 2200;"><div class="cart-content"><div class="cart-header"><h2>Запрос детали</h2><span class="close-cart" onclick="document.getElementById('notFoundModal').style.display='none'">&times;</span></div><form id="notFoundForm" class="order-form"><div class="form-group"><input type="text" id="nfName" class="form-input" placeholder="Ваше Имя" required></div><div class="form-group"><input type="tel" id="nfPhone" class="form-input" placeholder="Номер телефона" required></div><div class="form-group"><textarea id="nfDesc" class="form-input" placeholder="Какую деталь ищете? (Артикул, модель техники)" rows="4" required></textarea></div><button type="submit" class="btn-cart-order">Отправить запрос</button></form></div></div>
         
         <div id="lightbox" class="lightbox" onclick="closeLightbox(event)"><button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(event,-1)">&#10094;</button><span class="lightbox-close" onclick="closeLightbox(event)">&times;</span><img class="lightbox-content" id="lightboxImg" onerror="this.src='${SITE_CONFIG.placeholderImage}'"><button class="lightbox-nav lightbox-next" onclick="navigateLightbox(event,1)">&#10095;</button></div>
         <div id="toast-container"></div>
@@ -128,10 +183,21 @@ async function renderFavorites(){
     favs.forEach(p=>{
         const d=document.createElement('div');
         d.className='fav-item-grid';
-        const pr=formatPrice(p.price),n=p.name.replace(/'/g,"");
-        d.innerHTML=`<img src="${getImageUrl(p.images[0])}" class="fav-item-img" style="cursor:pointer" onclick="window.location.href='product.html?id=${p.id}'"><div style="overflow:hidden;cursor:pointer" onclick="window.location.href='product.html?id=${p.id}'"><div style="font-weight:bold;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div><div style="color:#aaa;font-size:12px;">${p.sku}</div><div style="color:var(--accent);font-weight:bold;font-size:13px;">${pr}</div></div><button class="btn-fav-cart" onclick="addToCart('${p.id}','${p.sku}','${n}','${pr}')">В КОРЗИНУ</button><button class="btn-remove" onclick="toggleFav('${p.id}');renderFavorites();">&times;</button>`;
+        const pr=formatPrice(p.price),n=escapeHtml(p.name).replace(/'/g,"");
+        d.innerHTML=`<img src="${getImageUrl(p.images[0])}" class="fav-item-img" style="cursor:pointer" onclick="window.location.href='product.html?id=${p.id}'"><div style="overflow:hidden;cursor:pointer" onclick="window.location.href='product.html?id=${p.id}'"><div style="font-weight:bold;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(p.name)}</div><div style="color:#aaa;font-size:12px;">${escapeHtml(p.sku)}</div><div style="color:var(--accent);font-weight:bold;font-size:13px;">${pr}</div></div><button class="btn-fav-cart" onclick="addToCart('${p.id}','${escapeHtml(p.sku)}','${n}','${pr}')">В КОРЗИНУ</button><button class="btn-remove" onclick="toggleFav('${p.id}');renderFavorites();">&times;</button>`;
         c.appendChild(d);
     });
+}
+
+// === НОВОЕ: НЕДАВНО ПРОСМОТРЕННЫЕ ===
+function saveRecentlyViewed(p) {
+    // Удаляем если уже есть, чтобы перенести в начало
+    recentlyViewed = recentlyViewed.filter(item => item.id !== p.id);
+    // Добавляем в начало
+    recentlyViewed.unshift({id: p.id, sku: p.sku, name: p.name, price: p.price, images: p.images});
+    // Оставляем только 5 последних
+    if (recentlyViewed.length > 5) recentlyViewed = recentlyViewed.slice(0, 5);
+    localStorage.setItem('rassvet_recent', JSON.stringify(recentlyViewed));
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
@@ -146,7 +212,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(cw)cw.onclick=()=>{cm.style.display='flex';window.updateCartUI();};
     if(cc)cc.onclick=()=>{cm.style.display='none';};if(co)co.onclick=()=>{om.style.display='none';};if(cob)cob.onclick=()=>{if(cart.length===0){window.showNotification('Пустая корзина');return;}cm.style.display='none';om.style.display='flex';};
     if(fw)fw.onclick=()=>{fm.style.display='flex';renderFavorites();};if(fc)fc.onclick=()=>{fm.style.display='none';};
-    window.onclick=e=>{if(e.target==cm)cm.style.display='none';if(e.target==om)om.style.display='none';if(e.target==fm)fm.style.display='none';};
+    window.onclick=e=>{if(e.target==cm)cm.style.display='none';if(e.target==om)om.style.display='none';if(e.target==fm)fm.style.display='none';
+    const nm=document.getElementById('notFoundModal');if(e.target==nm)nm.style.display='none';};
     
     const of=document.getElementById('orderForm');
     if(of){const op=document.getElementById('orderPhone'),on=document.getElementById('orderName'),oe=document.getElementById('orderEmail');if(op&&window.IMask)IMask(op,{mask:'+{7} (000) 000-00-00'});if(on)on.addEventListener('input',()=>validateInput(on,'name'));if(op)op.addEventListener('input',()=>validateInput(op,'phone'));if(oe)oe.addEventListener('input',()=>validateInput(oe,'email'));of.onsubmit=e=>{e.preventDefault();if(!validateInput(on,'name')||!validateInput(op,'phone')||!validateInput(oe,'email'))return;let m=`<b>Новый заказ!</b>\n<b>Имя:</b> ${on.value}\n<b>Тел:</b> ${op.value}\n`;if(oe.value)m+=`<b>Email:</b> ${oe.value}\n`;m+=`\n<b>Заказ:</b>\n`;let tm=0;cart.forEach(i=>{tm+=parsePrice(i.price)*i.quantity;m+=`- ${i.sku} ${i.name} (x${i.quantity})\n`;});m+=`\n<b>Сумма: ${new Intl.NumberFormat('ru-RU').format(tm)} ₽</b>`;sendOrderToTelegram(m,of);};}
@@ -181,17 +248,33 @@ document.addEventListener('DOMContentLoaded',()=>{
 
         function initCats(p){if(!cf)return;const c=['Все',...new Set(p.map(x=>x.category).filter(x=>x))];cf.innerHTML='';c.forEach(x=>{const b=document.createElement('button');b.className=x==='Все'?'cat-btn active':'cat-btn';b.textContent=x;b.onclick=()=>{document.querySelectorAll('.cat-btn').forEach(z=>z.classList.remove('active'));b.classList.add('active');cat=x==='Все'?'all':x;batch(true);};cf.appendChild(b);});}
         
-        // ОБНОВЛЕННАЯ ФУНКЦИЯ BATCH (ПОИСК ПО VIN + БЛОК НЕ НАШЛИ)
+        // ОБНОВЛЕННАЯ ФУНКЦИЯ BATCH С УМНЫМ ПОИСКОМ
         function batch(r=false){
             if(r){cg.innerHTML='';cnt=0;lmc.style.display='none';}
             const s=si?si.value.toLowerCase():'';
-            // ПОИСК: ТЕПЕРЬ ИЩЕМ И В ОПИСАНИИ (p.desc) ДЛЯ VIN И МОДЕЛЕЙ
-            const f=all.filter(p=>(cat==='all'||p.category===cat)&&(!s||p.name.toLowerCase().includes(s)||p.sku.toLowerCase().includes(s)||(p.desc&&p.desc.toLowerCase().includes(s))));
+            const cleanS = normalizeStr(s); // Очищаем запрос пользователя
+            
+            // УМНЫЙ ПОИСК: Сравниваем очищенный запрос с очищенными полями данных
+            const f=all.filter(p=>{
+                if(cat!=='all' && p.category!==cat) return false;
+                if(!s) return true;
+                
+                // Проверяем точное вхождение в имя (как раньше)
+                if (p.name.toLowerCase().includes(s)) return true;
+                
+                // Проверяем точное вхождение в описание
+                if (p.desc && p.desc.toLowerCase().includes(s)) return true;
+                
+                // Проверяем "умное" вхождение в артикул (без дефисов и пробелов)
+                if (normalizeStr(p.sku).includes(cleanS)) return true;
+                
+                return false;
+            });
             
             if(f.length===0){
                 // ПОКАЗЫВАЕМ БЛОК "НЕ НАШЛИ", ЕСЛИ ПУСТО
                 cg.innerHTML=`
-                    <div style="grid-column:1/-1;text-align:center;padding:40px;color:#ccc;">Ничего не найдено по запросу "${si.value}"</div>
+                    <div style="grid-column:1/-1;text-align:center;padding:40px;color:#ccc;">Ничего не найдено по запросу "${escapeHtml(si.value)}"</div>
                     <div class="not-found-block">
                         <h3 class="not-found-title">Не нашли нужную запчасть?</h3>
                         <p class="not-found-text">Оставьте заявку, мы проверим наличие и свяжемся с вами.</p>
@@ -223,12 +306,48 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(pd){
         const id=new URLSearchParams(window.location.search).get('id');
         if(!id){pd.innerHTML='<h2 style="text-align:center;color:#fff;">Товар не найден</h2>';return;}
-        (async function(){try{const all=await getCatalogData(),p=all.find(x=>x.id===id);if(p){renderProd(p);renderRel(all,p);document.title=`${p.name} | РАССВЕТ-С`;}else pd.innerHTML=`<h2 style="text-align:center;color:#fff;">Товар ${id} не найден</h2>`;}catch(e){console.error(e);pd.innerHTML='<h2 style="text-align:center;color:#fff;">Ошибка</h2>';}})();
+        (async function(){try{
+            const all=await getCatalogData(),p=all.find(x=>x.id===id);
+            if(p){
+                renderProd(p);
+                saveRecentlyViewed(p); // Сохраняем в историю
+                renderRel(all,p);
+                renderRecentlyViewedModule(); // Рисуем блок истории
+                document.title=`${p.name} | РАССВЕТ-С`;
+            } else pd.innerHTML=`<h2 style="text-align:center;color:#fff;">Товар ${id} не найден</h2>`;
+        }catch(e){console.error(e);pd.innerHTML='<h2 style="text-align:center;color:#fff;">Ошибка</h2>';}})();
         
-        // ОБНОВЛЕННАЯ ФУНКЦИЯ RENDER PROD (SEO + BREADCRUMBS + COPY + ИСПРАВЛЕННАЯ ВЕРСТКА)
+        // ОБНОВЛЕННАЯ ФУНКЦИЯ RENDER PROD
         function renderProd(p){
-            const m=getImageUrl(p.images[0]),pr=formatPrice(p.price),n=p.name.replace(/'/g,""),aj=JSON.stringify(p.images.map(x=>getImageUrl(x))).replace(/"/g,"&quot;");let th='';if(p.images.length>1){th='<div class="gallery-thumbs">';p.images.forEach((x,i)=>{const u=getImageUrl(x);th+=`<div class="gallery-thumb" onclick="changeMainImage('${u}',${i})"><img src="${u}"></div>`;});th+='</div>';}
+            // Безопасный вывод
+            const safeName = escapeHtml(p.name);
+            const safeSku = escapeHtml(p.sku);
+            const safeDesc = p.desc ? escapeHtml(p.desc) : 'Нет описания';
+            const n = safeName.replace(/'/g,"");
+            
+            const m=getImageUrl(p.images[0]),pr=formatPrice(p.price),aj=JSON.stringify(p.images.map(x=>getImageUrl(x))).replace(/"/g,"&quot;");let th='';if(p.images.length>1){th='<div class="gallery-thumbs">';p.images.forEach((x,i)=>{const u=getImageUrl(x);th+=`<div class="gallery-thumb" onclick="changeMainImage('${u}',${i})"><img src="${u}"></div>`;});th+='</div>';}
             const isF=favorites.includes(p.id)?'active':'';
+            
+            // ЛОГИКА ЦЕНЫ (КНОПКИ)
+            const priceVal = parsePrice(p.price);
+            let actionBtn = '';
+            
+            if (priceVal > 0) {
+                 actionBtn = `<button id="btn-add-${p.id}" onclick="addToCart('${p.id}','${safeSku}','${n}','${pr}')" class="btn-detail green">В КОРЗИНУ</button>`;
+            } else {
+                 actionBtn = `<button onclick="openRequestModal('${safeSku}','${n}')" class="btn-detail" style="background:#555; color:#fff;">УТОЧНИТЬ ЦЕНУ</button>`;
+            }
+
+            // ЛОГИКА WHATSAPP
+            let waLink = SITE_CONFIG.contacts.whatsapp || '';
+            let waBtn = '';
+            if (waLink) {
+                 if(waLink.includes('wa.me')) waLink += `?text=${encodeURIComponent('Здравствуйте, интересует деталь: ' + p.sku + ' ' + p.name)}`;
+                 waBtn = `<a href="${waLink}" target="_blank" class="btn-detail" style="background:#25D366; color:#fff; display:flex; align-items:center; justify-content:center; gap:8px; text-decoration:none;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></path></svg>
+                            В WhatsApp
+                          </a>`;
+            }
             
             // SEO SCHEMA (JSON-LD)
             const schemaData = {
@@ -251,32 +370,33 @@ document.addEventListener('DOMContentLoaded',()=>{
             sc.text = JSON.stringify(schemaData);
             document.head.appendChild(sc);
 
-            // BREADCRUMBS (Стрелочки > вместо слэшей)
+            // BREADCRUMBS
             const bread = `
             <div class="breadcrumbs">
                 <a href="index.html">Главная</a> <span class="sep">❯</span> 
                 <a href="index.html">Каталог</a> <span class="sep">❯</span> 
-                <span class="current">${p.sku}</span>
+                <span class="current">${safeSku}</span>
             </div>`;
 
-            // RENDER (Новая структура: Крошки сверху, затем product-card-body с контентом)
+            // RENDER
             pd.innerHTML=`
             <div class="product-full-card" data-product-id="${p.id}">
                 ${bread}
                 <div class="product-card-body">
                     <div class="gallery-container" style="flex:1;min-width:300px;">
                         <div class="full-img-wrapper" id="mainImgWrapper" onclick="openLightbox(${aj},0)">
-                            <img id="productMainImg" src="${m}" alt="${p.name}" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
+                            <img id="productMainImg" src="${m}" alt="${safeName}" onerror="this.src='${SITE_CONFIG.placeholderImage}'">
                         </div>
                         ${th}
                     </div>
                     <div class="full-info">
-                        <div class="full-sku copy-sku" onclick="copyToClipboard('${p.sku}')" title="Копировать" style="display:inline-block; width:auto;">АРТИКУЛ: ${p.sku}</div>
-                        <h1 class="full-title">${p.name}</h1>
+                        <div class="full-sku copy-sku" onclick="copyToClipboard('${safeSku}')" title="Копировать" style="display:inline-block; width:auto;">АРТИКУЛ: ${safeSku}</div>
+                        <h1 class="full-title">${safeName}</h1>
                         <div class="full-price">${pr}</div>
                         <div class="full-actions-group">
                             <a href="index.html" class="btn-detail blue">В КАТАЛОГ</a>
-                            <button id="btn-add-${p.id}" onclick="addToCart('${p.id}','${p.sku}','${n}','${pr}')" class="btn-detail green">В КОРЗИНУ</button>
+                            ${actionBtn}
+                            ${waBtn}
                             <button class="btn-fav-full ${isF}" onclick="toggleFav('${p.id}',event)" data-fav-id="${p.id}">
                                 <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                             </button>
@@ -287,8 +407,8 @@ document.addEventListener('DOMContentLoaded',()=>{
                             </div>
                         </div>
                         <div class="full-desc">
-                            <strong>Описание:</strong><br>${p.desc||'Нет описания'}<br><br>
-                            <strong>Категория:</strong> ${p.category||'-'}
+                            <strong>Описание:</strong><br>${safeDesc}<br><br>
+                            <strong>Категория:</strong> ${escapeHtml(p.category)||'-'}
                         </div>
                     </div>
                 </div>
@@ -304,6 +424,43 @@ document.addEventListener('DOMContentLoaded',()=>{
             cw.style.display='block';rc.innerHTML='';
             rel.forEach(p=>{const d=document.createElement('div');d.className='product-card';d.setAttribute('data-product-id',p.id);d.innerHTML=createCardHtml(p);rc.appendChild(d);});
             if(window.syncButtonsWithCart)window.syncButtonsWithCart();updateFavUI();
+        }
+        
+        // РЕНДЕР БЛОКА "НЕДАВНО ПРОСМОТРЕННЫЕ"
+        function renderRecentlyViewedModule(){
+             // Ищем или создаем контейнер
+             let container = document.getElementById('recentContainer');
+             if(!container) {
+                 const relContainer = document.getElementById('relatedContainer');
+                 if(relContainer) {
+                     container = document.createElement('div');
+                     container.id = 'recentContainer';
+                     container.style.marginTop = '40px';
+                     container.style.display = 'none';
+                     container.innerHTML = `<h3 class="section-header" style="font-size: 22px; margin-bottom: 20px; border-left-width: 4px;">Вы недавно смотрели</h3><div id="recentProducts" class="catalog-grid"></div>`;
+                     relContainer.parentNode.insertBefore(container, relContainer.nextSibling);
+                 }
+             }
+             
+             if(!container) return;
+             const grid = document.getElementById('recentProducts');
+             // Фильтруем, чтобы не показывать текущий товар в недавних (опционально)
+             const currentId = new URLSearchParams(window.location.search).get('id');
+             const list = recentlyViewed.filter(x => x.id !== currentId);
+             
+             if(list.length === 0) {
+                 container.style.display = 'none';
+             } else {
+                 container.style.display = 'block';
+                 grid.innerHTML = '';
+                 list.forEach(p => {
+                     const d = document.createElement('div');
+                     d.className = 'product-card';
+                     d.setAttribute('data-product-id', p.id);
+                     d.innerHTML = createCardHtml(p);
+                     grid.appendChild(d);
+                 });
+             }
         }
     }
 
